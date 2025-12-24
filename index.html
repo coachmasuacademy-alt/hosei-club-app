@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>バドミントンクラブ業務管理</title>
+  
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* --- 基本スタイル --- */
+    body { font-family: "Noto Sans JP", sans-serif; margin: 0; padding: 0; background-color: #f4f7f6; color: #333; font-size: 16px; line-height: 1.6; }
+    
+    /* ヘッダー */
+    header { background: linear-gradient(135deg, #FF9966 0%, #FF5E62 100%); padding: 20px; color: white; text-align: center; border-radius: 0 0 20px 20px; box-shadow: 0 4px 10px rgba(255, 94, 98, 0.3); margin-bottom: 20px; }
+    h1 { font-size: 20px; margin: 0; letter-spacing: 1px; text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+
+    /* ナビゲーション */
+    .nav-container { overflow-x: auto; white-space: nowrap; padding: 0 15px 15px 15px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+    .nav-container::-webkit-scrollbar { display: none; }
+    .nav-item { display: inline-block; padding: 10px 18px; margin-right: 8px; background: white; border: 1px solid #eee; border-radius: 25px; font-weight: bold; color: #666; cursor: pointer; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: all 0.2s ease; }
+    .nav-item.active { background: #333; color: white; border-color: #333; transform: scale(1.05); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+
+    /* コンテンツエリア */
+    .content-wrapper { padding: 0 15px 80px 15px; }
+    .card-section { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 5px 15px rgba(0,0,0,0.03); margin-bottom: 30px; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+    h2 { font-size: 18px; color: #444; border-left: 5px solid #FF9966; padding-left: 10px; margin-top: 0; margin-bottom: 20px; }
+    label { font-weight: bold; display: block; margin-top: 15px; margin-bottom: 5px; color: #555; font-size: 14px; }
+    
+    /* フォーム */
+    select, input, textarea { width: 100%; padding: 12px 15px; font-size: 16px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; background-color: #f9f9f9; transition: border-color 0.3s; appearance: none; }
+    select:focus, input:focus, textarea:focus { border-color: #FF9966; outline: none; background-color: #fff; box-shadow: 0 0 0 3px rgba(255, 153, 102, 0.1); }
+    textarea { min-height: 80px; resize: vertical; }
+    
+    /* ボタン */
+    button { width: 100%; padding: 14px; font-size: 16px; font-weight: bold; color: white; background-color: #FF9966; border: none; border-radius: 50px; cursor: pointer; margin-top: 25px; box-shadow: 0 4px 10px rgba(255, 153, 102, 0.3); transition: all 0.2s ease; }
+    button:active { transform: scale(0.98); box-shadow: 0 2px 5px rgba(255, 153, 102, 0.3); }
+    
+    /* テーブル */
+    .table-container { overflow-x: auto; margin-top: 20px; border-radius: 8px; border: 1px solid #eee; }
+    table { width: 100%; border-collapse: collapse; background: white; min-width: 600px; }
+    th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; font-size: 14px; }
+    th { background-color: #fafafa; color: #666; font-weight: bold; white-space: nowrap; }
+    td.delete-col button { padding: 6px 12px; font-size: 12px; margin-top: 0; width: auto; border-radius: 6px; background-color: #6c757d; box-shadow: none; }
+    td.delete-col button:first-child { background-color: #17a2b8; margin-right: 5px; }
+    td.delete-col button:last-child { background-color: #dc3545; }
+    tr.other-completed { background-color: #f9f9f9; color: #aaa; }
+
+    /* ローディング・通知 */
+    #loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); display: none; justify-content: center; align-items: center; z-index: 9999; font-weight: bold; color: #FF9966; font-size: 1.2em; }
+    #cache-notice { display:none; font-size: 0.8em; color: #888; text-align: center; margin-bottom: 15px; background: rgba(255,255,255,0.9); padding: 5px 15px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: inline-block; }
+    .notice-wrapper { text-align: center; margin-top: -10px; margin-bottom: 10px; }
+    
+    /* メンバー一覧 */
+    .member-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
+    .member-card { background: white; border: 1px solid #f0f0f0; border-radius: 12px; padding: 15px 10px; text-align: center; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+    .member-card:active { transform: scale(0.96); background: #fdfdfd; border-color: #FF9966; }
+    .member-name { font-weight: bold; font-size: 1.1em; display: block; margin-bottom: 3px; color: #333; }
+    .member-grade { font-size: 0.8em; color: #999; }
+    
+    /* 個人入力モーダル */
+    #individualModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:2000; overflow-y:auto; padding-bottom:80px; }
+    .ind-header { position: sticky; top:0; background:rgba(255,255,255,0.95); backdrop-filter: blur(5px); border-bottom:1px solid #eee; padding:15px; display:flex; justify-content:space-between; align-items:center; z-index:10; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .ind-content { padding: 15px; max-width:600px; margin:0 auto; }
+    .ind-row { display:flex; align-items:center; justify-content:space-between; padding:15px 0; border-bottom:1px solid #f4f4f4; }
+    .ind-info { flex:1; }
+    .ind-btns { display:flex; gap:8px; }
+    .ind-btn { padding:10px 14px; border:1px solid #eee; background:white; border-radius:12px; font-size:14px; color:#ccc; cursor:pointer; width:auto; margin:0; box-shadow:none; font-weight:bold; }
+    .ind-btn.active.present { background:#28a745; color:white; border-color:#28a745; box-shadow: 0 2px 5px rgba(40, 167, 69, 0.3); }
+    .ind-btn.active.absent { background:#dc3545; color:white; border-color:#dc3545; box-shadow: 0 2px 5px rgba(220, 53, 69, 0.3); }
+    .ind-btn.active.unknown { background:#eee; color:#555; border-color:#ddd; }
+
+    /* 参加者まとめ */
+    .summary-box { margin-bottom: 15px; padding: 15px; background: white; border-radius: 12px; border-left: 5px solid #ccc; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
+    .summary-box.club { border-left-color: #FF9966; }
+    .summary-box.fed { border-left-color: #17a2b8; }
+    .summary-box.skill { border-left-color: #6610f2; }
+    .summary-header { font-weight: bold; margin-bottom: 8px; display: flex; justify-content: space-between; align-items:center; }
+    .summary-count { font-size: 0.9em; color: white; background: #333; padding: 3px 12px; border-radius: 20px; font-weight:bold; }
+    .summary-names { font-size: 0.95em; color: #555; line-height: 1.6; }
+
+    /* 名簿テーブル専用 */
+    #memberTable th, #memberTable td { text-align: center; }
+    #memberTable th:nth-child(1) { width: 20%; }
+    #memberTable th:nth-child(2) { width: 50%; }
+    #memberTable th:nth-child(3) { width: 30%; }
+
+    /* マトリクス用（裏で使用） */
+    .matrix-table { min-width: 800px; display:none; } 
+
+    @media (max-width: 600px) {
+       h1 { font-size: 18px; }
+       .member-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+/* チェックボックス用のスタイル */
+    .checkbox-container { 
+        display: flex; 
+        flex-wrap: wrap; 
+        gap: 8px; 
+        margin-top: 10px; 
+        margin-bottom: 20px; 
+    }
+    
+    .checkbox-label { 
+        display: inline-block; 
+        padding: 10px 16px; 
+        background: #fff; 
+        border: 1px solid #ddd; 
+        border-radius: 20px; 
+        cursor: pointer; 
+        font-size: 14px; 
+        color: #555;
+        transition: all 0.2s ease;
+        user-select: none; /* 文字選択を防ぐ */
+    }
+
+    /* チェックボックス本体は見えなくする（機能は残る） */
+    .checkbox-label input { 
+        display: none; 
+    }
+
+    /* 選択された時のスタイル（背景オレンジ・文字白） */
+    .checkbox-label:has(input:checked) {
+        background-color: #FF9966;
+        color: white;
+        border-color: #FF9966;
+        font-weight: bold;
+        box-shadow: 0 2px 5px rgba(255, 153, 102, 0.4);
+    }
+  </style>
+</head>
+<body>
+  <script>
+    // ▼▼▼ GASのURL（お客様のURL） ▼▼▼
+    const SHEET_URL = "https://script.google.com/macros/s/AKfycbxABtZPy9LwKoLEBZeEC-RcIvHjA2KtW3WPaCwdCKlKiI2lIC2EG7Z-C91mX-G0rH5W/exec"; 
+  </script>
+
+  <div id="loading"><div style="text-align:center;"><div style="margin-bottom:10px;">処理中...</div><div style="font-size:0.8em; color:#999;">しばらくお待ちください</div></div></div>
+  
+  <header>
+    <h1>法政Jr.バドミントン<br>クラブ管理</h1>
+  </header>
+
+  <div class="notice-wrapper"><div id="cache-notice">データを更新中...</div></div>
+  
+  <div class="nav-container">
+    <div class="nav-item active" onclick="switchCategory('attendance', this)">📅 出欠確認</div>
+    <div class="nav-item" onclick="switchCategory('carry', this)">🚙 道具運搬</div>
+    <div class="nav-item" onclick="switchCategory('skyArena', this)">🏟️ スカイアリーナ座間</div>
+    <div class="nav-item" onclick="switchCategory('tournament', this)">🏆 大会申込</div>
+    <div class="nav-item" onclick="switchCategory('other', this)">📝 その他</div>
+    <div class="nav-item" onclick="switchCategory('member', this)">👥 名簿</div>
+  </div>
+
+  <div class="content-wrapper">
+    <div id="attendanceSection" class="card-section">
+      <h2>出欠確認</h2>
+      <p style="font-size:0.9em; color:#666; margin-bottom:20px;">氏名をタップして、今後の出欠を入力してください。</p>
+      <div id="memberListContainer" class="member-grid"></div>
+      <div id="matrixError" style="color:red; margin-top:10px; display:none;">※データの読み込みに失敗しました。GASが最新版か確認してください。</div>
+      <div style="margin-top:40px;">
+        <h2>参加予定リスト</h2>
+        <div id="attendanceSummary"></div>
+      </div>
+      <table id="matrixTable" class="matrix-table"><thead><tr id="matrixHeader"></tr></thead><tbody id="matrixBody"></tbody></table>
+    </div>
+
+    <div id="carrySection" class="card-section" style="display:none;">
+      <h2>道具運搬管理</h2>
+      <label>練習日</label>
+      <select id="dateSelect" onchange="updateGym()"><option value="">選択してください</option></select>
+      <label>体育館</label>
+      <input type="text" id="gym" readonly style="background-color:#eee;">
+      
+      <label>担当者</label>
+      <input type="text" id="person" placeholder="名前を入力">
+      <label>持参物</label>
+      <div id="carryItemsBox" class="checkbox-container">
+        <label class="checkbox-label"><input type="checkbox" value="ネット"> ネット</label>
+        <label class="checkbox-label"><input type="checkbox" value="ノックケース"> ノックケース</label>
+        <label class="checkbox-label"><input type="checkbox" value="ラダー"> ラダー</label>
+        <label class="checkbox-label"><input type="checkbox" value="ニューシャトル"> ニューシャトル</label>
+        <label class="checkbox-label"><input type="checkbox" value="タイマー"> タイマー</label>
+        <label class="checkbox-label"><input type="checkbox" value="受付"> 受付</label>
+      </div>
+      
+      <button type="button" onclick="submitForm()">この内容で登録する</button>
+      
+      <div style="margin-top:30px; border-top:1px solid #eee; padding-top:20px;">
+        <h2>登録済み一覧</h2>
+        <div class="table-container"><table id="listTable"><thead><tr><th>日付</th><th>体育館</th><th>担当者</th><th>持参物</th><th class="delete-col">編集</th><th class="delete-col">削除</th></tr></thead><tbody></tbody></table></div>
+      </div>
+    </div>
+
+    <div id="skyArenaSection" class="card-section" style="display:none;">
+      <h2>スカイアリーナ座間タスク</h2>
+      <label>対象月</label>
+      <input type="month" id="arenaMonth">
+      <label>タスク内容</label>
+      <select id="arenaTask">
+        <option value="抽選予約（体育館の機械）">抽選予約（体育館の機械）</option>
+        <option value="追加予約（電話）">追加予約（電話）</option>
+        <option value="仮予約表の受け取り（抽選予約）">仮予約表の受け取り（抽選予約）</option>
+        <option value="仮予約表の受け取り（追加予約）">仮予約表の受け取り（追加予約）</option>
+        <option value="使用料の支払い">使用料の支払い</option>
+        <option value="カレンダーの確認">カレンダーの確認</option>
+      </select>
+      <label>担当者</label>
+      <input type="text" id="arenaPerson" placeholder="名前を入力">
+      <label>完了状況</label>
+      <select id="arenaCompleted"><option value="false">⬜ 未完了</option><option value="true">✅ 完了</option></select>
+      <label>写真 (任意・Firebase保存)</label>
+      <input type="file" id="arenaPhoto" accept="image/*" style="padding:10px; border:1px dashed #ccc;">
+      <button type="button" onclick="addArenaTask()">タスクを登録する</button>
+      <div style="margin-top:30px;">
+        <h2>タスク一覧</h2>
+        <button type="button" onclick="forceReloadArena()" style="margin-top:0; padding:8px 16px; font-size:12px; width:auto; background:#666; box-shadow:none; color:white; border:none; border-radius:20px;">データを再読み込み</button>
+        <div class="table-container">
+          <table id="arenaTable"><thead><tr><th>No</th><th>月</th><th>タスク</th><th>担当者</th><th>完了</th><th>写真</th><th class="delete-col">編集</th><th class="delete-col">削除</th></tr></thead><tbody></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <div id="tournamentSection" class="card-section" style="display:none;">
+      <h2>大会申込</h2>
+      <label>大会名</label>
+      <input type="text" id="tournamentName" placeholder="大会名を入力">
+      <label>申込期限</label>
+      <input type="date" id="deadline">
+      <label>担当者</label>
+      <input type="text" id="tournamentPerson" placeholder="名前を入力">
+      <label>状況</label>
+      <select id="status"><option value="申込予定">申込予定</option><option value="申請中">申請中</option><option value="申込完了">申込完了</option></select>
+      <button type="button" onclick="submitTournament()">登録する</button>
+      <div style="margin-top:30px;">
+        <h2>申込一覧</h2>
+        <div class="table-container"><table id="tournamentTable"><thead><tr><th>大会名</th><th>申込期限</th><th>担当者</th><th>状況</th><th class="delete-col">編集</th><th class="delete-col">削除</th></tr></thead><tbody></tbody></table></div>
+      </div>
+    </div>
+
+    <div id="otherSection" class="card-section" style="display:none;">
+      <h2>その他連絡事項</h2>
+      <label>タイトル</label>
+      <input type="text" id="otherTitle">
+      <label>内容</label>
+      <textarea id="otherContent" rows="3"></textarea>
+      <label>担当者</label>
+      <input type="text" id="otherPerson">
+      <label>状況</label>
+      <input type="text" id="otherStatus" placeholder="例：確認中、完了など">
+      <button type="button" onclick="saveOtherData()">登録する</button>
+      <div style="margin-top:30px;">
+        <h2>その他一覧</h2>
+        <div class="table-container"><table id="otherList"><thead><tr><th>タイトル</th><th>内容</th><th>担当者</th><th>状況</th><th class="delete-col">編集</th><th class="delete-col">削除</th></tr></thead><tbody></tbody></table></div>
+      </div>
+    </div>
+
+    <div id="memberSection" class="card-section" style="display:none;">
+      <h2>クラブ名簿</h2>
+      <div class="table-container">
+        <table id="memberTable"><thead><tr><th>番号</th><th>氏名</th><th>学年</th></tr></thead><tbody></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <div id="individualModal"><div class="ind-header"><h3 id="indModalTitle" style="margin:0;">氏名</h3><button style="width:auto; margin:0; padding:8px 16px; background:#f0f0f0; color:#333; border:1px solid #ddd; box-shadow:none;" onclick="closeIndModal()">閉じる</button></div><div class="ind-content" id="indList"></div><div style="padding:15px; background:rgba(255,255,255,0.95); text-align:center; position:sticky; bottom:0; border-top:1px solid #eee;"><button type="button" onclick="saveIndData()" style="width:100%; max-width:400px; margin-top:0;">この内容で保存する</button></div></div>
+  <div id="photoModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); justify-content:center; align-items:center; z-index:3000;"><img id="modalImage" src="" style="max-width:95%; max-height:80%; border-radius:8px; box-shadow:0 0 20px rgba(255,255,255,0.2);"><div style="position:absolute; bottom:30px; color:white; font-size:14px;">画像をタップして閉じる</div></div>
+
+  <script>
+    // ▼▼▼ Firebaseの設定（お客様のキーを埋め込み済み） ▼▼▼
+    const firebaseConfig = {
+      apiKey: "AIzaSyD-lU05Tehd0G9FVNvB74Qy8aKp4viC8Y8",
+      authDomain: "badminton-club-app-cadc8.firebaseapp.com",
+      projectId: "badminton-club-app-cadc8",
+      storageBucket: "badminton-club-app-cadc8.firebasestorage.app",
+      messagingSenderId: "680556351504",
+      appId: "1:680556351504:web:93a9d9b8915e5530beba95"
+    };
+    
+    // Firebase初期化
+    let storage;
+    try {
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
+      storage = firebase.storage();
+    } catch (e) {
+      console.error("Firebase Init Error:", e);
+    }
+
+    // キャッシュキー定数
+    const CACHE_KEY_SCHEDULE = 'badminton_schedule_v1';
+    const CACHE_KEY_CARRY = 'badminton_carry_v1';
+    const CACHE_KEY_ARENA = 'badminton_arena_v1';
+    const CACHE_KEY_TOURNAMENT = 'badminton_tournament_v1';
+    const CACHE_KEY_OTHER = 'badminton_other_v1';
+
+    // グローバル変数
+    let sheetData=[], arenaData=[], memberData=[], weeklyEvents=[], weeklyMembers=[], weeklyStatus={};
+    let currentIndMember = null;
+
+    // 基本関数
+    async function callGas(action, params = {}) {
+        if (!SHEET_URL.startsWith("http")) { alert("SHEET_URLエラー"); return; }
+        const payload = { action: action, ...params };
+        try {
+            const response = await fetch(SHEET_URL, { method: "POST", body: JSON.stringify(payload) });
+            return await response.json();
+        } catch (error) { console.error("GAS Error:", error); return null; }
+    }
+    function safeSetStorage(key, value) { try { localStorage.setItem(key, value); } catch (e) { console.warn("Quota Exceeded", e); } }
+    function showLoading(show) { document.getElementById("loading").style.display = show ? "flex" : "none"; }
+
+    // 初期化
+    document.addEventListener("DOMContentLoaded", async () => {
+      switchCategory('attendance', document.querySelector('.nav-item.active'));
+      // 並列読み込み
+      await Promise.all([ loadWeeklyMatrix(), loadSchedule(), fetchArenaData(), loadMemberList() ]);
+    });
+
+    // カテゴリ切り替え
+    function switchCategory(category, btnElement) {
+      const sections = ["attendanceSection", "carrySection", "tournamentSection", "otherSection", "skyArenaSection", "memberSection"];
+      sections.forEach(id => {
+          const el = document.getElementById(id);
+          if(el) el.style.display = "none";
+      });
+      
+      const target = document.getElementById(category + "Section");
+      if(!target && category === "skyArena") document.getElementById("skyArenaSection").style.display = "block";
+      else if(target) target.style.display = "block";
+
+      if (category === "carry") loadList();
+      else if (category === "tournament") loadTournamentList();
+      else if (category === "other") loadOtherList();
+      else if (category === "skyArena") { 
+         // アリーナの場合、データが無ければ取得、あれば表示
+         if(!arenaData || arenaData.length === 0) fetchArenaData(); 
+         else loadArenaList(); 
+      }
+      else if (category === "member") renderMemberTable();
+
+      const navItems = document.querySelectorAll(".nav-item");
+      navItems.forEach(item => item.classList.remove("active"));
+      if(btnElement) btnElement.classList.add("active");
+    }
+
+    // --- 各種データ読み込み関数 ---
+    
+    // 名簿
+    async function loadMemberList() { const data = await callGas('getMemberList'); if (data) { memberData = data; renderMemberTable(); } }
+    function renderMemberTable() { const tbody = document.querySelector("#memberTable tbody"); tbody.innerHTML = ""; if (!memberData || memberData.length === 0) { tbody.innerHTML = "<tr><td colspan='3'>読み込み中...</td></tr>"; return; } memberData.forEach(m => { const tr = document.createElement("tr"); tr.innerHTML = `<td>${m.no}</td><td>${escapeHtml(m.name)}</td><td>${escapeHtml(m.grade)}</td>`; tbody.appendChild(tr); }); }
+
+    // 出欠マトリクス
+    async function loadWeeklyMatrix() { 
+      const data = await callGas('getWeeklyMatrix'); 
+      if(!data || !data.events) { 
+          const errDiv = document.getElementById("matrixError");
+          if(errDiv) errDiv.style.display = "block"; 
+          return; 
+      } 
+      const errDiv = document.getElementById("matrixError");
+      if(errDiv) errDiv.style.display = "none"; 
+      weeklyEvents = data.events || []; weeklyMembers = data.members || []; weeklyStatus = data.currentStatus || {}; renderMemberButtons(); renderSummary(); 
+    }
+    function renderMemberButtons() { const container = document.getElementById("memberListContainer"); container.innerHTML = ""; if (weeklyMembers.length === 0) { container.innerHTML = "<p>メンバーがいません</p>"; return; } weeklyMembers.forEach((m, idx) => { const card = document.createElement("div"); card.className = "member-card"; card.onclick = () => openIndModal(idx); card.innerHTML = `<span class="member-name">${m.name}</span><span class="member-grade">${m.grade}</span>`; container.appendChild(card); }); }
+    
+    // 個人モーダル処理
+    function openIndModal(memberIndex) { currentIndMember = weeklyMembers[memberIndex]; document.getElementById("indModalTitle").innerText = `${currentIndMember.name} さんの出欠`; const container = document.getElementById("indList"); container.innerHTML = ""; weeklyEvents.forEach((evt, idx) => { let isTarget = false; if(evt.group === 'club' && currentIndMember.isClub) isTarget = true; if(evt.group === 'federation' && currentIndMember.isFed) isTarget = true; if(evt.group === 'skillup' && currentIndMember.isSkill) isTarget = true; if(isTarget) { const key = `${evt.dateKey}_${evt.fullTitle}_${currentIndMember.name}`; const status = weeklyStatus[key] || "未定"; let labelColor = "black"; let groupLabel = ""; if(evt.group === 'club') { labelColor = "#FF9966"; groupLabel = "【クラブ】"; } if(evt.group === 'federation') { labelColor = "#17a2b8"; groupLabel = "【中学生練習】"; } if(evt.group === 'skillup') { labelColor = "#6610f2"; groupLabel = "【スキルアップ】"; } const div = document.createElement("div"); div.className = "ind-row"; div.innerHTML = `<div class="ind-info"><div style="font-size:0.8em; color:${labelColor}; font-weight:bold;">${groupLabel} ${evt.start}</div><div style="font-size:0.95em;">${evt.title}</div></div><div class="ind-btns" id="ind-btn-group-${idx}"><button class="ind-btn present ${status==='出席'?'active':''}" onclick="setIndStatus(${idx}, '出席')">出</button><button class="ind-btn absent ${status==='欠席'?'active':''}" onclick="setIndStatus(${idx}, '欠席')">欠</button><button class="ind-btn unknown ${status==='未定'?'active':''}" onclick="setIndStatus(${idx}, '未定')">?</button></div>`; div.dataset.eventIndex = idx; container.appendChild(div); } }); document.getElementById("individualModal").style.display = "block"; }
+    function setIndStatus(idx, status) { const group = document.getElementById(`ind-btn-group-${idx}`); const btns = group.querySelectorAll('.ind-btn'); btns.forEach(b => b.classList.remove('active')); if(status === '出席') group.querySelector('.present').classList.add('active'); if(status === '欠席') group.querySelector('.absent').classList.add('active'); if(status === '未定') group.querySelector('.unknown').classList.add('active'); group.dataset.status = status; }
+    function closeIndModal() { document.getElementById("individualModal").style.display = "none"; }
+    async function saveIndData() { const container = document.getElementById("indList"); const rows = container.querySelectorAll(".ind-row"); let updates = []; rows.forEach(row => { const idx = row.dataset.eventIndex; const evt = weeklyEvents[idx]; const btnGroup = row.querySelector(".ind-btns"); const status = btnGroup.dataset.status || "未定"; if(status !== "未定") { updates.push({ date: evt.dateKey, title: evt.fullTitle, name: currentIndMember.name, status: status }); } }); if (updates.length === 0) { alert("保存する内容がありません（全て未定です）"); return; } showLoading(true); const res = await callGas('saveBulkAttendance', { updates: updates }); showLoading(false); if(res) { alert(res); closeIndModal(); loadWeeklyMatrix(); } }
+    
+    // 参加者集計
+    function renderSummary() { const container = document.getElementById("attendanceSummary"); container.innerHTML = ""; if (!weeklyEvents || weeklyEvents.length === 0) return; weeklyEvents.forEach(evt => { const attendees = []; weeklyMembers.forEach(m => { const key = `${evt.dateKey}_${evt.fullTitle}_${m.name}`; if (weeklyStatus[key] === "出席") { attendees.push(m.name); } }); if (attendees.length > 0) { const div = document.createElement("div"); let cls = ""; let label = ""; if(evt.group === 'club') { cls = "club"; label = "【クラブ】"; } if(evt.group === 'federation') { cls = "fed"; label = "【中学生練習】"; } if(evt.group === 'skillup') { cls = "skill"; label = "【スキルアップ】"; } div.className = `summary-box ${cls}`; div.innerHTML = `<div class="summary-header"><span>${label} ${evt.start} ${evt.title}</span><span class="summary-count">${attendees.length}名</span></div><div class="summary-names">${attendees.join("、 ")}</div>`; container.appendChild(div); } }); if (container.innerHTML === "") { container.innerHTML = "<p style='color:#999; text-align:center;'>現在、出席予定者はいません。</p>"; } }
+
+    // 道具運搬
+    async function loadSchedule() { const cache = localStorage.getItem(CACHE_KEY_SCHEDULE); if (cache) renderScheduleOptions(JSON.parse(cache)); const data = await callGas('getScheduleList'); if (data) { safeSetStorage(CACHE_KEY_SCHEDULE, JSON.stringify(data)); renderScheduleOptions(data); } }
+    function renderScheduleOptions(data) { const dateSelect = document.getElementById("dateSelect"); const currentVal = dateSelect.value; dateSelect.innerHTML = '<option value="">選択してください</option>'; data.forEach(r => { const option = document.createElement("option"); const dateStr = formatDate(r.date); option.value = dateStr; option.textContent = `${dateStr}（${r.gym}）`; option.dataset.gym = r.gym; dateSelect.appendChild(option); }); if (currentVal) dateSelect.value = currentVal; updateGym(); }
+    function updateGym() { const dateSelect = document.getElementById("dateSelect"); const gymInput = document.getElementById("gym"); const selectedOption = dateSelect.options[dateSelect.selectedIndex]; gymInput.value = selectedOption ? (selectedOption.dataset.gym || "") : ""; }
+    async function loadList() {
+      const cache = localStorage.getItem(CACHE_KEY_CARRY);
+      const notice = document.getElementById("cache-notice");
+
+      if (cache) {
+        sheetData = JSON.parse(cache);
+        renderCarryTable(sheetData);
+        // ★変更：メッセージを「データ取得中...」にする
+        notice.style.display = "inline-block";
+        notice.innerText = "データ取得中...";
+      }
+
+      const newData = await callGas('getCarryList');
+      if (newData) {
+        // ★変更：完了したら「データ取得済み」にして、2秒後に消す
+        notice.innerText = "データ取得済み";
+        setTimeout(() => { notice.style.display = "none"; }, 2000);
+
+        sheetData = newData;
+        safeSetStorage(CACHE_KEY_CARRY, JSON.stringify(newData));
+        renderCarryTable(sheetData);
+      }
+    }
+    
+function renderCarryTable(data) { const carryData = [...data]; carryData.sort((a, b) => { const dateA = new Date(a.date.replace(/\(.+\)/, "")); const dateB = new Date(b.date.replace(/\(.+\)/, "")); if (dateA - dateB !== 0) return dateA - dateB; return a.gym.localeCompare(b.gym, "ja"); }); const tableBody = document.querySelector("#listTable tbody"); tableBody.innerHTML = ""; carryData.forEach(m => { const cleanDate = formatDate(m.date); const row = document.createElement("tr"); row.innerHTML = `<td>${cleanDate}</td><td>${m.gym}</td><td>${m.person}</td><td>${m.items ? m.items : ''}</td><td class="delete-col"><button type="button" onclick="editCarryItem(${m.row}, '${cleanDate}', '${m.gym}', '${m.person}', '${m.items ? m.items.replace(/'/g,"\\'") : ''}')">編集</button></td><td class="delete-col"><button type="button" onclick="deleteCarryItem(${m.row})">削除</button></td>`; tableBody.appendChild(row); }); }
+    
+async function submitForm() {
+      const date = document.getElementById("dateSelect").value;
+      const gym = document.getElementById("gym").value;
+      const person = document.getElementById("person").value;
+      
+      // チェックボックスの値を収集
+      const checkboxes = document.querySelectorAll('#carryItemsBox input[type="checkbox"]:checked');
+      const itemsArr = Array.from(checkboxes).map(cb => cb.value);
+      const items = itemsArr.join("、"); // 「、」でつなぐ
+
+      if (!date || !person) return alert("練習日・担当者を入力してください。");
+      
+      showLoading(true);
+      const res = await callGas('saveCarryItem', {date, gym, person, items});
+      
+      if (res) {
+        alert(res);
+        // 入力欄をクリア
+        document.getElementById("person").value = "";
+        document.querySelectorAll('#carryItemsBox input').forEach(cb => cb.checked = false);
+        
+        await loadList();
+      }
+      showLoading(false);
+    }
+
+    function editCarryItem(row, date, gym, person, items) { const tbody = document.querySelector("#listTable tbody"); const tr = Array.from(tbody.children).find(tr => tr.innerHTML.includes(`editCarryItem(${row}`)); if (!tr) return; tr.innerHTML = `<td>${date}</td><td>${gym}</td><td><input type="text" id="editPerson${row}" value="${person}" style="width:90%"></td><td><textarea id="editCarryItems${row}" style="width:95%; height:40px;">${items ? items : ""}</textarea></td><td colspan="2" class="delete-col"><button type="button" onclick="saveEditItem(${row}, '${date}', '${gym}')">保存</button><button type="button" onclick="loadList()">中止</button></td>`; }
+    async function saveEditItem(row, date, gym) { const person = document.getElementById(`editPerson${row}`).value; const items = document.getElementById(`editCarryItems${row}`).value; if (!person || !items) return alert("担当者と持参物を入力してください。"); showLoading(true); const res = await callGas('updateCarryItem', {row, date, gym, person, items}); if (res) { alert(res); await loadList(); } showLoading(false); }
+    async function deleteCarryItem(row) { if (confirm("この登録を削除しますか？")) { showLoading(true); const res = await callGas('deleteCarryItem', {row}); if (res) { alert(res); await loadList(); } showLoading(false); } }
+    
+    // 大会申込
+    async function loadTournamentList() { 
+const cache = localStorage.getItem(CACHE_KEY_TOURNAMENT); 
+if (cache) { renderTournamentTable(JSON.parse(cache)); } 
+const data = await callGas('getTournamentList'); 
+if (data) { safeSetStorage(CACHE_KEY_TOURNAMENT, JSON.stringify(data)); renderTournamentTable(data); } }
+    
+
+function renderTournamentTable(data) { 
+      const tbody = document.querySelector("#tournamentTable tbody"); 
+      tbody.innerHTML = ""; 
+      data.forEach(r => { 
+        const cleanDate = formatDate(r.deadline); 
+        const tr = document.createElement("tr"); 
+        
+        // ★修正：緑色の直接指定をやめて、グレーのクラス(other-completed)を追加
+        if (r.status === "申込完了") {
+            tr.classList.add("other-completed");
+        }
+        
+        tr.innerHTML = `<td>${r.name}</td><td>${cleanDate}</td><td>${r.person}</td><td>${r.status}</td><td class="delete-col">
+<button type="button" onclick="editTournament(${r.row}, '${r.name}', '${cleanDate}', '${r.person}', '${r.status}')">編集</button></td><td class="delete-col"><button type="button" onclick="deleteTournament(${r.row})">削除</button></td>`; 
+        tbody.appendChild(tr); 
+      }); 
+    }
+
+    async function submitTournament() { 
+const name = document.getElementById("tournamentName").value; const deadline = document.getElementById("deadline").value; const person = document.getElementById("tournamentPerson").value; const status = document.getElementById("status").value; if (!name || !deadline || !person) return alert("大会名・申込期限・担当者を入力してください。"); showLoading(true); const res = await callGas('saveTournament', {name, deadline, person, status}); if (res) { alert(res); document.getElementById("tournamentName").value = ""; document.getElementById("tournamentPerson").value = ""; loadTournamentList(); } showLoading(false); }
+    function editTournament(row, name, deadline, person, status) { const tbody = document.querySelector("#tournamentTable tbody"); const tr = Array.from(tbody.children).find(tr => tr.innerHTML.includes(`editTournament(${row}`)); if (!tr) return; tr.innerHTML = `<td><input type="text" id="editName${row}" value="${name}"></td><td><input type="date" id="editDeadline${row}" value="${deadline}"></td><td><input type="text" id="editPerson${row}" value="${person}"></td><td><select id="editStatus${row}"><option value="申込予定" ${status==="申込予定"?"selected":""}>申込予定</option><option value="申請中" ${status==="申請中"?"selected":""}>申請中</option><option value="申込完了" ${status==="申込完了"?"selected":""}>申込完了</option></select></td><td colspan="2" class="delete-col"><button type="button" onclick="saveEditTournament(${row})">保存</button><button type="button" onclick="loadTournamentList()">中止</button></td>`; }
+    async function saveEditTournament(row) { const name = document.getElementById(`editName${row}`).value; const deadline = document.getElementById(`editDeadline${row}`).value; const person = document.getElementById(`editPerson${row}`).value; const status = document.getElementById(`editStatus${row}`).value; showLoading(true); const res = await callGas('updateTournament', {row, name, deadline, person, status}); if (res) { alert(res); loadTournamentList(); } showLoading(false); }
+    async function deleteTournament(row) { if (confirm("削除しますか？")) { showLoading(true); const res = await callGas('deleteTournament', {row}); if (res) { alert(res); loadTournamentList(); } showLoading(false); } }
+    
+    // その他連絡事項
+    async function loadOtherList() { const cache = localStorage.getItem(CACHE_KEY_OTHER); if (cache) { renderOtherTable(JSON.parse(cache)); } const data = await callGas('getOtherList'); if (data) { safeSetStorage(CACHE_KEY_OTHER, JSON.stringify(data)); renderOtherTable(data); } }
+    function renderOtherTable(data) { const tbody = document.querySelector("#otherList tbody"); tbody.innerHTML = ""; const incomplete = data.filter(r => !/完了/.test(String(r.status || ""))); const complete = data.filter(r => /完了/.test(String(r.status || ""))); function extractDate(title) { const match = title.match(/\d{4}\/\d{1,2}\/\d{1,2}/); return match ? new Date(match[0]) : new Date("2000-01-01"); } incomplete.sort((a, b) => extractDate(a.title) - extractDate(b.title)); complete.sort((a, b) => extractDate(a.title) - extractDate(b.title)); [...incomplete, ...complete].forEach(r => { const isCompleted = /完了/.test(String(r.status || "")); const tr = document.createElement("tr"); if (isCompleted) tr.classList.add("other-completed"); tr.innerHTML = `<td>${escapeHtml(r.title)}</td><td>${escapeHtml(r.content)}</td><td>${escapeHtml(r.person)}</td><td>${escapeHtml(r.status)}</td><td class="delete-col"><button type="button" onclick="editOther(${r.row}, '${(r.title||'').replace(/'/g,"\\'")}', '${(r.content||'').replace(/'/g,"\\'")}', '${(r.person||'').replace(/'/g,"\\'")}', '${(r.status||'').replace(/'/g,"\\'")}')">編集</button></td><td class="delete-col"><button type="button" onclick="deleteOtherRow(${r.row})">削除</button></td>`; tbody.appendChild(tr); }); }
+    async function saveOtherData() { const title = document.getElementById("otherTitle").value; const content = document.getElementById("otherContent").value; const person = document.getElementById("otherPerson").value; const status = document.getElementById("otherStatus").value; showLoading(true); const res = await callGas('saveOther', {title, content, person, status}); if (res) { alert(res); loadOtherList(); } showLoading(false); }
+    function editOther(row, title, content, person, status) { const tbody = document.querySelector("#otherList tbody"); const tr = Array.from(tbody.children).find(tr => tr.innerHTML.includes(`editOther(${row}`)); if (!tr) return; tr.innerHTML = `<td><input type="text" id="editTitle${row}" value="${title}"></td><td><textarea id="editContent${row}">${content}</textarea></td><td><input type="text" id="editPerson${row}" value="${person}"></td><td><input type="text" id="editStatus${row}" value="${status}"></td><td colspan="2" class="delete-col"><button type="button" onclick="saveEditOther(${row})">保存</button><button type="button" onclick="loadOtherList()">中止</button></td>`; }
+    async function saveEditOther(row) { const title = document.getElementById(`editTitle${row}`).value; const content = document.getElementById(`editContent${row}`).value; const person = document.getElementById(`editPerson${row}`).value; const status = document.getElementById(`editStatus${row}`).value; showLoading(true); const res = await callGas('updateOther', {row, title, content, person, status}); if (res) { alert(res); loadOtherList(); } showLoading(false); }
+    async function deleteOtherRow(row) { if (confirm("削除しますか？")) { showLoading(true); const res = await callGas('deleteOther', {row}); if (res) { alert(res); loadOtherList(); } showLoading(false); } }
+    
+    // ▼▼▼ スカイアリーナ座間 (修正版) ▼▼▼
+
+    // 画像圧縮
+    function compressImage(file, maxWidth, quality) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = function(event) {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    if (width > maxWidth) {
+                        height = Math.round(height * (maxWidth / width));
+                        width = maxWidth;
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    canvas.toBlob(blob => {
+                        if (blob) resolve(blob);
+                        else reject(new Error("Canvas conversion failed"));
+                    }, 'image/jpeg', quality);
+                };
+                img.onerror = error => reject(error);
+            };
+            reader.onerror = error => reject(error);
+        });
+    }
+
+    function forceReloadArena() {
+        localStorage.removeItem(CACHE_KEY_ARENA);
+        arenaData = [];
+        fetchArenaData();
+    }
+
+    async function fetchArenaData() { 
+      const cache = localStorage.getItem(CACHE_KEY_ARENA); 
+      const notice = document.getElementById("cache-notice");
+
+      if (cache) { 
+        try {
+            arenaData = JSON.parse(cache); 
+            loadArenaList(); 
+            // ★変更：メッセージを「データ取得中...」にする
+            notice.style.display = "inline-block"; 
+            notice.innerText = "データ取得中..."; 
+        } catch(e) {
+            console.warn("Cache broken", e);
+            localStorage.removeItem(CACHE_KEY_ARENA);
+        }
+      } 
+      
+      try {
+          const data = await callGas('getArenaList'); 
+          
+          // ★変更：完了したら「データ取得済み」にして、2秒後に消す
+          notice.innerText = "データ取得済み";
+          setTimeout(() => { notice.style.display = "none"; }, 2000);
+
+          if (data && Array.isArray(data)) { 
+            const processedData = data.map(d => { 
+              let safeUrl = d.url ?? ""; 
+              if(safeUrl === true || safeUrl === "TRUE" || safeUrl === "true") safeUrl = ""; 
+              return { 
+                rowNum: d.rowNum ?? null, 
+                taskNumber: d.taskNumber ?? d.id ?? "", 
+                month: formatMonth(d.month), 
+                task: d.task ?? "", 
+                person: d.person ?? "", 
+                completed: d.completed === true || d.completed === "TRUE", 
+                url: safeUrl 
+              }; 
+            }); 
+            
+            processedData.sort((a, b) => { 
+                const dateA = new Date(a.month || "2000-01"); 
+                const dateB = new Date(b.month || "2000-01"); 
+                if (dateA - dateB !== 0) return dateA - dateB; 
+                
+                const numA = Number(a.taskNumber);
+                const numB = Number(b.taskNumber);
+                if (!isNaN(numA) && !isNaN(numB)) {
+                    return numA - numB;
+                }
+                return String(a.taskNumber).localeCompare(String(b.taskNumber));
+            }); 
+            
+            arenaData = processedData; 
+            const cacheData = processedData.map(item => ({ ...item, url: "" })); 
+            safeSetStorage(CACHE_KEY_ARENA, JSON.stringify(cacheData)); 
+            loadArenaList(); 
+          } 
+      } catch(e) {
+          console.error(e);
+          notice.style.display = "none"; 
+      }
+    }
+    
+    function loadArenaList() { 
+      const tbody = document.querySelector("#arenaTable tbody"); 
+      tbody.innerHTML = ""; 
+      if(!arenaData || arenaData.length === 0) { tbody.innerHTML = "<tr><td colspan='8'>データがありません</td></tr>"; return; }
+      
+      arenaData.forEach((t, index) => { 
+          // データが不完全な場合はスキップしてエラーを防ぐ
+          if (!t) return;
+
+          const tr = document.createElement("tr"); 
+          tr.innerHTML = `<td>${t.taskNumber}</td><td>${t.month}</td><td>${escapeHtml(t.task)}</td><td>${escapeHtml(t.person)}</td><td>${t.completed ? "✅" : "⬜"}</td><td>${t.url ? `<img src="${t.url}" style="max-width:80px; max-height:60px; object-fit:cover; cursor:pointer; border-radius:6px;" onclick="showPhotoModal('${t.url}')">` : "<span style='color:#ccc; font-size:12px;'>なし</span>"}</td><td class="delete-col"><button type="button" onclick="editArenaTask(${index})">編集</button></td><td class="delete-col"><button type="button" onclick="deleteArenaTask(${t.rowNum})">削除</button></td>`; 
+          tbody.appendChild(tr); 
+      }); 
+    }
+
+    async function addArenaTask() { 
+        if(!storage) { alert("Firebaseの設定が無効です。"); return; }
+        const month = document.getElementById("arenaMonth").value; 
+        const task = document.getElementById("arenaTask").value; 
+        const person = document.getElementById("arenaPerson").value; 
+        const completed = document.getElementById("arenaCompleted").value === "true"; 
+        const file = document.getElementById("arenaPhoto").files[0]; 
+        if (!month || !task || !person) return alert("月・タスク・担当者を入力してください。"); 
+        
+        showLoading(true); 
+        
+        try {
+            let fileUrl = "";
+            if (file) {
+                const blob = await compressImage(file, 600, 0.6);
+                const storageRef = storage.ref();
+                // ファイル名にユニークなIDをつけて重複防止
+                const fileRef = storageRef.child('arena_photos/' + Date.now() + '_' + file.name);
+                await fileRef.put(blob);
+                fileUrl = await fileRef.getDownloadURL();
+            }
+            const res = await callGas('saveArenaTask', {month, task, person, completed, url: fileUrl}); 
+            if (res) { alert(res); await fetchArenaData(); } 
+        } catch (error) {
+            console.error(error);
+            // Firebaseのエラーコードを表示して原因を特定しやすくする
+            let msg = "エラーが発生しました: " + error.message;
+            if (error.code === 'storage/unauthorized') {
+                msg = "【アップロード権限がありません】\nFirebase ConsoleでStorageのルールを「allow read, write: if true;」に変更してください。";
+            } else if (error.code === 'storage/retry-limit-exceeded') {
+                 msg = "【通信エラー】\nCORS設定がされていない可能性があります。";
+            }
+            alert(msg);
+        } finally {
+            showLoading(false); 
+        }
+    }
+
+    function editArenaTask(index) { 
+        const t = arenaData[index]; 
+        const tbody = document.querySelector("#arenaTable tbody"); 
+        const tr = tbody.children[index]; 
+        tr.innerHTML = `<td>${t.taskNumber}</td><td><input type="month" id="editArenaMonth${index}" value="${t.month}"></td><td><select id="editArenaTask${index}"><option value="抽選予約（体育館の機械）" ${t.task==="抽選予約（体育館の機械）"?"selected":""}>抽選予約（体育館の機械）</option><option value="追加予約（電話）" ${t.task==="追加予約（電話）"?"selected":""}>追加予約（電話）</option><option value="仮予約表の受け取り（抽選予約）" ${t.task==="仮予約表の受け取り（抽選予約）"?"selected":""}>仮予約表の受け取り（抽選予約）</option><option value="仮予約表の受け取り（追加予約）" ${t.task==="仮予約表の受け取り（追加予約）"?"selected":""}>仮予約表の受け取り（追加予約）</option><option value="使用料の支払い" ${t.task==="使用料の支払い"?"selected":""}>使用料の支払い</option><option value="カレンダーの確認" ${t.task==="カレンダーの確認"?"selected":""}>カレンダーの確認</option></select></td><td><input type="text" id="editArenaPerson${index}" value="${t.person}"></td><td><select id="editArenaCompleted${index}"><option value="false" ${!t.completed?"selected":""}>⬜</option><option value="true" ${t.completed?"selected":""}>✅</option></select></td><td>${t.url ? `<img id="editArenaImg${index}" src="${t.url}" style="max-width:50px;"><br><button type="button" onclick="removeArenaPhoto(${index})" style="font-size:10px; padding:4px;">写真削除</button>` : ""}<input type="file" id="editArenaPhoto${index}" style="width:180px;"></td><td colspan="2" class="delete-col"><button type="button" onclick="saveArenaEdit(${index})">保存</button><button type="button" onclick="fetchArenaData()">中止</button></td>`; 
+    }
+
+    function removeArenaPhoto(index) { 
+        const img = document.getElementById(`editArenaImg${index}`);
+        if(img) img.remove();
+        const input = document.getElementById(`editArenaPhoto${index}`);
+        if(input) input.dataset.remove = "true"; 
+    }
+
+    async function saveArenaEdit(index) { 
+        if(!storage) { alert("Firebaseの設定が無効です。"); return; }
+        const t = arenaData[index]; 
+        const rowNum = t.rowNum; 
+        const month = document.getElementById(`editArenaMonth${index}`).value; 
+        const task = document.getElementById(`editArenaTask${index}`).value; 
+        const person = document.getElementById(`editArenaPerson${index}`).value; 
+        const completed = document.getElementById(`editArenaCompleted${index}`).value === "true"; 
+        const file = document.getElementById(`editArenaPhoto${index}`).files[0]; 
+        const removePhoto = document.getElementById(`editArenaPhoto${index}`).dataset.remove === "true"; 
+        
+        showLoading(true); 
+        
+        try {
+            if (file) { 
+                const blob = await compressImage(file, 600, 0.6);
+                const storageRef = storage.ref();
+                const fileRef = storageRef.child('arena_photos/' + Date.now() + '_' + file.name);
+                await fileRef.put(blob);
+                const url = await fileRef.getDownloadURL();
+                await callGas('updateArenaTask', {rowNum, month, task, person, completed, url: url});
+                alert("更新しました"); 
+                await fetchArenaData();
+            } else if (removePhoto) { 
+                await callGas('deleteArenaPhoto', {rowNum}); 
+                await callGas('updateArenaTask', {rowNum, month, task, person, completed, url: ""}); 
+                await fetchArenaData(); 
+            } else { 
+                await callGas('updateArenaTask', {rowNum, month, task, person, completed, url: t.url}); 
+                await fetchArenaData(); 
+            }
+        } catch(e) {
+            console.error(e);
+            alert("エラーが発生しました: " + e.message);
+        } finally {
+            showLoading(false); 
+        }
+    }
+
+    async function deleteArenaTask(rowNum) { if (confirm("削除しますか？")) { showLoading(true); const res = await callGas('deleteArenaTask', {rowNum}); if (res) { alert(res); await fetchArenaData(); } showLoading(false); } }
+    
+function showPhotoModal(url) { const modal = document.getElementById("photoModal"); document.getElementById("modalImage").src = url; modal.style.display = "flex"; modal.onclick = () => { modal.style.display = "none"; }; }
+    
+function escapeHtml(text) { if (text === null || text === undefined) return ""; return String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;"); }
+    
+function formatMonth(val) { if (!val) return ""; if (typeof val === 'string' && val.length <= 7) return val; const d = new Date(val); if (isNaN(d.getTime())) return val; const year = d.getFullYear(); const month = ("0" + (d.getMonth() + 1)).slice(-2); return `${year}-${month}`; }
+    
+function formatDate(val) { if (!val) return ""; if (typeof val === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(val)) return val; const d = new Date(val); if (isNaN(d.getTime())) return val; const year = d.getFullYear(); const month = ("0" + (d.getMonth() + 1)).slice(-2); const day = ("0" + d.getDate()).slice(-2); return `${year}-${month}-${day}`; }
+  </script>
+</body>
+</html>

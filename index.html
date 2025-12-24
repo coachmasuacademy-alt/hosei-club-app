@@ -163,13 +163,33 @@
     <div id="attendanceSection" class="card-section">
       <h2>出欠確認</h2>
       <p style="font-size:0.9em; color:#666; margin-bottom:20px;">氏名をタップして、今後の出欠を入力してください。</p>
+
+      <div style="background:#fff; padding:15px; border-radius:12px; margin-bottom:20px; border:1px solid #eee;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <button onclick="openSettingModal()" style="width:auto; margin:0; padding:8px 16px; font-size:0.9em; background:#666; border-radius:20px; box-shadow:none;">⚙️ 表示メンバー設定</button>
+          
+          <div style="display:flex; align-items:center;">
+            <input type="checkbox" id="hideOthersCheck" onchange="renderMemberButtons()" style="width:auto; margin-right:8px; transform:scale(1.2);">
+            <label for="hideOthersCheck" style="margin:0; font-weight:normal; font-size:0.9em; cursor:pointer;">他を非表示</label>
+          </div>
+        </div>
+        <div id="selectedMembersLabel" style="font-size:0.85em; color:#888; margin-top:10px;"></div>
+      </div>
       <div id="memberListContainer" class="member-grid"></div>
       <div id="matrixError" style="color:red; margin-top:10px; display:none;">※データの読み込みに失敗しました。GASが最新版か確認してください。</div>
+      
       <div style="margin-top:40px;">
-        <h2>参加予定リスト</h2>
+        <h2>参加予定リスト（法政Jr.バドミントンクラブ・中学生スキルアップコース）</h2>
         <div id="attendanceSummary"></div>
       </div>
-      <table id="matrixTable" class="matrix-table"><thead><tr id="matrixHeader"></tr></thead><tbody id="matrixBody"></tbody></table>
+
+      <div style="margin-top:40px; border-top:2px dashed #eee; padding-top:20px;">
+        <h2>参加予定リスト（中学生練習）</h2>
+        <div id="attendanceSummaryFed"></div>
+      </div>
+      
+      <table id="matrixTable" class="matrix-table"><thead><tr id="matrixHeader"></tr></thead><tbody id="matrixBody"></tbody>
+</table>
     </div>
 
     <div id="carrySection" class="card-section" style="display:none;">
@@ -270,8 +290,32 @@
     </div>
   </div>
 
-  <div id="individualModal"><div class="ind-header"><h3 id="indModalTitle" style="margin:0;">氏名</h3><button style="width:auto; margin:0; padding:8px 16px; background:#f0f0f0; color:#333; border:1px solid #ddd; box-shadow:none;" onclick="closeIndModal()">閉じる</button></div><div class="ind-content" id="indList"></div><div style="padding:15px; background:rgba(255,255,255,0.95); text-align:center; position:sticky; bottom:0; border-top:1px solid #eee;"><button type="button" onclick="saveIndData()" style="width:100%; max-width:400px; margin-top:0;">この内容で保存する</button></div></div>
-  <div id="photoModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); justify-content:center; align-items:center; z-index:3000;"><img id="modalImage" src="" style="max-width:95%; max-height:80%; border-radius:8px; box-shadow:0 0 20px rgba(255,255,255,0.2);"><div style="position:absolute; bottom:30px; color:white; font-size:14px;">画像をタップして閉じる</div></div>
+  <div id="individualModal"><div class="ind-header"><h3 id="indModalTitle" style="margin:0;">氏名</h3>
+<button style="width:auto; margin:0; padding:8px 16px; background:#f0f0f0; color:#333; border:1px solid #ddd; box-shadow:none;" onclick="closeIndModal()">閉じる
+</button>
+</div>
+<div class="ind-content" id="indList">
+</div>
+<div style="padding:15px; background:rgba(255,255,255,0.95); text-align:center; position:sticky; bottom:0; border-top:1px solid #eee;">
+<button type="button" onclick="saveIndData()" style="width:100%; max-width:400px; margin-top:0;">この内容で保存する</button>
+</div>
+</div>
+
+  <div id="photoModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); justify-content:center; align-items:center; z-index:3000;"><img id="modalImage" src="" style="max-width:95%; max-height:80%; border-radius:8px; box-shadow:0 0 20px rgba(255,255,255,0.2);"><div style="position:absolute; bottom:30px; color:white; font-size:14px;">画像をタップして閉じる
+</div>
+</div>
+
+<div id="settingModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:4000; justify-content:center; align-items:center;">
+    <div style="background:white; width:90%; max-width:400px; max-height:80%; border-radius:12px; display:flex; flex-direction:column; overflow:hidden;">
+      <div style="padding:15px; background:#f9f9f9; border-bottom:1px solid #eee; font-weight:bold;">表示メンバー選択</div>
+      <div id="settingMemberContainer" style="padding:15px; overflow-y:auto; flex:1;">
+        </div>
+      <div style="padding:15px; border-top:1px solid #eee; text-align:center; background:white;">
+        <button onclick="saveMySettings()" style="width:100%; margin:0;">決定して保存</button>
+        <button onclick="document.getElementById('settingModal').style.display='none'" style="width:100%; margin-top:10px; background:#ccc; color:#333; box-shadow:none;">キャンセル</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     // ▼▼▼ Firebaseの設定（お客様のキーを埋め込み済み） ▼▼▼
@@ -370,16 +414,263 @@
       if(errDiv) errDiv.style.display = "none"; 
       weeklyEvents = data.events || []; weeklyMembers = data.members || []; weeklyStatus = data.currentStatus || {}; renderMemberButtons(); renderSummary(); 
     }
-    function renderMemberButtons() { const container = document.getElementById("memberListContainer"); container.innerHTML = ""; if (weeklyMembers.length === 0) { container.innerHTML = "<p>メンバーがいません</p>"; return; } weeklyMembers.forEach((m, idx) => { const card = document.createElement("div"); card.className = "member-card"; card.onclick = () => openIndModal(idx); card.innerHTML = `<span class="member-name">${m.name}</span><span class="member-grade">${m.grade}</span>`; container.appendChild(card); }); }
-    
+
+   // 1. 設定モーダルを開く
+    function openSettingModal() {
+      if (weeklyMembers.length === 0) return alert("メンバーデータがありません");
+      const container = document.getElementById("settingMemberContainer");
+      container.innerHTML = "";
+      
+      // 保存済みリストを取得
+      let savedList = [];
+      try {
+        savedList = JSON.parse(localStorage.getItem("my_members_list") || "[]");
+      } catch(e) {}
+
+      // チェックボックス一覧を生成
+      weeklyMembers.forEach(m => {
+        const div = document.createElement("div");
+        div.style.padding = "8px 0";
+        div.style.borderBottom = "1px solid #f0f0f0";
+        const isChecked = savedList.includes(m.name) ? "checked" : "";
+        div.innerHTML = `
+          <label style="display:flex; align-items:center; cursor:pointer; margin:0; font-weight:normal;">
+            <input type="checkbox" value="${m.name}" ${isChecked} style="width:auto; margin-right:10px; transform:scale(1.2);">
+            <span style="flex:1;">${m.name} <span style="font-size:0.8em; color:#999;">(${m.grade})</span></span>
+          </label>`;
+        container.appendChild(div);
+      });
+      
+      document.getElementById("settingModal").style.display = "flex";
+    }
+
+    // 2. 設定を保存する
+    function saveMySettings() {
+      const container = document.getElementById("settingMemberContainer");
+      const checkboxes = container.querySelectorAll("input[type='checkbox']:checked");
+      const selectedNames = Array.from(checkboxes).map(cb => cb.value);
+      
+      localStorage.setItem("my_members_list", JSON.stringify(selectedNames));
+      
+      document.getElementById("settingModal").style.display = "none";
+      renderMemberButtons(); // 画面更新
+    }
+
+    // 3. メンバーリスト描画（並び替え・フィルタリング）
+    function renderMemberButtons() { 
+      const container = document.getElementById("memberListContainer"); 
+      const label = document.getElementById("selectedMembersLabel");
+      const hideOthers = document.getElementById("hideOthersCheck").checked;
+      
+      container.innerHTML = ""; 
+      
+      if (weeklyMembers.length === 0) { 
+        container.innerHTML = "<p>メンバーがいません</p>"; 
+        return; 
+      } 
+
+      // 設定読み込み
+      let savedList = [];
+      try {
+        savedList = JSON.parse(localStorage.getItem("my_members_list") || "[]");
+      } catch(e) {}
+      
+      // ラベル表示更新
+      if(savedList.length > 0) {
+        label.textContent = `選択中: ${savedList.join(", ")}`;
+      } else {
+        label.textContent = "※設定ボタンからよく使うメンバーを登録できます";
+      }
+
+      // 表示データの作成
+      let displayList = [];
+      const favorites = [];
+      const others = [];
+
+      weeklyMembers.forEach(m => {
+        if (savedList.includes(m.name)) {
+          favorites.push(m);
+        } else {
+          others.push(m);
+        }
+      });
+
+      // 「他を非表示」がONなら、お気に入りのみ表示
+      if (hideOthers) {
+        displayList = favorites;
+        if (displayList.length === 0) {
+           container.innerHTML = "<p style='color:#999;'>表示対象がいません。<br>設定ボタンからメンバーを選択してください。</p>";
+           return;
+        }
+      } else {
+        // OFFなら、お気に入りを先頭にして全員表示
+        displayList = [...favorites, ...others];
+      }
+
+      // カード描画
+      displayList.forEach(m => { 
+        const originalIndex = weeklyMembers.findIndex(wm => wm.name === m.name);
+        const card = document.createElement("div"); 
+        card.className = "member-card"; 
+        
+        // 選択メンバーはオレンジ枠で強調
+        if (savedList.includes(m.name)) {
+            card.style.border = "2px solid #FF9966";
+            card.style.backgroundColor = "#fff5f0";
+        }
+
+        card.onclick = () => openIndModal(originalIndex); 
+        card.innerHTML = `<span class="member-name">${m.name}</span><span class="member-grade">${m.grade}</span>`; 
+        container.appendChild(card); 
+      }); 
+    }
+      
+         
     // 個人モーダル処理
-    function openIndModal(memberIndex) { currentIndMember = weeklyMembers[memberIndex]; document.getElementById("indModalTitle").innerText = `${currentIndMember.name} さんの出欠`; const container = document.getElementById("indList"); container.innerHTML = ""; weeklyEvents.forEach((evt, idx) => { let isTarget = false; if(evt.group === 'club' && currentIndMember.isClub) isTarget = true; if(evt.group === 'federation' && currentIndMember.isFed) isTarget = true; if(evt.group === 'skillup' && currentIndMember.isSkill) isTarget = true; if(isTarget) { const key = `${evt.dateKey}_${evt.fullTitle}_${currentIndMember.name}`; const status = weeklyStatus[key] || "未定"; let labelColor = "black"; let groupLabel = ""; if(evt.group === 'club') { labelColor = "#FF9966"; groupLabel = "【クラブ】"; } if(evt.group === 'federation') { labelColor = "#17a2b8"; groupLabel = "【中学生練習】"; } if(evt.group === 'skillup') { labelColor = "#6610f2"; groupLabel = "【スキルアップ】"; } const div = document.createElement("div"); div.className = "ind-row"; div.innerHTML = `<div class="ind-info"><div style="font-size:0.8em; color:${labelColor}; font-weight:bold;">${groupLabel} ${evt.start}</div><div style="font-size:0.95em;">${evt.title}</div></div><div class="ind-btns" id="ind-btn-group-${idx}"><button class="ind-btn present ${status==='出席'?'active':''}" onclick="setIndStatus(${idx}, '出席')">出</button><button class="ind-btn absent ${status==='欠席'?'active':''}" onclick="setIndStatus(${idx}, '欠席')">欠</button><button class="ind-btn unknown ${status==='未定'?'active':''}" onclick="setIndStatus(${idx}, '未定')">?</button></div>`; div.dataset.eventIndex = idx; container.appendChild(div); } }); document.getElementById("individualModal").style.display = "block"; }
+    function openIndModal(memberIndex) { 
+      currentIndMember = weeklyMembers[memberIndex]; 
+      document.getElementById("indModalTitle").innerText = `${currentIndMember.name} さんの出欠`; 
+      const container = document.getElementById("indList"); 
+      container.innerHTML = ""; 
+      
+      weeklyEvents.forEach((evt, idx) => { 
+        let isTarget = false; 
+        if(evt.group === 'club' && currentIndMember.isClub) isTarget = true; 
+        if(evt.group === 'federation' && currentIndMember.isFed) isTarget = true; 
+        if(evt.group === 'skillup' && currentIndMember.isSkill) isTarget = true; 
+        
+        if(isTarget) { 
+          const key = `${evt.dateKey}_${evt.fullTitle}_${currentIndMember.name}`; 
+          const status = weeklyStatus[key] || "未定"; 
+          
+          // 曜日取得
+          const dayStr = getDayOfWeekStr(evt.dateKey);
+          
+          let labelColor = "black"; 
+          let groupLabel = ""; 
+          if(evt.group === 'club') { labelColor = "#FF9966"; groupLabel = "【クラブ】"; } 
+          if(evt.group === 'federation') { labelColor = "#17a2b8"; groupLabel = "【中学生練習】"; } 
+          if(evt.group === 'skillup') { labelColor = "#6610f2"; groupLabel = "【スキルアップ】"; } 
+          
+          const div = document.createElement("div"); 
+          div.className = "ind-row"; 
+          
+          // ★変更点：data-original-status="${status}" と data-status="${status}" を追加して初期値を記憶させる
+          div.innerHTML = `
+            <div class="ind-info">
+              <div style="font-size:0.8em; color:${labelColor}; font-weight:bold;">${groupLabel} ${evt.start}${dayStr}</div>
+              <div style="font-size:0.95em;">${evt.title}</div>
+            </div>
+            <div class="ind-btns" id="ind-btn-group-${idx}" data-status="${status}" data-original-status="${status}">
+              <button class="ind-btn present ${status==='出席'?'active':''}" onclick="setIndStatus(${idx}, '出席')">出</button>
+              <button class="ind-btn absent ${status==='欠席'?'active':''}" onclick="setIndStatus(${idx}, '欠席')">欠</button>
+              <button class="ind-btn unknown ${status==='未定'?'active':''}" onclick="setIndStatus(${idx}, '未定')">?</button>
+            </div>`; 
+          
+          div.dataset.eventIndex = idx; 
+          container.appendChild(div); 
+        } 
+      }); 
+      document.getElementById("individualModal").style.display = "block"; 
+    }
+
+
     function setIndStatus(idx, status) { const group = document.getElementById(`ind-btn-group-${idx}`); const btns = group.querySelectorAll('.ind-btn'); btns.forEach(b => b.classList.remove('active')); if(status === '出席') group.querySelector('.present').classList.add('active'); if(status === '欠席') group.querySelector('.absent').classList.add('active'); if(status === '未定') group.querySelector('.unknown').classList.add('active'); group.dataset.status = status; }
     function closeIndModal() { document.getElementById("individualModal").style.display = "none"; }
-    async function saveIndData() { const container = document.getElementById("indList"); const rows = container.querySelectorAll(".ind-row"); let updates = []; rows.forEach(row => { const idx = row.dataset.eventIndex; const evt = weeklyEvents[idx]; const btnGroup = row.querySelector(".ind-btns"); const status = btnGroup.dataset.status || "未定"; if(status !== "未定") { updates.push({ date: evt.dateKey, title: evt.fullTitle, name: currentIndMember.name, status: status }); } }); if (updates.length === 0) { alert("保存する内容がありません（全て未定です）"); return; } showLoading(true); const res = await callGas('saveBulkAttendance', { updates: updates }); showLoading(false); if(res) { alert(res); closeIndModal(); loadWeeklyMatrix(); } }
     
-    // 参加者集計
-    function renderSummary() { const container = document.getElementById("attendanceSummary"); container.innerHTML = ""; if (!weeklyEvents || weeklyEvents.length === 0) return; weeklyEvents.forEach(evt => { const attendees = []; weeklyMembers.forEach(m => { const key = `${evt.dateKey}_${evt.fullTitle}_${m.name}`; if (weeklyStatus[key] === "出席") { attendees.push(m.name); } }); if (attendees.length > 0) { const div = document.createElement("div"); let cls = ""; let label = ""; if(evt.group === 'club') { cls = "club"; label = "【クラブ】"; } if(evt.group === 'federation') { cls = "fed"; label = "【中学生練習】"; } if(evt.group === 'skillup') { cls = "skill"; label = "【スキルアップ】"; } div.className = `summary-box ${cls}`; div.innerHTML = `<div class="summary-header"><span>${label} ${evt.start} ${evt.title}</span><span class="summary-count">${attendees.length}名</span></div><div class="summary-names">${attendees.join("、 ")}</div>`; container.appendChild(div); } }); if (container.innerHTML === "") { container.innerHTML = "<p style='color:#999; text-align:center;'>現在、出席予定者はいません。</p>"; } }
+async function saveIndData() { 
+      const container = document.getElementById("indList"); 
+      const rows = container.querySelectorAll(".ind-row"); 
+      let updates = []; 
+      
+      rows.forEach(row => { 
+        const idx = row.dataset.eventIndex; 
+        const evt = weeklyEvents[idx]; 
+        const btnGroup = row.querySelector(".ind-btns"); 
+        
+        // 現在の選択状態
+        const currentStatus = btnGroup.dataset.status || "未定";
+        // 画面を開いた時の初期状態
+        const originalStatus = btnGroup.dataset.originalStatus || "未定";
+        
+        // ★重要：変更があった場合のみリストに追加する（"未定"への変更も含む）
+        if(currentStatus !== originalStatus) { 
+          updates.push({ 
+            date: evt.dateKey, 
+            title: evt.fullTitle, 
+            name: currentIndMember.name, 
+            status: currentStatus 
+          }); 
+        } 
+      }); 
+      
+      if (updates.length === 0) { 
+        alert("変更箇所がありません。"); 
+        return; 
+      } 
+      
+      showLoading(true); 
+      const res = await callGas('saveBulkAttendance', { updates: updates }); 
+      showLoading(false); 
+      
+      if(res) { 
+        alert(res); 
+        closeIndModal(); 
+        loadWeeklyMatrix(); 
+      } 
+    }
+    
+    // 参加者集計（グループ分割・曜日表示版）
+    function renderSummary() { 
+      const containerClub = document.getElementById("attendanceSummary"); 
+      const containerFed = document.getElementById("attendanceSummaryFed");
+      
+      // 両方のコンテナを初期化
+      containerClub.innerHTML = ""; 
+      containerFed.innerHTML = "";
+      
+      if (!weeklyEvents || weeklyEvents.length === 0) return; 
+      
+      weeklyEvents.forEach(evt => { 
+        const attendees = []; 
+        weeklyMembers.forEach(m => { 
+          const key = `${evt.dateKey}_${evt.fullTitle}_${m.name}`; 
+          if (weeklyStatus[key] === "出席") { attendees.push(m.name); } 
+        }); 
+        
+        if (attendees.length > 0) { 
+          // 曜日を取得（前回の修正を維持）
+          const dayStr = getDayOfWeekStr(evt.dateKey);
+          
+          const div = document.createElement("div"); 
+          let cls = ""; 
+          let label = ""; 
+          let isFed = false;
+
+          if(evt.group === 'club') { cls = "club"; label = "【クラブ】"; } 
+          if(evt.group === 'federation') { cls = "fed"; label = "【中学生練習】"; isFed = true; } 
+          if(evt.group === 'skillup') { cls = "skill"; label = "【スキルアップ】"; } 
+          
+          div.className = `summary-box ${cls}`; 
+          div.innerHTML = `<div class="summary-header"><span>${label} ${evt.start}${dayStr} ${evt.title}</span><span class="summary-count">${attendees.length}名</span></div><div class="summary-names">${attendees.join("、 ")}</div>`; 
+          
+          // ★変更：グループによって追加先を変える
+          if (isFed) {
+            containerFed.appendChild(div);
+          } else {
+            containerClub.appendChild(div);
+          }
+        } 
+      }); 
+      
+      // データがない場合のメッセージ表示
+      if (containerClub.innerHTML === "") { 
+        containerClub.innerHTML = "<p style='color:#999; text-align:center;'>予定はありません。</p>"; 
+      }
+      if (containerFed.innerHTML === "") { 
+        containerFed.innerHTML = "<p style='color:#999; text-align:center;'>予定はありません。</p>"; 
+      }
+    }
 
     // 道具運搬
     async function loadSchedule() { const cache = localStorage.getItem(CACHE_KEY_SCHEDULE); if (cache) renderScheduleOptions(JSON.parse(cache)); const data = await callGas('getScheduleList'); if (data) { safeSetStorage(CACHE_KEY_SCHEDULE, JSON.stringify(data)); renderScheduleOptions(data); } }
@@ -697,7 +988,17 @@ function escapeHtml(text) { if (text === null || text === undefined) return ""; 
     
 function formatMonth(val) { if (!val) return ""; if (typeof val === 'string' && val.length <= 7) return val; const d = new Date(val); if (isNaN(d.getTime())) return val; const year = d.getFullYear(); const month = ("0" + (d.getMonth() + 1)).slice(-2); return `${year}-${month}`; }
     
-function formatDate(val) { if (!val) return ""; if (typeof val === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(val)) return val; const d = new Date(val); if (isNaN(d.getTime())) return val; const year = d.getFullYear(); const month = ("0" + (d.getMonth() + 1)).slice(-2); const day = ("0" + d.getDate()).slice(-2); return `${year}-${month}-${day}`; }
+function formatDate(val) { if (!val) return ""; 
+if (typeof val === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(val)) return val; const d = new Date(val); 
+if (isNaN(d.getTime())) return val; const year = d.getFullYear(); const month = ("0" + (d.getMonth() + 1)).slice(-2); const day = ("0" + d.getDate()).slice(-2); return `${year}-${month}-${day}`; }
+
+function getDayOfWeekStr(val) {
+      if (!val) return "";
+      const d = new Date(val);
+      if (isNaN(d.getTime())) return "";
+      const days = ["(日)", "(月)", "(火)", "(水)", "(木)", "(金)", "(土)"];
+      return days[d.getDay()];
+    }
   </script>
 </body>
 </html>

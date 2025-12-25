@@ -304,7 +304,7 @@
 <body>
   <script>
     
-    const SHEET_URL = "https://script.google.com/macros/s/AKfycbyXr5YTXeaY0EBudLhZdOx318yp22SmTqPeB5O-zoAVAv0cnSYgKOX-yVesRBaRURRe/exec"; 
+    const SHEET_URL = "https://script.google.com/macros/s/AKfycbyve4sD89Q8svwWI-68YNjJ_pTQisdCO-9dr8PYE0CaKFaRWSW53OJdqV24BgBFmsGK/exec"; 
   </script>
 
   <div id="loading"><div style="text-align:center;"><div style="margin-bottom:10px;">処理中...</div><div style="font-size:0.8em; color:#999;">しばらくお待ちください</div></div></div>
@@ -668,9 +668,11 @@ let isShowingAll = false; // ★追加: false=選択のみ表示(初期値), tru
         div.style.padding = "8px 0";
         div.style.borderBottom = "1px solid #f0f0f0";
         const isChecked = savedList.includes(m.name) ? "checked" : "";
+        
+        // ★修正ポイント：inputのstyleに appearance: auto; を追加し、accent-colorで色を指定
         div.innerHTML = `
           <label style="display:flex; align-items:center; cursor:pointer; margin:0; font-weight:normal;">
-            <input type="checkbox" value="${m.name}" ${isChecked} style="width:auto; margin-right:10px; transform:scale(1.2);">
+            <input type="checkbox" value="${m.name}" ${isChecked} style="width:auto; margin-right:10px; transform:scale(1.5); appearance: auto; -webkit-appearance: auto; accent-color: #FF9966;">
             <span style="flex:1;">${m.name} <span style="font-size:0.8em; color:#999;">(${m.grade})</span></span>
           </label>`;
         container.appendChild(div);
@@ -813,7 +815,9 @@ let isShowingAll = false; // ★追加: false=選択のみ表示(初期値), tru
           // ★変更点：data-original-status="${status}" と data-status="${status}" を追加して初期値を記憶させる
           div.innerHTML = `
             <div class="ind-info">
-              <div style="font-size:0.8em; color:${labelColor}; font-weight:bold;">${groupLabel} ${evt.start}${dayStr}</div>
+              <div style="font-size:0.8em; color:${labelColor}; font-weight:bold;">
+  ${groupLabel} ${evt.start}${evt.end ? '～' + evt.end : ''}${dayStr}
+</div>
               <div style="font-size:0.95em;">${evt.title}</div>
             </div>
             <div class="ind-btns" id="ind-btn-group-${idx}" data-status="${status}" data-original-status="${status}">
@@ -916,7 +920,7 @@ async function saveIndData() {
           if(evt.group === 'skillup') { cls = "skill"; label = "【スキルアップ】"; } 
           
           div.className = `summary-box ${cls}`; 
-          div.innerHTML = `<div class="summary-header"><span>${label} ${evt.start}${dayStr} ${evt.title}</span><span class="summary-count">${attendees.length}名</span></div><div class="summary-names">${attendees.join("、 ")}</div>`; 
+         div.innerHTML = `<div class="summary-header"><span>${label} ${evt.start}${evt.end ? '～' + evt.end : ''}${dayStr} ${evt.title}</span><span class="summary-count">${attendees.length}名</span></div><div class="summary-names">${attendees.join("、 ")}</div>`;
           
           if (isFed) {
             containerFed.appendChild(div);

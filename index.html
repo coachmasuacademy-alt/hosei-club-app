@@ -134,6 +134,63 @@
         font-weight: bold;
         box-shadow: 0 2px 5px rgba(255, 153, 102, 0.4);
     }
+
+/* アコーディオン全体のコンテナ */
+.summary-container {
+    margin-bottom: 20px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    overflow: hidden;
+    border: 1px solid #eee;
+}
+
+/* ヘッダーのデザイン（左側に太いアクセントライン） */
+.summary-toggle-header {
+    background: #fff;
+    color: #333;
+    padding: 16px 20px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    font-size: 1.1em;
+    border-left: 6px solid #FF9966; /* ジュニア側の色（JSで動的に変えることも可） */
+    transition: background 0.3s;
+}
+
+.summary-toggle-header:active {
+    background: #f0f0f0;
+}
+
+/* アイコンの回転アニメーション */
+.toggle-icon {
+    font-size: 0.8em;
+    transition: transform 0.3s ease;
+    color: #999;
+}
+
+.summary-toggle-header.open .toggle-icon {
+    transform: rotate(180deg);
+}
+
+/* 中身のパディング調整 */
+.summary-content {
+    display: none;
+    padding: 10px 15px 20px 15px;
+    background: #fafafa;
+    border-top: 1px solid #f0f0f0;
+}
+
+.summary-content.open {
+    display: block;
+}
+
+/* 中学生練習側のアクセントカラー（青系） */
+.fed-header {
+    border-left-color: #17a2b8;
+}
   </style>
 </head>
 <body>
@@ -168,25 +225,43 @@
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <button onclick="openSettingModal()" style="width:auto; margin:0; padding:8px 16px; font-size:0.9em; background:#666; border-radius:20px; box-shadow:none;">⚙️ 表示メンバー設定</button>
           
-          <div style="display:flex; align-items:center;">
-            <input type="checkbox" id="hideOthersCheck" onchange="renderMemberButtons()" style="width:auto; margin-right:8px; transform:scale(1.2);">
-            <label for="hideOthersCheck" style="margin:0; font-weight:normal; font-size:0.9em; cursor:pointer;">他を非表示</label>
-          </div>
+          <div style="background:#fff; padding:15px; border-radius:12px; margin-bottom:20px; border:1px solid #eee;">
+  <div style="display:flex; justify-content:space-between; align-items:center;">
+    <button onclick="openSettingModal()" style="width:auto; margin:0; padding:8px 16px; font-size:0.9em; background:#666; border-radius:20px; box-shadow:none;">⚙️ 表示設定</button>
+    
+    <button id="toggleDisplayBtn" onclick="toggleShowAll()" style="width:auto; margin:0; padding:8px 16px; font-size:0.9em; background:#FF9966; border-radius:20px; box-shadow:none;">👥 全員を表示</button>
+    </div>
+  <div id="selectedMembersLabel" style="font-size:0.85em; color:#888; margin-top:10px;"></div>
+</div>
         </div>
         <div id="selectedMembersLabel" style="font-size:0.85em; color:#888; margin-top:10px;"></div>
       </div>
       <div id="memberListContainer" class="member-grid"></div>
       <div id="matrixError" style="color:red; margin-top:10px; display:none;">※データの読み込みに失敗しました。GASが最新版か確認してください。</div>
       
-      <div style="margin-top:40px;">
-        <h2>参加予定リスト（法政Jr.バドミントンクラブ・中学生スキルアップコース）</h2>
-        <div id="attendanceSummary"></div>
-      </div>
+      <div style="margin-top:30px;">
+  <div class="summary-container">
+    <div class="summary-toggle-header open" onclick="toggleSummary('clubContent', this)">
+      <span>法政Jr.バドミントンクラブ・中学生スキルアップコース</span>
+      <span class="toggle-icon">▼</span>
+    </div>
+    <div id="clubContent" class="summary-content open">
+      <div id="attendanceSummary"></div>
+    </div>
+  </div>
+</div>
 
-      <div style="margin-top:40px; border-top:2px dashed #eee; padding-top:20px;">
-        <h2>参加予定リスト（中学生練習）</h2>
-        <div id="attendanceSummaryFed"></div>
-      </div>
+<div style="margin-top:20px;">
+  <div class="summary-container">
+    <div class="summary-toggle-header fed-header open" onclick="toggleSummary('fedContent', this)">
+      <span>🏸 中学生練習</span>
+      <span class="toggle-icon">▼</span>
+    </div>
+    <div id="fedContent" class="summary-content open">
+      <div id="attendanceSummaryFed"></div>
+    </div>
+  </div>
+</div>
       
       <table id="matrixTable" class="matrix-table"><thead><tr id="matrixHeader"></tr></thead><tbody id="matrixBody"></tbody>
 </table>
@@ -349,6 +424,7 @@
     // グローバル変数
     let sheetData=[], arenaData=[], memberData=[], weeklyEvents=[], weeklyMembers=[], weeklyStatus={};
     let currentIndMember = null;
+let isShowingAll = false; // ★追加: false=選択のみ表示(初期値), true=全員表示
 
     // 基本関数
     async function callGas(action, params = {}) {
@@ -456,11 +532,16 @@
       renderMemberButtons(); // 画面更新
     }
 
-    // 3. メンバーリスト描画（並び替え・フィルタリング）
+    function toggleShowAll() {
+      isShowingAll = !isShowingAll; // 状態を反転
+      renderMemberButtons(); // 再描画
+    }
+
+    // 3. メンバーリスト描画（修正版）
     function renderMemberButtons() { 
       const container = document.getElementById("memberListContainer"); 
       const label = document.getElementById("selectedMembersLabel");
-      const hideOthers = document.getElementById("hideOthersCheck").checked;
+      const toggleBtn = document.getElementById("toggleDisplayBtn"); // ボタンの参照
       
       container.innerHTML = ""; 
       
@@ -477,12 +558,12 @@
       
       // ラベル表示更新
       if(savedList.length > 0) {
-        label.textContent = `選択中: ${savedList.join(", ")}`;
+        label.textContent = `選択中のメンバー: ${savedList.join(", ")}`;
       } else {
-        label.textContent = "※設定ボタンからよく使うメンバーを登録できます";
+        label.textContent = "※「表示設定」からよく使うメンバーを選択してください";
       }
 
-      // 表示データの作成
+      // 表示データの振り分け
       let displayList = [];
       const favorites = [];
       const others = [];
@@ -495,16 +576,31 @@
         }
       });
 
-      // 「他を非表示」がONなら、お気に入りのみ表示
-      if (hideOthers) {
-        displayList = favorites;
-        if (displayList.length === 0) {
-           container.innerHTML = "<p style='color:#999;'>表示対象がいません。<br>設定ボタンからメンバーを選択してください。</p>";
-           return;
+      // ▼▼▼ 表示ロジックの変更 ▼▼▼
+      if (isShowingAll) {
+        // 全員表示モードの場合
+        displayList = [...favorites, ...others];
+        
+        // ボタンの見た目を更新（「選択のみに戻す」状態へ）
+        if(toggleBtn) {
+            toggleBtn.textContent = "🔽 選択のみ表示";
+            toggleBtn.style.backgroundColor = "#666"; // 色を少し地味にするなど
         }
       } else {
-        // OFFなら、お気に入りを先頭にして全員表示
-        displayList = [...favorites, ...others];
+        // 選択のみ表示モード（初期状態）
+        displayList = favorites;
+        
+        // ボタンの見た目を更新（「全員を表示」状態へ）
+        if(toggleBtn) {
+            toggleBtn.textContent = "👥 全員を表示";
+            toggleBtn.style.backgroundColor = "#FF9966"; // 目立つ色
+        }
+
+        // もし選択メンバーが0人で、かつ選択のみ表示モードの場合のケア
+        if (displayList.length === 0) {
+           container.innerHTML = "<p style='color:#999; text-align:center; padding:20px;'>表示するメンバーがいません。<br>「全員を表示」ボタンを押すか、設定からメンバーを選んでください。</p>";
+           return;
+        }
       }
 
       // カード描画
@@ -631,7 +727,17 @@ async function saveIndData() {
       
       if (!weeklyEvents || weeklyEvents.length === 0) return; 
       
+      // ★追加：今日の日付を取得（時刻を00:00:00にリセットして比較用にする）
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
       weeklyEvents.forEach(evt => { 
+        // ★修正ポイント：イベントの日付が今日より前（昨日以前）ならスキップする
+        const eventDate = new Date(evt.dateKey);
+        if (eventDate < today) {
+          return; // 前日の練習は表示しない
+        }
+
         const attendees = []; 
         weeklyMembers.forEach(m => { 
           const key = `${evt.dateKey}_${evt.fullTitle}_${m.name}`; 
@@ -639,7 +745,6 @@ async function saveIndData() {
         }); 
         
         if (attendees.length > 0) { 
-          // 曜日を取得（前回の修正を維持）
           const dayStr = getDayOfWeekStr(evt.dateKey);
           
           const div = document.createElement("div"); 
@@ -654,7 +759,6 @@ async function saveIndData() {
           div.className = `summary-box ${cls}`; 
           div.innerHTML = `<div class="summary-header"><span>${label} ${evt.start}${dayStr} ${evt.title}</span><span class="summary-count">${attendees.length}名</span></div><div class="summary-names">${attendees.join("、 ")}</div>`; 
           
-          // ★変更：グループによって追加先を変える
           if (isFed) {
             containerFed.appendChild(div);
           } else {
@@ -999,6 +1103,12 @@ function getDayOfWeekStr(val) {
       const days = ["(日)", "(月)", "(火)", "(水)", "(木)", "(金)", "(土)"];
       return days[d.getDay()];
     }
+
+function toggleSummary(id, headerEl) {
+    const content = document.getElementById(id);
+    content.classList.toggle('open');
+    headerEl.classList.toggle('open');
+}
   </script>
 </body>
 </html>

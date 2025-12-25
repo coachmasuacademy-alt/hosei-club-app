@@ -562,6 +562,7 @@
     const CACHE_KEY_ARENA = 'badminton_arena_v1';
     const CACHE_KEY_TOURNAMENT = 'badminton_tournament_v1';
     const CACHE_KEY_OTHER = 'badminton_other_v1';
+const CACHE_KEY_SHUTTLE = 'badminton_shuttle_v1';
 
     // グローバル変数
     let sheetData=[], arenaData=[], memberData=[], weeklyEvents=[], weeklyMembers=[], weeklyStatus={};
@@ -1305,11 +1306,37 @@ function refreshShuttleUI(data) {
 }
 
 async function loadShuttleData() {
-    showLoading(true);
-    const res = await callGas('getShuttleStock'); // GAS側に作成するアクション
-    showLoading(false);
+    const cache = localStorage.getItem(CACHE_KEY_SHUTTLE);
+    const notice = document.getElementById("cache-notice");
+
+    // 1. キャッシュがあれば即座に表示（待機時間ゼロ）
+    if (cache) {
+        refreshShuttleUI(JSON.parse(cache));
+        // 画面上部に「更新中」と小さく出す（画面ロックはしない）
+        if (notice) {
+            notice.style.display = "inline-block";
+            notice.innerText = "最新情報を確認中...";
+        }
+    } else {
+        // キャッシュがない初回だけはローディングを出す
+        showLoading(true);
+    }
+
+    // 2. 裏で最新データを取得
+    const res = await callGas('getShuttleStock');
+    
+    showLoading(false); // ローディング消去
+
     if (res) {
+        // 3. 最新データで画面更新 ＆ キャッシュ保存
         refreshShuttleUI(res);
+        safeSetStorage(CACHE_KEY_SHUTTLE, JSON.stringify(res));
+
+        // 更新完了メッセージ
+        if (notice && cache) {
+            notice.innerText = "最新の状態です";
+            setTimeout(() => { notice.style.display = "none"; }, 2000);
+        }
     }
 }
 

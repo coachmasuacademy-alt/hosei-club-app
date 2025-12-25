@@ -191,12 +191,120 @@
 .fed-header {
     border-left-color: #17a2b8;
 }
+
+
+/* シャトル管理全体のレイアウト */
+.shuttle-group-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.shuttle-card {
+    border-radius: 16px;
+    padding: 20px;
+    color: white;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+/* カテゴリ別の配色 */
+.jr-card { background: linear-gradient(135deg, #FF9966 0%, #FF5E62 100%); }
+.fed-card { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+
+.shuttle-card h4 {
+    margin: 0 0 10px 0;
+    font-size: 1.1em;
+    display: flex;
+    align-items: center;
+}
+
+.stock-display {
+    text-align: center;
+    margin: 15px 0;
+}
+
+.stock-number {
+    font-size: 2.5em;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.stock-unit { font-size: 0.4em; margin-left: 5px; }
+
+/* 入力エリア */
+.shuttle-control {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    .shuttle-control div { text-align: center; }
+
+    .shuttle-control label {
+        display: block;
+        font-size: 0.7em;
+        color: rgba(255,255,255,0.9);
+        margin-bottom: 4px;
+        font-weight: bold;
+    }
+
+    /* 入力欄のベーススタイル（白背景） */
+    .shuttle-control input {
+        width: 100%;
+        border-radius: 8px;
+        padding: 8px;
+        text-align: center;
+        font-size: 1.1em;
+        box-sizing: border-box;
+        background: #ffffff;      /* 背景を白に */
+        border: 2px solid #fff;   /* 枠線の太さを確保 */
+        font-weight: bold;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* 少し影をつけて浮き出させる */
+    }
+
+    /* --- 法政Jr. (オレンジ/赤) 用のデザイン --- */
+    .jr-card .shuttle-control input {
+        color: #FF5E62;        /* 文字色：赤オレンジ */
+        border-color: #FF5E62; /* 枠線：赤オレンジ */
+    }
+    /* プレースホルダー（未入力時の0などの色） */
+    .jr-card .shuttle-control input::placeholder {
+        color: #ffcdd2; 
+    }
+
+    /* --- 中学生 (青/水色) 用のデザイン --- */
+    .fed-card .shuttle-control input {
+        color: #0277BD;        /* 文字色：濃い青（白背景で見やすく） */
+        border-color: #4facfe; /* 枠線：水色 */
+    }
+    /* プレースホルダー */
+    .fed-card .shuttle-control input::placeholder {
+        color: #b3e5fc;
+    }
+
+
+/* 集計表示エリア */
+.stats-row {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255,255,255,0.2);
+    font-size: 0.85em;
+}
+
+.stat-item { text-align: center; }
+.stat-val { display: block; font-weight: bold; font-size: 1.2em; }
   </style>
 </head>
 <body>
   <script>
     
-    const SHEET_URL = "https://script.google.com/macros/s/AKfycbxABtZPy9LwKoLEBZeEC-RcIvHjA2KtW3WPaCwdCKlKiI2lIC2EG7Z-C91mX-G0rH5W/exec"; 
+    const SHEET_URL = "https://script.google.com/macros/s/AKfycbyXr5YTXeaY0EBudLhZdOx318yp22SmTqPeB5O-zoAVAv0cnSYgKOX-yVesRBaRURRe/exec"; 
   </script>
 
   <div id="loading"><div style="text-align:center;"><div style="margin-bottom:10px;">処理中...</div><div style="font-size:0.8em; color:#999;">しばらくお待ちください</div></div></div>
@@ -209,6 +317,7 @@
   
   <div class="nav-container">
     <div class="nav-item active" onclick="switchCategory('attendance', this)">📅 出欠確認</div>
+<div class="nav-item" onclick="switchCategory('shuttle', this)">🏸 シャトル</div>
     <div class="nav-item" onclick="switchCategory('carry', this)">🚙 道具運搬</div>
     <div class="nav-item" onclick="switchCategory('skyArena', this)">🏟️ スカイアリーナ座間</div>
     <div class="nav-item" onclick="switchCategory('tournament', this)">🏆 大会申込</div>
@@ -217,55 +326,88 @@
   </div>
 
   <div class="content-wrapper">
-    <div id="attendanceSection" class="card-section">
-      <h2>出欠確認</h2>
-      <p style="font-size:0.9em; color:#666; margin-bottom:20px;">氏名をタップして、今後の出欠を入力してください。</p>
+  <div id="attendanceSection" class="card-section">
+    <h2>出欠確認</h2>
+    <p style="font-size:0.9em; color:#666; margin-bottom:20px;">氏名をタップして、今後の出欠を入力してください。</p>
 
-      <div style="background:#fff; padding:15px; border-radius:12px; margin-bottom:20px; border:1px solid #eee;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <button onclick="openSettingModal()" style="width:auto; margin:0; padding:8px 16px; font-size:0.9em; background:#666; border-radius:20px; box-shadow:none;">⚙️ 表示メンバー設定</button>
-          
-          <div style="background:#fff; padding:15px; border-radius:12px; margin-bottom:20px; border:1px solid #eee;">
-  <div style="display:flex; justify-content:space-between; align-items:center;">
-    <button onclick="openSettingModal()" style="width:auto; margin:0; padding:8px 16px; font-size:0.9em; background:#666; border-radius:20px; box-shadow:none;">⚙️ 表示設定</button>
-    
-    <button id="toggleDisplayBtn" onclick="toggleShowAll()" style="width:auto; margin:0; padding:8px 16px; font-size:0.9em; background:#FF9966; border-radius:20px; box-shadow:none;">👥 全員を表示</button>
-    </div>
-  <div id="selectedMembersLabel" style="font-size:0.85em; color:#888; margin-top:10px;"></div>
-</div>
-        </div>
-        <div id="selectedMembersLabel" style="font-size:0.85em; color:#888; margin-top:10px;"></div>
+    <div style="background:#fff; padding:15px; border-radius:12px; margin-bottom:20px; border:1px solid #eee;">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <button onclick="openSettingModal()" style="width:auto; margin:0; padding:8px 16px; font-size:0.9em; background:#666; border-radius:20px; box-shadow:none;">⚙️ 表示設定</button>
+        <button id="toggleDisplayBtn" onclick="toggleShowAll()" style="width:auto; margin:0; padding:8px 16px; font-size:0.9em; background:#FF9966; border-radius:20px; box-shadow:none;">👥 全員を表示</button>
       </div>
-      <div id="memberListContainer" class="member-grid"></div>
-      <div id="matrixError" style="color:red; margin-top:10px; display:none;">※データの読み込みに失敗しました。GASが最新版か確認してください。</div>
-      
-      <div style="margin-top:30px;">
-  <div class="summary-container">
-    <div class="summary-toggle-header open" onclick="toggleSummary('clubContent', this)">
-      <span>法政Jr.バドミントンクラブ・中学生スキルアップコース</span>
-      <span class="toggle-icon">▼</span>
+      <div id="selectedMembersLabel" style="font-size:0.85em; color:#888; margin-top:10px;"></div>
     </div>
-    <div id="clubContent" class="summary-content open">
-      <div id="attendanceSummary"></div>
-    </div>
-  </div>
-</div>
 
-<div style="margin-top:20px;">
-  <div class="summary-container">
-    <div class="summary-toggle-header fed-header open" onclick="toggleSummary('fedContent', this)">
-      <span>🏸 中学生練習</span>
-      <span class="toggle-icon">▼</span>
+    <div id="memberListContainer" class="member-grid"></div>
+    <div id="matrixError" style="color:red; margin-top:10px; display:none;">※データの読み込みに失敗しました。GASが最新版か確認してください。</div>
+
+    <div style="margin-top:30px;">
+      <div class="summary-container">
+        <div class="summary-toggle-header open" onclick="toggleSummary('clubContent', this)">
+          <span>法政Jr.バドミントンクラブ・中学生スキルアップコース</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div id="clubContent" class="summary-content open">
+          <div id="attendanceSummary"></div>
+        </div>
+      </div>
     </div>
-    <div id="fedContent" class="summary-content open">
-      <div id="attendanceSummaryFed"></div>
+
+    <div style="margin-top:20px;">
+      <div class="summary-container">
+        <div class="summary-toggle-header fed-header open" onclick="toggleSummary('fedContent', this)">
+          <span>中学生練習</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div id="fedContent" class="summary-content open">
+          <div id="attendanceSummaryFed"></div>
+        </div>
+      </div>
+    </div>
+
+    <table id="matrixTable" class="matrix-table">
+      <thead><tr id="matrixHeader"></tr></thead>
+      <tbody id="matrixBody"></tbody>
+    </table>
+  </div> 
+  <div id="shuttleSection" class="card-section" style="display:none; background:transparent; box-shadow:none; padding:0;">
+    <h2>シャトル在庫管理</h2>
+    <div class="shuttle-group-container">
+      
+      <div class="shuttle-card jr-card">
+        <h4>🏸 法政Jr. / スキルアップ</h4>
+        <div class="stock-display">
+          <span class="stock-number" id="jrStock">0</span><span class="stock-unit">筒</span>
+        </div>
+        <div class="shuttle-control">
+          <div><label>使用数</label><input type="number" id="jrUsed" placeholder="0"></div>
+          <div><label>追加数</label><input type="number" id="jrAdded" placeholder="0"></div>
+        </div>
+        <button onclick="updateShuttleStock('jr')" style="background:white; color:#FF5E62; margin-top:15px; width:100%; padding:10px; border-radius:10px; border:none; font-weight:bold;">在庫を更新</button>
+        <div class="stats-row">
+          <div class="stat-item"><span style="opacity:0.8;">今週の使用</span><span class="stat-val"><span id="jrWeekUsed">0</span><small>筒</small></span></div>
+          <div class="stat-item"><span style="opacity:0.8;">今月の使用</span><span class="stat-val"><span id="jrMonthUsed">0</span><small>筒</small></span></div>
+        </div>
+      </div>
+
+      <div class="shuttle-card fed-card">
+        <h4>🏸 中学生練習</h4>
+        <div class="stock-display">
+          <span class="stock-number" id="fedStock">0</span><span class="stock-unit">筒</span>
+        </div>
+        <div class="shuttle-control">
+          <div><label>使用数</label><input type="number" id="fedUsed" placeholder="0"></div>
+          <div><label>追加数</label><input type="number" id="fedAdded" placeholder="0"></div>
+        </div>
+        <button onclick="updateShuttleStock('fed')" style="background:white; color:#4facfe; margin-top:15px; width:100%; padding:10px; border-radius:10px; border:none; font-weight:bold;">在庫を更新</button>
+        <div class="stats-row">
+          <div class="stat-item"><span style="opacity:0.8;">今週の使用</span><span class="stat-val"><span id="fedWeekUsed">0</span><small>筒</small></span></div>
+          <div class="stat-item"><span style="opacity:0.8;">今月の使用</span><span class="stat-val"><span id="fedMonthUsed">0</span><small>筒</small></span></div>
+        </div>
+      </div>
+
     </div>
   </div>
-</div>
-      
-      <table id="matrixTable" class="matrix-table"><thead><tr id="matrixHeader"></tr></thead><tbody id="matrixBody"></tbody>
-</table>
-    </div>
 
     <div id="carrySection" class="card-section" style="display:none;">
       <h2>道具運搬管理</h2>
@@ -440,37 +582,34 @@ let isShowingAll = false; // ★追加: false=選択のみ表示(初期値), tru
 
     // 初期化
     document.addEventListener("DOMContentLoaded", async () => {
-      switchCategory('attendance', document.querySelector('.nav-item.active'));
-      // 並列読み込み
-      await Promise.all([ loadWeeklyMatrix(), loadSchedule(), fetchArenaData(), loadMemberList() ]);
-    });
+  switchCategory('attendance', document.querySelector('.nav-item.active'));
+  // loadShuttleData() を追加して初期化時にデータを取ってくるようにする
+  await Promise.all([ loadWeeklyMatrix(), loadSchedule(), fetchArenaData(), loadMemberList(), loadShuttleData() ]);
+});
 
     // カテゴリ切り替え
     function switchCategory(category, btnElement) {
-      const sections = ["attendanceSection", "carrySection", "tournamentSection", "otherSection", "skyArenaSection", "memberSection"];
-      sections.forEach(id => {
-          const el = document.getElementById(id);
-          if(el) el.style.display = "none";
-      });
-      
-      const target = document.getElementById(category + "Section");
-      if(!target && category === "skyArena") document.getElementById("skyArenaSection").style.display = "block";
-      else if(target) target.style.display = "block";
+  // すべてのセクションを一旦非表示にする
+  const sections = ["attendanceSection", "shuttleSection", "carrySection", "tournamentSection", "otherSection", "skyArenaSection", "memberSection"];
+  sections.forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.style.display = "none";
+  });
+  
+  // 対象のセクションを表示
+  const target = document.getElementById(category + "Section");
+  if(target) target.style.display = "block";
 
-      if (category === "carry") loadList();
-      else if (category === "tournament") loadTournamentList();
-      else if (category === "other") loadOtherList();
-      else if (category === "skyArena") { 
-         // アリーナの場合、データが無ければ取得、あれば表示
-         if(!arenaData || arenaData.length === 0) fetchArenaData(); 
-         else loadArenaList(); 
-      }
-      else if (category === "member") renderMemberTable();
-
-      const navItems = document.querySelectorAll(".nav-item");
-      navItems.forEach(item => item.classList.remove("active"));
-      if(btnElement) btnElement.classList.add("active");
-    }
+  // シャトルが選ばれたら最新データを読み込む（必要に応じて）
+  if (category === "shuttle") {
+      loadShuttleData(); 
+  }
+  
+   // ナビゲーションボタンのアクティブ表示切り替え
+  const navItems = document.querySelectorAll(".nav-item");
+  navItems.forEach(item => item.classList.remove("active"));
+  if(btnElement) btnElement.classList.add("active");
+}
 
     // --- 各種データ読み込み関数 ---
     
@@ -1109,6 +1248,71 @@ function toggleSummary(id, headerEl) {
     content.classList.toggle('open');
     headerEl.classList.toggle('open');
 }
-  </script>
+
+async function updateShuttleStock(type) {
+    const used = Number(document.getElementById(type + 'Used').value) || 0;
+    const added = Number(document.getElementById(type + 'Added').value) || 0;
+
+    if (used === 0 && added === 0) return;
+
+    showLoading(true);
+    // GAS側には {type: 'jr'か'fed', used: 数値, added: 数値} を送る
+    const res = await callGas('updateShuttleStock', { type, used, added });
+    showLoading(false);
+
+    if (res) {
+        alert("更新が完了しました");
+        // 入力値をリセット
+        document.getElementById(type + 'Used').value = "";
+        document.getElementById(type + 'Added').value = "";
+        // UIの数値を更新（GASからの返り値で最新化）
+        refreshShuttleUI(res);
+    }
+}
+
+// 画面表示を最新データに書き換える関数
+function refreshShuttleUI(data) {
+    // dataは { jr: {stock, week, month}, fed: {stock, week, month} } という形式を想定
+    if (data.jr) {
+        document.getElementById('jrStock').innerText = data.jr.stock;
+        document.getElementById('jrWeekUsed').innerText = data.jr.week;
+        document.getElementById('jrMonthUsed').innerText = data.jr.month;
+    }
+    if (data.fed) {
+        document.getElementById('fedStock').innerText = data.fed.stock;
+        document.getElementById('fedWeekUsed').innerText = data.fed.week;
+        document.getElementById('fedMonthUsed').innerText = data.fed.month;
+    }
+}
+
+async function loadShuttleData() {
+    showLoading(true);
+    const res = await callGas('getShuttleStock'); // GAS側に作成するアクション
+    showLoading(false);
+    if (res) {
+        refreshShuttleUI(res);
+    }
+}
+
+// 大会や運搬リストなどで使用するデータ取得の共通関数
+async function loadCarryList() {
+    // 既存のloadList()と同じ役割ですが、もし呼び出し名が違う場合は統一が必要です
+    await loadList();
+}
+
+async function loadTournamentList() {
+    const data = await callGas('getTournamentList');
+    if (data) renderTournamentTable(data);
+}
+
+async function loadList() {
+  const data = await callGas('getCarryList');
+  if (data) renderCarryTable(data);
+}
+
+// 他のカテゴリでも使う共通の読み込み処理
+async function loadCarryList() { await loadList(); }
+
+</script>
 </body>
 </html>

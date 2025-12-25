@@ -600,10 +600,29 @@ let isShowingAll = false; // ★追加: false=選択のみ表示(初期値), tru
   const target = document.getElementById(category + "Section");
   if(target) target.style.display = "block";
 
-  // シャトルが選ばれたら最新データを読み込む（必要に応じて）
+  // ▼▼▼ ここから追加・修正 ▼▼▼
+  
+  // 道具運搬
+  if (category === "carry") {
+      loadList(); 
+  }
+
+  // ★大会申込（これを追加）
+  if (category === "tournament") {
+      loadTournamentList();
+  }
+
+  // ★その他連絡（これも追加しておくと安心です）
+  if (category === "other") {
+      loadOtherList();
+  }
+
+  // シャトル
   if (category === "shuttle") {
       loadShuttleData(); 
   }
+  
+  // ▲▲▲ ここまで ▲▲▲
   
    // ナビゲーションボタンのアクティブ表示切り替え
   const navItems = document.querySelectorAll(".nav-item");
@@ -1300,18 +1319,6 @@ async function loadCarryList() {
     await loadList();
 }
 
-async function loadTournamentList() {
-    const data = await callGas('getTournamentList');
-    if (data) renderTournamentTable(data);
-}
-
-async function loadList() {
-  const data = await callGas('getCarryList');
-  if (data) renderCarryTable(data);
-}
-
-// 他のカテゴリでも使う共通の読み込み処理
-async function loadCarryList() { await loadList(); }
 
 </script>
 </body>

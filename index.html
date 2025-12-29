@@ -185,8 +185,8 @@
 </head>
 <body>
   <script>
-    // GASのURL（ご自身のものを使用）
-    const SHEET_URL = "https://script.google.com/macros/s/AKfycbwz2Nl13EhoTGx-ZXRWpLYOmYKPHCmAf9PjJy-ecLUdJ5qofKoBiNVfXaEeMPXr1lO5/exec"; 
+    // GASのURL
+    const SHEET_URL = "https://script.google.com/macros/s/AKfycbzANMEyWIqN8s7_S0CfgPc1dRflXi-srUSAdXOW-Q702oHe7P6QWGJPY8xAF85_JJvP/exec"; 
   </script>
 
   <div id="loading"><div style="text-align:center;"><div style="margin-bottom:10px;">処理中...</div><div style="font-size:0.8em; color:#999;">しばらくお待ちください</div></div></div>
@@ -369,7 +369,7 @@
       <h2>大会申込</h2>
       <label>大会名</label>
       <input type="text" id="tournamentName" placeholder="大会名を入力">
-      <label>申込期限</label>
+      <label>入力期限</label>
       <input type="date" id="deadline">
       <label>担当者</label>
       <input type="text" id="tournamentPerson" placeholder="名前を入力">
@@ -393,7 +393,7 @@
             <thead>
               <tr>
                 <th>大会名</th>
-                <th>申込期限</th>
+                <th>入力期限</th>
                 <th>担当者</th>
                 <th>状況</th>
                 <th class="delete-col">詳細/管理</th>
@@ -463,7 +463,7 @@
       <label>大会名</label>
       <input type="text" id="edit_t_name">
       
-      <label>申込期限</label>
+      <label>入力期限</label>
       <input type="date" id="edit_t_deadline">
       
       <label>担当者</label>
@@ -1136,18 +1136,19 @@
         area.innerHTML = "";
         
         if(currentTournamentFileUrl) {
-            // ファイルがある場合：リンクと削除ボタンを表示
+            // ▼▼▼ 修正箇所：横並び（左右配置）に変更して誤操作を防止 ▼▼▼
             area.innerHTML = `
-                <div style="display:flex; flex-direction:column; gap:10px; align-items:center; background:#fff; padding:10px; border-radius:8px; border:1px solid #eee;">
-                    <a href="${currentTournamentFileUrl}" target="_blank" style="font-weight:bold; color:#FF9966; text-decoration:none; display:flex; align-items:center;">
+                <div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:12px 15px; border-radius:8px; border:1px solid #eee;">
+                    <a href="${currentTournamentFileUrl}" target="_blank" style="font-weight:bold; color:#FF9966; text-decoration:none; display:flex; align-items:center; flex:1; margin-right:10px;">
                         📄 要項・資料を開く
                     </a>
-                    <button type="button" onclick="deleteTournamentFile()" style="background:#dc3545; color:white; font-size:12px; padding:5px 10px; width:auto; margin:0; border:none; border-radius:4px;">
-                        🗑️ ファイルを削除
+                    <button type="button" onclick="deleteTournamentFile()" style="background:#dc3545; color:white; font-size:11px; padding:6px 12px; width:auto; margin:0; border:none; border-radius:4px; white-space:nowrap;">
+                        🗑️ 削除
                     </button>
                 </div>
-                <div style="font-size:0.8em; color:#999; margin-top:5px;">※変更する場合は新しいファイルを選択してください</div>
+                <div style="font-size:0.8em; color:#999; margin-top:5px; text-align:right;">※変更は新しいファイルを選択</div>
             `;
+            // ▲▲▲ 修正ここまで ▲▲▲
         } else {
             // ファイルがない場合
             area.innerHTML = `<span style="color:#999;">要項ファイルはまだありません</span>`;
@@ -1359,8 +1360,12 @@ async function deleteTournamentFile() {
             const processedData = data.map(d => { 
               let safeUrl = d.url ?? ""; 
               if(safeUrl === true || safeUrl === "TRUE" || safeUrl === "true") safeUrl = ""; 
+              
+              // ★修正: rowNum または row のどちらか入っている方を使うように変更
+              const rNum = d.rowNum ?? d.row ?? null;
+
               return { 
-                rowNum: d.rowNum ?? null, 
+                rowNum: rNum, 
                 taskNumber: d.taskNumber ?? d.id ?? "", 
                 month: formatMonth(d.month), 
                 task: d.task ?? "", 
@@ -1453,8 +1458,16 @@ async function deleteTournamentFile() {
 
     async function saveArenaEdit(index) { 
         if(!storage) { alert("Firebaseの設定が無効です。"); return; }
+        
         const t = arenaData[index]; 
         const rowNum = t.rowNum; 
+
+        // 念のため行番号チェック
+        if (!rowNum) {
+            alert("エラー：データの行番号が取得できていません。再読み込みしてください。");
+            return;
+        }
+
         const month = document.getElementById(`editArenaMonth${index}`).value; 
         const task = document.getElementById(`editArenaTask${index}`).value; 
         const person = document.getElementById(`editArenaPerson${index}`).value; 
@@ -1465,23 +1478,40 @@ async function deleteTournamentFile() {
         showLoading(true); 
         
         try {
+            // ★重要1: 保存前に古いキャッシュを削除（表示が古くなるのを防ぐ）
+            localStorage.removeItem(CACHE_KEY_ARENA);
+
+            let res; // GASからの返信を受け取る変数
+
             if (file) { 
+                // 画像あり更新の場合
                 const blob = await compressImage(file, 600, 0.6);
                 const storageRef = storage.ref();
                 const fileRef = storageRef.child('arena_photos/' + Date.now() + '_' + file.name);
                 await fileRef.put(blob);
                 const url = await fileRef.getDownloadURL();
-                await callGas('updateArenaTask', {rowNum, month, task, person, completed, url: url});
-                alert("更新しました"); 
-                await fetchArenaData();
+                res = await callGas('updateArenaTask', {rowNum, month, task, person, completed, url: url});
+
             } else if (removePhoto) { 
+                // 画像削除の場合
                 await callGas('deleteArenaPhoto', {rowNum}); 
-                await callGas('updateArenaTask', {rowNum, month, task, person, completed, url: ""}); 
-                await fetchArenaData(); 
+                res = await callGas('updateArenaTask', {rowNum, month, task, person, completed, url: ""}); 
+
             } else { 
-                await callGas('updateArenaTask', {rowNum, month, task, person, completed, url: t.url}); 
-                await fetchArenaData(); 
+                // ★重要2: 画像変更なし（テキストや完了チェックのみ）の場合
+                // ここで res を受け取る処理が抜けていたため、修正しました
+                res = await callGas('updateArenaTask', {rowNum, month, task, person, completed, url: t.url}); 
             }
+            
+            // ★重要3: 完了メッセージを表示し、最新データを読み込む
+            if (res) {
+                alert("更新しました"); // GASから戻り値があれば成功
+            } else {
+                alert("更新完了しましたが、応答が空でした");
+            }
+
+            await fetchArenaData(); // 画面を最新にする
+            
         } catch(e) {
             console.error(e);
             alert("エラーが発生しました: " + e.message);

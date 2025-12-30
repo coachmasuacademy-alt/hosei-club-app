@@ -186,7 +186,7 @@
 <body>
   <script>
     // GASのURL
-    const SHEET_URL = "https://script.google.com/macros/s/AKfycbzANMEyWIqN8s7_S0CfgPc1dRflXi-srUSAdXOW-Q702oHe7P6QWGJPY8xAF85_JJvP/exec"; 
+    const SHEET_URL = "https://script.google.com/macros/s/AKfycbzm9ZuNeIXVcKMsvVoMC_md73PWiWlph5-SnneBQ-NcSkws617sK9YLIRQX_f4lV1r9/exec"; 
   </script>
 
   <div id="loading"><div style="text-align:center;"><div style="margin-bottom:10px;">処理中...</div><div style="font-size:0.8em; color:#999;">しばらくお待ちください</div></div></div>
@@ -199,6 +199,7 @@
   
   <div class="nav-container">
     <div class="nav-item active" onclick="switchCategory('attendance', this)">📅 出欠確認</div>
+<div class="nav-item" onclick="switchCategory('task', this)">📊 課題分析</div>
     <div class="nav-item" onclick="switchCategory('shuttle', this)">🏸 シャトル</div>
     <div class="nav-item" onclick="switchCategory('carry', this)">🚙 道具運搬</div>
     <div class="nav-item" onclick="switchCategory('skyArena', this)">🏟️ スカイアリーナ座間</div>
@@ -253,6 +254,71 @@
       <tbody id="matrixBody"></tbody>
     </table>
   </div> 
+
+<div id="taskSection" class="card-section" style="display:none;">
+  <h2>課題の収集と分析</h2>
+  <p style="font-size:0.9em; color:#666;">連盟登録者（小学生・中学生）のみ入力可能です。</p>
+
+  <div style="background:#f9f9f9; padding:15px; border-radius:12px; border:1px solid #eee;">
+    <label style="font-weight:bold; color:#555;">氏名</label>
+    <select id="taskName" style="margin-bottom:15px;">
+      <option value="">名前を選択してください</option>
+    </select>
+
+    <label style="font-weight:bold; color:#555;">取り組む種目</label>
+    
+    <div class="checkbox-container">
+      <label class="checkbox-label">
+        <input type="radio" name="taskType" value="シングルス" checked>
+        シングルス
+      </label>
+
+      <label class="checkbox-label">
+        <input type="radio" name="taskType" value="ダブルス">
+        ダブルス
+      </label>
+    </div>
+    <label style="font-weight:bold; color:#555;">現在の課題（具体的に）</label>
+    <textarea id="taskContent" rows="3" placeholder="例：スマッシュが浮いてしまう。前衛でのプッシュが遅れる。"></textarea>
+
+    <button type="button" onclick="submitTask()">課題を登録する</button>
+  </div>
+
+  <hr style="margin: 30px 0; border:none; border-top:1px dashed #ccc;">
+
+  <h3>📊 カテゴリ別 分析・集計</h3>
+  
+  <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:15px;">
+    <button onclick="switchAnalysisTab('elem_s')" id="tab_elem_s" class="analysis-tab active" style="width:auto; padding:6px 10px; font-size:0.8em; margin:0;">小・シングル</button>
+    <button onclick="switchAnalysisTab('elem_d')" id="tab_elem_d" class="analysis-tab" style="width:auto; padding:6px 10px; font-size:0.8em; margin:0; background:#eee; color:#666;">小・ダブル</button>
+    <button onclick="switchAnalysisTab('mid_s')" id="tab_mid_s" class="analysis-tab" style="width:auto; padding:6px 10px; font-size:0.8em; margin:0; background:#eee; color:#666;">中・シングル</button>
+    <button onclick="switchAnalysisTab('mid_d')" id="tab_mid_d" class="analysis-tab" style="width:auto; padding:6px 10px; font-size:0.8em; margin:0; background:#eee; color:#666;">中・ダブル</button>
+  </div>
+
+  <div id="analysisResultArea">
+    <h4 id="analysisTitle" style="margin:0 0 10px 0; color:#FF9966;">小学生 シングルスの課題傾向</h4>
+    
+    <div id="keywordRanking" style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px; min-height:50px;"></div>
+
+    <div class="table-container">
+      <table id="taskTable">
+        <thead>
+          <tr>
+            <th>氏名</th>
+            <th>課題</th>
+            <th>日時</th>
+            <th class="delete-col">操作</th> </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    </div>
+
+  <div style="text-align:right; margin-top:10px;">
+    <button type="button" onclick="loadTasks()" style="width:auto; padding:6px 12px; font-size:0.8em; background:#666; box-shadow:none; margin:0;">データを更新</button>
+  </div>
+</div>
+
 
   <div id="shuttleSection" class="card-section" style="display:none; background:transparent; box-shadow:none; padding:0;">
     <h2>シャトル在庫管理</h2>
@@ -522,6 +588,37 @@
   </div>
 </div>
 
+<div id="tournamentDetailModal">
+  </div>
+
+<div id="taskEditModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:5000; justify-content:center; align-items:center;">
+  <div style="background:white; width:90%; max-width:400px; border-radius:12px; padding:20px; box-shadow:0 4px 15px rgba(0,0,0,0.2);">
+    <h3 style="margin-top:0; color:#333;">課題の編集</h3>
+    
+    <input type="hidden" id="editTaskRow"> 
+    <div style="margin-bottom:15px;">
+      <label style="font-weight:bold; display:block; margin-bottom:5px;">種目</label>
+      <div class="checkbox-container">
+        <label class="checkbox-label">
+          <input type="radio" name="editTaskType" value="シングルス"> シングルス
+        </label>
+        <label class="checkbox-label">
+          <input type="radio" name="editTaskType" value="ダブルス"> ダブルス
+        </label>
+      </div>
+    </div>
+
+    <label style="font-weight:bold; display:block; margin-bottom:5px;">課題内容</label>
+    <textarea id="editTaskContent" rows="4" style="width:100%; margin-bottom:20px;"></textarea>
+    
+    <div style="display:flex; gap:10px;">
+      <button onclick="saveTaskEdit()" style="flex:1; background:#FF9966; color:white;">保存</button>
+      <button onclick="document.getElementById('taskEditModal').style.display='none'" style="flex:1; background:#ccc; color:#333;">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+
 <script>
     // ▼▼▼ Firebaseの設定 ▼▼▼
     const firebaseConfig = {
@@ -597,7 +694,11 @@
       if (category === "tournament") loadTournamentList();
       if (category === "other") loadOtherList();
       if (category === "shuttle") loadShuttleData(); 
-      
+if (category === "task") {
+          updateTaskMemberSelect();
+          if(allTasksCache.length === 0) loadTasks(); // データ未取得なら読み込む
+      }      
+
       const navItems = document.querySelectorAll(".nav-item");
       navItems.forEach(item => item.classList.remove("active"));
       if(btnElement) btnElement.classList.add("active");
@@ -1617,6 +1718,326 @@ function openEditTournament(rowNum) {
         showLoading(false);
     }
 
-  </script>
+
+
+// --- 課題分析機能（名簿選択 & フィルタ機能付き） ---
+
+// グローバル変数：取得したタスク全量と現在のフィルタ状態
+let allTasksCache = [];
+let currentAnalysisMode = 'elem_s'; // 初期値: 小学生シングルス
+
+// 分析キーワード辞書
+const ANALYSIS_RULES = [
+  // --- 複合条件 ---
+  { 
+    label: "ネット前の動き出し", 
+    // ★修正：「とれない」「出ない」などひらがな表記を追加
+    keywords: ["取れな", "とれな", "追いつけ", "足が出な", "一歩目", "遅れ", "反応"], 
+    required: ["ドロップ", "ヘアピン", "前", "ネット"] 
+  },
+  { 
+    label: "ラウンドからのショット", 
+    keywords: ["ラウンド", "ハイバック"], 
+    required: [] 
+  },
+  { 
+    label: "サーブ・レシーブ", 
+    keywords: ["サーブ", "レシーブ", "３球目", "3球目"], 
+    required: [] 
+  },
+  { 
+    label: "ショットの浮き・精度", 
+    keywords: ["浮く", "浮いて", "甘く", "高い", "コントロール", "アウト"], 
+    required: [] 
+  },
+  { 
+    label: "スタミナ・体力", 
+    keywords: ["体力", "バテ", "息が", "足が止", "動けな"], 
+    required: [] 
+  },
+
+  // --- 単体条件 ---
+  { label: "スマッシュ強化", keywords: ["スマッシュ"], required: [] },
+  { label: "クリア・ロブ", keywords: ["クリア", "ロブ"], required: [] },
+  { label: "ドロップ・カット", keywords: ["ドロップ", "カット"], required: [] },
+  { label: "ヘアピン・ネット", keywords: ["ヘアピン", "ネット"], required: [] },
+  { label: "フットワーク全般", keywords: ["フットワーク", "足", "ステップ"], required: [] },
+  { label: "ドライブ・プッシュ", keywords: ["ドライブ", "プッシュ"], required: [] },
+];
+
+// ▼ 名簿プルダウンの更新（入力制限ロジック）
+function updateTaskMemberSelect() {
+    const select = document.getElementById("taskName");
+    if (select.options.length > 1) return; 
+
+    select.innerHTML = '<option value="">名前を選択してください</option>';
+    
+    if (!weeklyMembers || weeklyMembers.length === 0) {
+        const op = document.createElement("option");
+        op.text = "名簿データを読み込み中...";
+        select.appendChild(op);
+        return;
+    }
+
+    weeklyMembers.forEach(m => {
+        // 条件: G列(isElemFed) または E列(isFed) がある人のみ
+        if (m.isElemFed || m.isFed) {
+            // 所属判定（表示用にラベルをつける）
+            let label = "";
+            if (m.isElemFed) label = "【小】";
+            else if (m.isFed) label = "【中】";
+
+            const op = document.createElement("option");
+            op.value = m.name;
+            op.text = `${label} ${m.name}`;
+            select.appendChild(op);
+        }
+    });
+}
+
+// ▼ 課題を登録
+async function submitTask() {
+    const name = document.getElementById("taskName").value;
+    const content = document.getElementById("taskContent").value;
+    
+    // ラジオボタンの選択値を取得
+    const typeRadios = document.getElementsByName("taskType");
+    let typeVal = "";
+    for(let r of typeRadios) { if(r.checked) typeVal = r.value; }
+    
+    if (!name) return alert("名前を選択してください");
+    if (!content) return alert("課題を入力してください");
+    if (!typeVal) return alert("種目を選択してください");
+
+    showLoading(true);
+    // 種目(type)も含めて送信
+    const res = await callGas('saveTask', { name, content, type: typeVal });
+    
+    if (res) {
+        alert("登録しました");
+        document.getElementById("taskContent").value = "";
+        loadTasks(); 
+    }
+    showLoading(false);
+}
+
+// ▼ 課題データを取得
+async function loadTasks() {
+    updateTaskMemberSelect(); // 名簿更新
+    showLoading(true);
+    const data = await callGas('getTaskList'); 
+    showLoading(false);
+
+    if (data) {
+        allTasksCache = data; 
+        renderAnalysis(); // 現在のタブで集計実行
+    }
+}
+
+// ▼ タブ切り替え処理
+function switchAnalysisTab(mode) {
+    currentAnalysisMode = mode;
+    
+    // ボタンの見た目制御
+    const tabs = document.querySelectorAll('.analysis-tab');
+    tabs.forEach(btn => {
+        btn.style.background = "#eee";
+        btn.style.color = "#666";
+        btn.style.boxShadow = "none";
+        btn.classList.remove('active');
+    });
+    
+    const activeBtn = document.getElementById(`tab_${mode}`);
+    if(activeBtn) {
+        activeBtn.style.background = "#FF9966";
+        activeBtn.style.color = "white";
+        activeBtn.style.boxShadow = "0 2px 5px rgba(255, 153, 102, 0.4)";
+        activeBtn.classList.add('active');
+    }
+
+    renderAnalysis();
+}
+
+// 定数：Smart CoachアプリのURL（ここをあなたのアプリのURLに書き換えてください）
+const TRAINING_APP_URL = "https://coachmasuacademy-alt.github.io/my-website/";
+
+// ▼ 集計と表示の実行ロジック
+function renderAnalysis() {
+    const titleEl = document.getElementById("analysisTitle");
+
+    // 0. タイトルの更新（フィルタリングの前に実行）
+    if (currentAnalysisMode === 'elem_s') titleEl.innerText = "🏸 小学生・シングルスの課題";
+    else if (currentAnalysisMode === 'elem_d') titleEl.innerText = "🏸 小学生・ダブルスの課題";
+    else if (currentAnalysisMode === 'mid_s') titleEl.innerText = "🏸 中学生・シングルスの課題";
+    else if (currentAnalysisMode === 'mid_d') titleEl.innerText = "🏸 中学生・ダブルスの課題";
+
+    if (!allTasksCache || allTasksCache.length === 0) {
+        document.querySelector("#taskTable tbody").innerHTML = `<tr><td colspan="4" style="text-align:center;">データなし</td></tr>`;
+        return;
+    }
+
+    // 1. フィルタリング
+    const targetTasks = allTasksCache.filter(task => {
+        const member = weeklyMembers.find(m => m.name === task.name);
+        if (!member) return false; 
+
+        let schoolType = "unknown";
+        if (member.isElemFed) schoolType = "elem";
+        else if (member.isFed) schoolType = "mid";
+        
+        const taskType = task.type || "シングルス"; 
+
+        if (currentAnalysisMode === 'elem_s') return schoolType === 'elem' && taskType === 'シングルス';
+        if (currentAnalysisMode === 'elem_d') return schoolType === 'elem' && taskType === 'ダブルス';
+        if (currentAnalysisMode === 'mid_s') return schoolType === 'mid' && taskType === 'シングルス';
+        if (currentAnalysisMode === 'mid_d') return schoolType === 'mid' && taskType === 'ダブルス';
+        
+        return false;
+    });
+
+    // 2. テーブル描画
+    const tbody = document.querySelector("#taskTable tbody");
+    tbody.innerHTML = "";
+    
+    if (targetTasks.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#999; padding:20px;">このカテゴリの課題はありません</td></tr>`;
+        document.getElementById("keywordRanking").innerHTML = "";
+        return;
+    }
+
+    // 新しい順に表示
+    targetTasks.slice().reverse().forEach(r => {
+        const tr = document.createElement("tr");
+        
+        // エスケープ処理と改行・引用符の対策
+        const safeContent = escapeHtml(r.content);
+        const safeType = r.type || "シングルス";
+        const contentForFunc = safeContent.replace(/\r?\n/g, '\\n').replace(/'/g, "\\'");
+        
+        // ★重要：URLパラメータ用に日本語をエンコードする
+        const encodedTask = encodeURIComponent(r.content);
+
+        // ▼▼▼ 修正箇所：「メニュー作成」ボタンを追加しました ▼▼▼
+        tr.innerHTML = `
+            <td>${escapeHtml(r.name)}</td>
+            <td>${safeContent}</td>
+            <td style="font-size:0.8em; color:#999;">${formatDate(r.date)}</td>
+            <td class="delete-col" style="white-space:nowrap;">
+                <button onclick="window.open('${TRAINING_APP_URL}?task=${encodedTask}', '_blank')" 
+                        style="width:auto; padding:6px 10px; font-size:11px; background:#00796b; color:white; margin-right:4px; margin-bottom:4px; display:inline-block;">
+                    🏋️ メニュー作成
+                </button>
+                <br>
+                <button onclick="openEditTask(${r.row}, '${safeType}', '${contentForFunc}')" style="width:auto; padding:5px 10px; font-size:12px; background:#17a2b8; margin-right:4px;">編集</button>
+                <button onclick="deleteTask(${r.row})" style="width:auto; padding:5px 10px; font-size:12px; background:#dc3545;">削除</button>
+            </td>
+        `;
+        
+        tbody.appendChild(tr);
+    });
+
+    // 3. キーワード集計
+    analyzeKeywords(targetTasks);
+}
+
+// ▼ キーワード分析
+function analyzeKeywords(data) {
+    const counts = {};
+    
+    data.forEach(row => {
+        const text = row.content;
+        
+        // ★修正: matchedフラグと break を削除しました。
+        // これにより、1つの文章が複数のルールに当てはまる場合、それぞれカウントされます。
+
+        for (const rule of ANALYSIS_RULES) {
+            // A. メインキーワード判定
+            const hasKeyword = rule.keywords.some(k => text.includes(k));
+            
+            // B. 必須キーワード判定
+            const hasRequired = rule.required.length === 0 || rule.required.some(r => text.includes(r));
+
+            if (hasKeyword && hasRequired) {
+                counts[rule.label] = (counts[rule.label] || 0) + 1;
+                // ここにあった break; を削除しました
+            }
+        }
+    });
+
+    // --- 以下、表示処理（変更なし） ---
+    const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+    const container = document.getElementById("keywordRanking");
+    container.innerHTML = "";
+
+    if (sorted.length === 0) {
+        container.innerHTML = "<span style='color:#999; font-size:0.9em;'>キーワードなし</span>";
+        return;
+    }
+
+    sorted.forEach(([word, count]) => {
+        const isTop = count >= 3;
+        const bg = isTop ? "#FF9966" : "#f0f0f0";
+        const color = isTop ? "white" : "#333";
+        const weight = isTop ? "bold" : "normal";
+        
+        const div = document.createElement("div");
+        div.style.cssText = `padding:6px 12px; background:${bg}; color:${color}; border-radius:15px; font-size:0.85em; font-weight:${weight}; display:flex; align-items:center;`;
+        div.innerHTML = `${word} <span style="background:rgba(255,255,255,0.7); color:#333; padding:1px 6px; border-radius:8px; font-size:0.8em; margin-left:6px;">${count}</span>`;
+        container.appendChild(div);
+    });
+}
+
+// 編集モーダルを開く
+function openEditTask(row, type, content) {
+    document.getElementById("editTaskRow").value = row;
+    document.getElementById("editTaskContent").value = content;
+    
+    // ラジオボタンのセット
+    const radios = document.getElementsByName("editTaskType");
+    for(const r of radios) {
+        // 文字列比較でチェックを入れる
+        r.checked = (r.value === type);
+    }
+    
+    document.getElementById("taskEditModal").style.display = "flex";
+}
+
+// 編集内容を保存
+async function saveTaskEdit() {
+    const row = document.getElementById("editTaskRow").value;
+    const content = document.getElementById("editTaskContent").value;
+    
+    let type = "シングルス";
+    const radios = document.getElementsByName("editTaskType");
+    for(const r of radios) { if(r.checked) type = r.value; }
+
+    if (!content) return alert("課題内容を入力してください");
+
+    showLoading(true);
+    // GASの updateTask を呼び出す
+    const res = await callGas('updateTask', { row, content, type });
+    if (res) {
+        alert(res);
+        document.getElementById("taskEditModal").style.display = "none";
+        loadTasks(); // リスト再読み込み
+    }
+    showLoading(false);
+}
+
+// 課題を削除
+async function deleteTask(row) {
+    if(!confirm("本当にこの課題を削除しますか？")) return;
+    
+    showLoading(true);
+    // GASの deleteTask を呼び出す
+    const res = await callGas('deleteTask', { row });
+    if (res) {
+        alert(res);
+        loadTasks(); // リスト再読み込み
+    }
+    showLoading(false);
+}
+
+</script>
 </body>
 </html>

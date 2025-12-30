@@ -184,10 +184,6 @@
   </style>
 </head>
 <body>
-  <script>
-    // GASのURL
-    const SHEET_URL = "https://script.google.com/macros/s/AKfycbzm9ZuNeIXVcKMsvVoMC_md73PWiWlph5-SnneBQ-NcSkws617sK9YLIRQX_f4lV1r9/exec"; 
-  </script>
 
   <div id="loading"><div style="text-align:center;"><div style="margin-bottom:10px;">処理中...</div><div style="font-size:0.8em; color:#999;">しばらくお待ちください</div></div></div>
   
@@ -588,9 +584,6 @@
   </div>
 </div>
 
-<div id="tournamentDetailModal">
-  </div>
-
 <div id="taskEditModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:5000; justify-content:center; align-items:center;">
   <div style="background:white; width:90%; max-width:400px; border-radius:12px; padding:20px; box-shadow:0 4px 15px rgba(0,0,0,0.2);">
     <h3 style="margin-top:0; color:#333;">課題の編集</h3>
@@ -620,6 +613,9 @@
 
 
 <script>
+    // ▼▼▼ GASのURL（スクリプト先頭に移動） ▼▼▼
+    const SHEET_URL = "https://script.google.com/macros/s/AKfycbzm9ZuNeIXVcKMsvVoMC_md73PWiWlph5-SnneBQ-NcSkws617sK9YLIRQX_f4lV1r9/exec"; 
+
     // ▼▼▼ Firebaseの設定 ▼▼▼
     const firebaseConfig = {
       apiKey: "AIzaSyD-lU05Tehd0G9FVNvB74Qy8aKp4viC8Y8",
@@ -1203,9 +1199,9 @@ if (category === "task") {
         
         // フィルタリング処理
         const filteredMembers = weeklyMembers.filter(m => {
-            if (restrictionType === 'elem_all') return m.isClub;       // 小学生全員
-            if (restrictionType === 'elem_fed') return m.isElemFed;    // 小学生連盟
-            if (restrictionType === 'jhs_fed') return m.isFed;         // 中学生連盟
+            if (restrictionType === 'elem_all') return m.isClub;        // 小学生全員
+            if (restrictionType === 'elem_fed') return m.isElemFed;     // 小学生連盟
+            if (restrictionType === 'jhs_fed') return m.isFed;          // 中学生連盟
             return true; // all またはその他
         });
 
@@ -1917,13 +1913,13 @@ function renderAnalysis() {
         // ★重要：URLパラメータ用に日本語をエンコードする
         const encodedTask = encodeURIComponent(r.content);
 
-        // ▼▼▼ 修正箇所：「メニュー作成」ボタンを追加しました ▼▼▼
+        // ▼▼▼ 修正箇所：末尾に &role=admin を追加しました ▼▼▼
         tr.innerHTML = `
             <td>${escapeHtml(r.name)}</td>
             <td>${safeContent}</td>
             <td style="font-size:0.8em; color:#999;">${formatDate(r.date)}</td>
             <td class="delete-col" style="white-space:nowrap;">
-                <button onclick="window.open('${TRAINING_APP_URL}?task=${encodedTask}', '_blank')" 
+                <button onclick="window.open('${TRAINING_APP_URL}?task=${encodedTask}&role=admin', '_blank')" 
                         style="width:auto; padding:6px 10px; font-size:11px; background:#00796b; color:white; margin-right:4px; margin-bottom:4px; display:inline-block;">
                     🏋️ メニュー作成
                 </button>

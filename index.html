@@ -296,6 +296,16 @@
     
     <div id="keywordRanking" style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px; min-height:50px;"></div>
 
+    <div style="background:#E3F2FD; padding:15px; border-radius:12px; border:1px solid #BBDEFB; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">
+      <div>
+        <h4 style="margin:0 0 5px 0; color:#1565C0;">🤖 AIチーム練習プランナー</h4>
+        <div style="font-size:0.85em; color:#555;">集計された課題傾向から、練習メニュー案を作成します。</div>
+      </div>
+      <button onclick="generateTeamPlanPrompt()" style="width:auto; padding:10px 16px; background:#1976D2; border:none; box-shadow:0 2px 5px rgba(0,0,0,0.2); font-size:0.9em;">
+        🚀 Smart CoachでAIメニュー作成
+      </button>
+    </div>
+
     <div class="table-container">
       <table id="taskTable">
         <thead>
@@ -308,7 +318,7 @@
         <tbody></tbody>
       </table>
     </div>
-    </div>
+  </div>
 
   <div style="text-align:right; margin-top:10px;">
     <button type="button" onclick="loadTasks()" style="width:auto; padding:6px 12px; font-size:0.8em; background:#666; box-shadow:none; margin:0;">データを更新</button>
@@ -1724,21 +1734,66 @@ let currentAnalysisMode = 'elem_s'; // 初期値: 小学生シングルス
 
 // 分析キーワード辞書
 const ANALYSIS_RULES = [
-  // --- 複合条件 ---
+  // --- ダブルス ポジション・連携 ---
+  {
+    label: "ローテーション", // ★追加
+    keywords: ["ローテ", "回る", "入れ替", "トップアンド", "サイドバイ", "被る"],
+    required: []
+  },
+  {
+    label: "前衛・プッシュ",
+    keywords: ["前衛", "プッシュ", "ネット前", "飛び出し", "つぶす"],
+    required: []
+  },
+  {
+    label: "後衛・カバー",
+    keywords: ["後衛", "カバー", "連続", "打ち終わり"],
+    required: []
+  },
+
+  // --- サーブ・レシーブ ---
+  {
+    label: "サーブ・3球目",
+    keywords: ["サーブ", "３球目", "3球目", "ロング", "ショート"],
+    required: []
+  },
+  {
+    label: "レシーブ",
+    keywords: ["レシーブ", "リターン", "返球", "プッシュレシーブ"],
+    required: []
+  },
+
+  // --- ショット別 ---
+  { label: "クリア", keywords: ["クリア", "ハイクリア", "ドリブン"], required: [] },
+  { label: "ロブ", keywords: ["ロブ", "上げる", "上げ"], required: [] },
+  { 
+    label: "フォア奥からのショット", // ★追加
+    keywords: ["フォア奥", "正対", "右奥"], // 右利き想定で右奥も含める場合
+    required: [] 
+  },
+
+  // --- フットワーク・動き ---
+  { 
+    label: "コート後方への動き出し", // ★追加
+    keywords: ["下がる", "下がり", "後ろ", "後方", "バックステップ", "下げられ"], 
+    required: [] // 必須条件なしで「下がる」があればヒットさせる
+  },
   { 
     label: "ネット前の動き出し", 
-    // ★修正：「とれない」「出ない」などひらがな表記を追加
     keywords: ["取れな", "とれな", "追いつけ", "足が出な", "一歩目", "遅れ", "反応"], 
     required: ["ドロップ", "ヘアピン", "前", "ネット"] 
   },
   { 
-    label: "ラウンドからのショット", 
-    keywords: ["ラウンド", "ハイバック"], 
+    label: "スタミナ・体力", 
+    keywords: ["体力", "バテ", "息が", "足が止", "動けな"], 
     required: [] 
   },
+  { label: "フットワーク全般", keywords: ["フットワーク", "足", "ステップ"], required: [] },
+
+  // --- その他ショット ---
   { 
-    label: "サーブ・レシーブ", 
-    keywords: ["サーブ", "レシーブ", "３球目", "3球目"], 
+    label: "ラウンドからのショット", 
+    keywords: ["ラウンド", "ハイバック"], 
     required: [] 
   },
   { 
@@ -1746,19 +1801,10 @@ const ANALYSIS_RULES = [
     keywords: ["浮く", "浮いて", "甘く", "高い", "コントロール", "アウト"], 
     required: [] 
   },
-  { 
-    label: "スタミナ・体力", 
-    keywords: ["体力", "バテ", "息が", "足が止", "動けな"], 
-    required: [] 
-  },
-
-  // --- 単体条件 ---
   { label: "スマッシュ強化", keywords: ["スマッシュ"], required: [] },
-  { label: "クリア・ロブ", keywords: ["クリア", "ロブ"], required: [] },
   { label: "ドロップ・カット", keywords: ["ドロップ", "カット"], required: [] },
   { label: "ヘアピン・ネット", keywords: ["ヘアピン", "ネット"], required: [] },
-  { label: "フットワーク全般", keywords: ["フットワーク", "足", "ステップ"], required: [] },
-  { label: "ドライブ・プッシュ", keywords: ["ドライブ", "プッシュ"], required: [] },
+  { label: "ドライブ", keywords: ["ドライブ"], required: [] },
 ];
 
 // ▼ 名簿プルダウンの更新（入力制限ロジック）
@@ -1858,10 +1904,11 @@ function switchAnalysisTab(mode) {
 const TRAINING_APP_URL = "https://coachmasuacademy-alt.github.io/my-website/";
 
 // ▼ 集計と表示の実行ロジック
+// ▼ 集計と表示の実行ロジック（ボタンの表示内容を修正）
 function renderAnalysis() {
     const titleEl = document.getElementById("analysisTitle");
 
-    // 0. タイトルの更新（フィルタリングの前に実行）
+    // 0. タイトルの更新
     if (currentAnalysisMode === 'elem_s') titleEl.innerText = "🏸 小学生・シングルスの課題";
     else if (currentAnalysisMode === 'elem_d') titleEl.innerText = "🏸 小学生・ダブルスの課題";
     else if (currentAnalysisMode === 'mid_s') titleEl.innerText = "🏸 中学生・シングルスの課題";
@@ -1905,33 +1952,34 @@ function renderAnalysis() {
     targetTasks.slice().reverse().forEach(r => {
         const tr = document.createElement("tr");
         
-        // エスケープ処理と改行・引用符の対策
+        // エスケープ処理
         const safeContent = escapeHtml(r.content);
         const safeType = r.type || "シングルス";
         const contentForFunc = safeContent.replace(/\r?\n/g, '\\n').replace(/'/g, "\\'");
         
-        // ★重要：URLパラメータ用に日本語をエンコードする
+        // URLエンコード
         const encodedTask = encodeURIComponent(r.content);
 
-        // ▼▼▼ 修正箇所：末尾に &role=admin を追加しました ▼▼▼
         tr.innerHTML = `
             <td>${escapeHtml(r.name)}</td>
             <td>${safeContent}</td>
             <td style="font-size:0.8em; color:#999;">${formatDate(r.date)}</td>
             <td class="delete-col" style="white-space:nowrap;">
                 <button onclick="window.open('${TRAINING_APP_URL}?task=${encodedTask}&role=admin', '_blank')" 
-                        style="width:auto; padding:6px 10px; font-size:11px; background:#00796b; color:white; margin-right:4px; margin-bottom:4px; display:inline-block;">
-                    🏋️ メニュー作成
+                        style="width:auto; padding:8px 10px; font-size:11px; background:linear-gradient(135deg, #2b5876 0%, #4e4376 100%); color:white; border:none; box-shadow:0 2px 5px rgba(0,0,0,0.2); margin-right:4px; margin-bottom:6px; display:inline-block; text-align:left; line-height:1.4;">
+                    <span style="font-weight:bold; font-size:1.1em; display:block;">🚀 Smart Coach Badminton</span>
+                    <span style="font-size:0.9em; opacity:0.9;">1. トレーニング計画<br>おすすめメニューを参照</span>
                 </button>
-                <br>
-                <button onclick="openEditTask(${r.row}, '${safeType}', '${contentForFunc}')" style="width:auto; padding:5px 10px; font-size:12px; background:#17a2b8; margin-right:4px;">編集</button>
-                <button onclick="deleteTask(${r.row})" style="width:auto; padding:5px 10px; font-size:12px; background:#dc3545;">削除</button>
+                <div style="margin-top:2px;">
+                    <button onclick="openEditTask(${r.row}, '${safeType}', '${contentForFunc}')" style="width:auto; padding:5px 10px; font-size:11px; background:#17a2b8; margin-right:4px;">編集</button>
+                    <button onclick="deleteTask(${r.row})" style="width:auto; padding:5px 10px; font-size:11px; background:#dc3545;">削除</button>
+                </div>
             </td>
         `;
         
         tbody.appendChild(tr);
     });
-
+    
     // 3. キーワード集計
     analyzeKeywords(targetTasks);
 }
@@ -2032,6 +2080,72 @@ async function deleteTask(row) {
         loadTasks(); // リスト再読み込み
     }
     showLoading(false);
+}
+
+// ▼▼▼ AIプロンプト生成機能（新規追加） ▼▼▼
+function generateTeamPlanPrompt() {
+    // 1. 現在のフィルタリング条件でタスクを取得
+    if (!allTasksCache || allTasksCache.length === 0) return alert("データがありません");
+
+    const targetTasks = allTasksCache.filter(task => {
+        const member = weeklyMembers.find(m => m.name === task.name);
+        if (!member) return false; 
+        let schoolType = "unknown";
+        if (member.isElemFed) schoolType = "elem";
+        else if (member.isFed) schoolType = "mid";
+        const taskType = task.type || "シングルス"; 
+        
+        if (currentAnalysisMode === 'elem_s') return schoolType === 'elem' && taskType === 'シングルス';
+        if (currentAnalysisMode === 'elem_d') return schoolType === 'elem' && taskType === 'ダブルス';
+        if (currentAnalysisMode === 'mid_s') return schoolType === 'mid' && taskType === 'シングルス';
+        if (currentAnalysisMode === 'mid_d') return schoolType === 'mid' && taskType === 'ダブルス';
+        return false;
+    });
+
+    if (targetTasks.length === 0) return alert("現在のカテゴリには課題データがありません。");
+
+    // 2. キーワードを集計
+    const counts = {};
+    targetTasks.forEach(row => {
+        const text = row.content;
+        for (const rule of ANALYSIS_RULES) {
+            const hasKeyword = rule.keywords.some(k => text.includes(k));
+            const hasRequired = rule.required.length === 0 || rule.required.some(r => text.includes(r));
+            if (hasKeyword && hasRequired) {
+                counts[rule.label] = (counts[rule.label] || 0) + 1;
+            }
+        }
+    });
+
+    // 3. 上位の課題を抽出（配列化）
+    const sortedIssues = Object.entries(counts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5) 
+        .map(([key, val]) => `${key}(${val}名)`);
+
+    if (sortedIssues.length === 0) return alert("キーワードが抽出できませんでした。");
+
+    // 4. カテゴリ名の取得
+    let categoryName = "";
+    if (currentAnalysisMode === 'elem_s') categoryName = "小学生・シングルス";
+    else if (currentAnalysisMode === 'elem_d') categoryName = "小学生・ダブルス";
+    else if (currentAnalysisMode === 'mid_s') categoryName = "中学生・シングルス";
+    else if (currentAnalysisMode === 'mid_d') categoryName = "中学生・ダブルス";
+
+    // 5. データをオブジェクトにまとめる
+    const teamData = {
+        category: categoryName,
+        issues: sortedIssues
+    };
+
+    // 6. JSONにしてURLエンコードし、Smart Coachを開く
+    const jsonString = JSON.stringify(teamData);
+    const encodedData = encodeURIComponent(jsonString);
+    
+    // team_plan パラメータとして渡す
+    const targetUrl = `${TRAINING_APP_URL}?mode=team_link&data=${encodedData}`; // ★ここを変更
+    
+    window.open(targetUrl, '_blank');
 }
 
 </script>

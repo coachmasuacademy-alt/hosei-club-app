@@ -161,7 +161,7 @@
             min-width: 0 !important; 
             width: 100%; 
         }
-        
+       
         /* テーブルの横スクロール設定も解除 */
         .table-container { overflow-x: visible; }
         
@@ -222,6 +222,58 @@
         .delete-col {
             justify-content: flex-end;
             gap: 5px;
+        }
+
+/* ヘッダーを非表示 */
+        #taskTable thead { display: none; }
+
+        /* 行をカード型にする（青色枠） */
+        #taskTable tbody tr {
+            display: block;
+            width: 100%;
+            margin-bottom: 20px;
+            background: #fff;
+            border: 2px solid #1976D2; /* 青色で区別 */
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            box-sizing: border-box;
+        }
+
+        /* セルを縦積みにする */
+        #taskTable tbody td {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 8px 0;
+            border-bottom: 1px dashed #eee;
+            box-sizing: border-box;
+        }
+
+        /* 最後のセル（ボタン）は線なし・横並び */
+        #taskTable tbody td:last-child {
+            border-bottom: none;
+            display: flex;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        /* 項目名（ラベル）を表示 */
+        #taskTable tbody td::before {
+            content: attr(data-label);
+            display: block;
+            font-weight: bold;
+            color: #1976D2;
+            font-size: 0.85em;
+            margin-bottom: 4px;
+        }
+
+        /* 課題内容（2列目）は見やすく調整 */
+        #taskTable tbody td:nth-child(2) {
+            font-size: 1.05em;
+            line-height: 1.6;
+            white-space: pre-wrap; /* 改行を反映 */
         }
     }
 
@@ -306,6 +358,39 @@
     .payment-status-btn.unpaid { background: #FFEBEE; color: #D32F2F; border-color: #FFCDD2; }
     .add-participant-box { margin-top: 15px; padding: 15px; background: #fafafa; border-radius: 8px; border: 1px solid #eee; }
 
+
+/* ▼▼▼ ログイン画面用CSS（ここから追加） ▼▼▼ */
+    .login-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: #f4f7f6; /* アプリロックは背景色で隠す */
+        z-index: 10000; /* 最前面 */
+        display: none; /* 初期状態はJSで制御 */
+        justify-content: center; align-items: center;
+        flex-direction: column;
+    }
+    .login-overlay.active { display: flex; } /* 表示用クラス */
+
+    .login-box {
+        width: 85%; max-width: 320px;
+        background: white; padding: 30px 20px;
+        border-radius: 16px; text-align: center;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    .login-icon { font-size: 3em; margin-bottom: 15px; display: block; }
+    .login-title { font-size: 1.1em; font-weight: bold; margin-bottom: 20px; color: #333; }
+    
+    .pass-input {
+        width: 100%; padding: 14px; font-size: 18px; border: 2px solid #ddd;
+        border-radius: 12px; margin-bottom: 20px; box-sizing: border-box; 
+        text-align: center; letter-spacing: 2px; -webkit-text-security: disc;
+    }
+    .pass-input:focus { border-color: #FF9966; outline: none; }
+    
+    .login-btn {
+        width: 100%; padding: 12px; background: #FF9966; color: white;
+        border: none; border-radius: 50px; font-weight: bold; font-size: 16px;
+        cursor: pointer; box-shadow: 0 4px 10px rgba(255, 153, 102, 0.3);
+    }
   </style>
 </head>
 <body>
@@ -826,6 +911,71 @@
 
 
 <script>
+
+// ▼▼▼ パスワード設定（ここを変更してください） ▼▼▼
+    const APP_PASSWORD = "1234";  // アプリを開くときのパスワード
+    const TASK_PASSWORD = "5678"; // 課題管理を開くときのパスワード
+    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
+    // アプリログイン認証処理
+    function checkAppLogin() {
+        // 保存されたフラグがあるか確認
+        if (localStorage.getItem("isAppLoggedIn") === "true") {
+            document.getElementById("appLoginModal").classList.remove("active");
+        } else {
+            document.getElementById("appLoginModal").classList.add("active");
+        }
+    }
+
+    function verifyAppLogin() {
+        const input = document.getElementById("appPassInput").value;
+        if (input === APP_PASSWORD) {
+            localStorage.setItem("isAppLoggedIn", "true"); // ログイン状態を保存
+            document.getElementById("appLoginModal").classList.remove("active");
+        } else {
+            alert("パスワードが違います");
+            document.getElementById("appPassInput").value = "";
+        }
+    }
+
+    // 課題管理認証処理
+    let pendingTaskBtn = null; // ログイン後に押したボタンを記憶用
+
+    function checkTaskLogin(btnElement) {
+        if (localStorage.getItem("isTaskLoggedIn") === "true") {
+            return true; // 認証済みならOK
+        }
+        // 未認証ならモーダル表示
+        pendingTaskBtn = btnElement; // 押されたボタンを記憶
+        document.getElementById("taskLoginModal").classList.add("active");
+        return false; // ロック中
+    }
+
+    function verifyTaskLogin() {
+        const input = document.getElementById("taskPassInput").value;
+        if (input === TASK_PASSWORD) {
+            localStorage.setItem("isTaskLoggedIn", "true"); // ログイン状態を保存
+            document.getElementById("taskLoginModal").classList.remove("active");
+            
+            // 認証成功したら、中断していたタブ切り替えを再実行
+            if (pendingTaskBtn) {
+                switchCategory('task', pendingTaskBtn);
+            } else {
+                // ボタン情報がなければ強制的に切り替え
+                const taskBtn = document.querySelector('.nav-item[onclick*="task"]');
+                switchCategory('task', taskBtn);
+            }
+        } else {
+            alert("パスワードが違います");
+            document.getElementById("taskPassInput").value = "";
+        }
+    }
+
+    function closeTaskLogin() {
+        document.getElementById("taskLoginModal").classList.remove("active");
+        // キャンセル時は元のタブ（出欠など）に戻ったままにするため何もしない
+    }
+
     // ▼▼▼ GASのURL（スクリプト先頭に移動） ▼▼▼
     const SHEET_URL = "https://script.google.com/macros/s/AKfycbzXrwvEuphQSBvNNHnnTOv3j-iS6YAq9HqZ_eIFr4vb6Ml6-BVKa2v6U6-w8JPFdoi5/exec"; 
 
@@ -887,6 +1037,8 @@ let feeDataCache = null;  // 月謝データ用
 
         // 初期化（高速化対応版）
     document.addEventListener("DOMContentLoaded", async () => {
+checkAppLogin();
+
       // 1. まずUIの初期表示（出欠タブ）
     switchCategory('attendance', document.querySelector('.nav-item.active'));
 
@@ -912,6 +1064,13 @@ let feeDataCache = null;  // 月謝データ用
 
     // カテゴリ切り替え
     function switchCategory(category, btnElement) {
+
+// ▼▼▼ 課題管理のロック確認ロジックを追加 ▼▼▼
+      if (category === 'task') {
+          // 認証チェック関数を呼び出す（falseならここで中断）
+          if (!checkTaskLogin(btnElement)) return;
+      }
+
       const sections = ["attendanceSection", "shuttleSection", "carrySection", "tournamentSection", "otherSection", "skyArenaSection", "memberSection", "taskSection", "feeSection", "gutSection"];
       sections.forEach(id => {
           const el = document.getElementById(id);
@@ -2253,14 +2412,13 @@ function renderAnalysis() {
         const encodedTask = encodeURIComponent(r.content);
 
         tr.innerHTML = `
-            <td>${escapeHtml(r.name)}</td>
-            <td>${safeContent}</td>
-            <td style="font-size:0.8em; color:#999;">${formatDate(r.date)}</td>
-            <td class="delete-col" style="white-space:nowrap;">
+            <td data-label="氏名">${escapeHtml(r.name)}</td>
+            <td data-label="課題">${safeContent}</td>
+            <td data-label="日時" style="font-size:0.8em; color:#999;">${formatDate(r.date)}</td>
+            <td data-label="操作" class="delete-col" style="white-space:nowrap;">
                 <button onclick="window.open('${TRAINING_APP_URL}?task=${encodedTask}&role=admin', '_blank')" 
                         style="width:auto; padding:8px 10px; font-size:11px; background:linear-gradient(135deg, #2b5876 0%, #4e4376 100%); color:white; border:none; box-shadow:0 2px 5px rgba(0,0,0,0.2); margin-right:4px; margin-bottom:6px; display:inline-block; text-align:left; line-height:1.4;">
-                    <span style="font-weight:bold; font-size:1.1em; display:block;">🚀 Smart Coach Badminton</span>
-                    <span style="font-size:0.9em; opacity:0.9;">1. トレーニング計画<br>おすすめメニューを参照</span>
+                    <span style="font-weight:bold; font-size:1.1em; display:block;">🚀 Smart Coach</span>
                 </button>
                 <div style="margin-top:2px;">
                     <button onclick="openEditTask(${r.row}, '${safeType}', '${contentForFunc}')" style="width:auto; padding:5px 10px; font-size:11px; background:#17a2b8; margin-right:4px;">編集</button>
@@ -2670,5 +2828,27 @@ function generateTeamPlanPrompt() {
     }
 
 </script>
+
+<div id="appLoginModal" class="login-overlay">
+  <div class="login-box">
+    <span class="login-icon">🔒</span>
+    <div class="login-title">パスワードを入力してください</div>
+    <input type="tel" id="appPassInput" class="pass-input" placeholder="****" maxlength="8">
+    <button class="login-btn" onclick="verifyAppLogin()">ログイン</button>
+  </div>
+</div>
+
+<div id="taskLoginModal" class="login-overlay" style="background: rgba(0,0,0,0.6);">
+  <div class="login-box">
+    <div style="text-align:right; margin-bottom:10px;">
+      <button onclick="closeTaskLogin()" style="width:auto; margin:0; padding:5px 10px; background:none; color:#999; border:none; box-shadow:none; font-size:1.2em;">✕</button>
+    </div>
+    <span class="login-icon">📊</span>
+    <div class="login-title">課題管理用パスワード</div>
+    <input type="tel" id="taskPassInput" class="pass-input" placeholder="****" maxlength="8">
+    <button class="login-btn" onclick="verifyTaskLogin()" style="background:#1976D2;">確認</button>
+  </div>
+</div>
+
 </body>
 </html>

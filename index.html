@@ -508,6 +508,9 @@
         <option value="all">制限なし（全員）</option>
       </select>
 
+<label>参加費 (1人あたり)</label>
+      <input type="number" id="tournamentFee" placeholder="例：1500">
+
       <button type="button" onclick="submitTournament()">新規登録</button>
       
       <div style="margin-top:30px;">
@@ -678,6 +681,9 @@
         <option value="all">制限なし（全員）</option>
       </select>
 
+<label>参加費</label>
+      <input type="number" id="edit_t_fee">
+
       <button onclick="submitEditTournament()" style="margin-top:20px;">更新して保存</button>
       <button onclick="document.getElementById('tournamentEditModal').style.display='none'" style="background:#ccc; color:#333; margin-top:10px;">キャンセル</button>
     </div>
@@ -746,7 +752,7 @@
 
 <script>
     // ▼▼▼ GASのURL（スクリプト先頭に移動） ▼▼▼
-    const SHEET_URL = "https://script.google.com/macros/s/AKfycbzBNT4fPm5l3RGBB951isl9bQTDi1vguf6YteoEi6XU7LSeOlec_rFMmuQrXBCxyAJK/exec"; 
+    const SHEET_URL = "https://script.google.com/macros/s/AKfycbzXrwvEuphQSBvNNHnnTOv3j-iS6YAq9HqZ_eIFr4vb6Ml6-BVKa2v6U6-w8JPFdoi5/exec"; 
 
     // ▼▼▼ Firebaseの設定 ▼▼▼
     const firebaseConfig = {
@@ -1284,19 +1290,30 @@ if (category === "task") {
 
     function renderTournamentTable(data) { 
       const tbody = document.querySelector("#tournamentTable tbody"); 
+      const thead = document.querySelector("#tournamentTable thead tr");
+      
+      // ★ヘッダーに「参加費」列がなければ追加する処理（簡易的）
+      if(thead && !thead.innerHTML.includes("参加費")) {
+          // 状況(4番目)の前に挿入する場合の例。または単純に書き換えてもOK
+          thead.innerHTML = `<th>大会名</th><th>入力期限</th><th>担当者</th><th>参加費</th><th>状況</th><th class="delete-col">詳細/管理</th><th class="delete-col">削除</th>`;
+      }
+
       tbody.innerHTML = ""; 
       
       data.forEach(r => { 
         const cleanDate = formatDate(r.deadline); 
         const tr = document.createElement("tr"); 
         
-        if (r.status === "申込完了") tr.classList.add("other-completed");
+        if (r.status === "申込完了") tr.classList.add("other-completed"); 
         
+        // 金額表示（なければ - ）
+        const feeDisplay = r.fee ? `¥${r.fee}` : "-";
+
         tr.innerHTML = `
         <td>${escapeHtml(r.name)}</td>
         <td>${cleanDate}</td>
         <td>${escapeHtml(r.person)}</td>
-        <td>${r.status}</td>
+        <td>${feeDisplay}</td> <td>${r.status}</td>
         <td class="delete-col" style="white-space:nowrap;">
            <button type="button" style="background:#6f42c1; display:inline-block; width:auto; padding:6px 10px; margin-right:4px;" onclick="openTournamentDetail(${r.row})">詳細</button>
            <button type="button" style="background:#17a2b8; display:inline-block; width:auto; padding:6px 10px;" onclick="openEditTournament(${r.row})">編集</button>
@@ -1313,21 +1330,25 @@ if (category === "task") {
         const deadline = document.getElementById("deadline").value; 
         const person = document.getElementById("tournamentPerson").value; 
         const status = document.getElementById("status").value; 
-        const restriction = document.getElementById("restriction").value; // ★追加
+        const restriction = document.getElementById("restriction").value; 
+        const fee = document.getElementById("tournamentFee").value; // ★追加
 
         if (!name || !deadline || !person) return alert("大会名・申込期限・担当者を入力してください。"); 
         
         showLoading(true); 
-        // restriction を追加して送信
+        // fee を追加して送信
         const res = await callGas('saveTournament', {
             name, deadline, person, status, 
-            fileUrl: "", participants: "[]", restriction // ★追加
+            fileUrl: "", participants: "[]", restriction, 
+            fee: fee // ★追加
         }); 
         
         if (res) { 
             alert(res); 
             document.getElementById("tournamentName").value = ""; 
             document.getElementById("tournamentPerson").value = ""; 
+            document.getElementById("tournamentFee").value = ""; // クリア
+            localStorage.removeItem(CACHE_KEY_TOURNAMENT); // キャッシュクリア
             loadTournamentList(); 
         } 
         showLoading(false); 
@@ -1424,15 +1445,21 @@ if (category === "task") {
         const container = document.getElementById("tParticipantList");
         container.innerHTML = "";
 
-        // ▼▼▼ 集計処理（追加） ▼▼▼
+        // 現在の大会データを取得（参加費を知るため）
+        const currentTournament = tournamentListCache.find(r => r.row == currentTournamentRow);
+        const feePerPerson = currentTournament ? Number(currentTournament.fee || 0) : 0;
+
         const total = currentTournamentParticipants.length;
         const paidCount = currentTournamentParticipants.filter(p => p.paid).length;
         
+        // 合計金額の計算
+        const totalAmount = feePerPerson * paidCount;
+
         const countLabel = document.getElementById("tParticipantCount");
         if(countLabel) {
-            countLabel.innerHTML = `(済:<span style="color:#1976D2; font-weight:bold;">${paidCount}</span> / ${total}名)`;
+            // 人数と、金額を表示
+            countLabel.innerHTML = `(済:<span style="color:#1976D2; font-weight:bold;">${paidCount}</span> / ${total}名) <span style="font-size:0.9em; margin-left:5px;">計 ¥${totalAmount.toLocaleString()}</span>`;
         }
-        // ▲▲▲ 集計処理ここまで ▲▲▲
 
         if(total === 0) {
             container.innerHTML = "<p style='color:#999; text-align:center;'>参加者はまだ登録されていません</p>";
@@ -1848,19 +1875,17 @@ async function deleteTournamentFile() {
     }
 
 function openEditTournament(rowNum) {
-        // キャッシュからデータを取得
         const target = tournamentListCache.find(r => r.row == rowNum);
         if (!target) return alert("データが見つかりません");
 
-        // フォームに値をセット
         document.getElementById("edit_t_row").value = rowNum;
         document.getElementById("edit_t_name").value = target.name;
-        document.getElementById("edit_t_deadline").value = target.deadline; // YYYY-MM-DD形式
+        document.getElementById("edit_t_deadline").value = target.deadline; 
         document.getElementById("edit_t_person").value = target.person;
         document.getElementById("edit_t_status").value = target.status;
         document.getElementById("edit_t_restriction").value = target.restriction || "all";
+        document.getElementById("edit_t_fee").value = target.fee || ""; // ★追加
 
-        // モーダル表示
         document.getElementById("tournamentEditModal").style.display = "flex";
     }
 
@@ -1871,26 +1896,23 @@ function openEditTournament(rowNum) {
         const person = document.getElementById("edit_t_person").value;
         const status = document.getElementById("edit_t_status").value;
         const restriction = document.getElementById("edit_t_restriction").value;
+        const fee = document.getElementById("edit_t_fee").value; // ★追加
 
         if (!name || !deadline || !person) return alert("必須項目を入力してください");
 
         showLoading(true);
         const res = await callGas('updateTournament', {
-            row, name, deadline, person, status, restriction
+            row, name, deadline, person, status, restriction, fee // ★fee追加
         });
         
         if (res) {
             alert(res);
             document.getElementById("tournamentEditModal").style.display = "none";
-            
-            // ★追加：ここで古いキャッシュを削除して、強制的に最新データを読み込ませる
             localStorage.removeItem(CACHE_KEY_TOURNAMENT);
-            
-            loadTournamentList(); // 一覧を再読み込み
+            loadTournamentList(); 
         }
         showLoading(false);
     }
-
 
 
 // --- 課題分析機能（名簿選択 & フィルタ機能付き） ---

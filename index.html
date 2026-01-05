@@ -145,9 +145,66 @@
     /* マトリクス用（裏で使用） */
     .matrix-table { min-width: 800px; display:none; } 
 
+    /* ▼▼▼ 追加：大会一覧の参加者列用スタイル ▼▼▼ */
+    .participant-cell {
+        font-size: 0.85em;
+        color: #555;
+        white-space: normal; /* 折り返しを許可 */
+        min-width: 150px;    /* 幅を確保して見やすくする */
+        line-height: 1.4;    /* 行間を少し広げる */
+    }
+
+    /* ▼▼▼ 追加：スマホ表示最適化（カード型表示） ▼▼▼ */
     @media (max-width: 600px) {
-       h1 { font-size: 18px; }
-       .member-grid { grid-template-columns: repeat(2, 1fr); }
+        /* テーブルの強制横スクロールを解除 */
+        .table-container { overflow-x: visible; }
+        
+        /* 大会テーブルをカード型に変形 */
+        #tournamentTable thead { display: none; }
+        #tournamentTable tbody tr {
+            display: block;
+            margin-bottom: 20px;
+            background: #fff;
+            border: 2px solid #FF9966; /* 枠線を強調 */
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        #tournamentTable tbody td {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 1px dashed #eee;
+            padding: 8px 0;
+            text-align: right;
+            font-size: 0.95em;
+        }
+        #tournamentTable tbody td:last-child { border-bottom: none; }
+        
+        /* ラベル表示（data-label属性を使用） */
+        #tournamentTable tbody td::before {
+            content: attr(data-label);
+            font-weight: bold;
+            color: #888;
+            font-size: 0.85em;
+            margin-right: 15px;
+            white-space: nowrap;
+            text-align: left;
+            flex-shrink: 0;
+        }
+        
+        /* 参加者リストは折り返して表示 */
+        .participant-cell {
+            white-space: normal;
+            text-align: right;
+            max-width: 100%;
+        }
+        
+        /* 操作ボタンの配置調整 */
+        .delete-col {
+            justify-content: flex-end;
+            gap: 5px;
+        }
     }
 
     /* チェックボックス用のスタイル */
@@ -1292,10 +1349,17 @@ if (category === "task") {
       const tbody = document.querySelector("#tournamentTable tbody"); 
       const thead = document.querySelector("#tournamentTable thead tr");
       
-      // ★ヘッダーに「参加費」列がなければ追加する処理（簡易的）
-      if(thead && !thead.innerHTML.includes("参加費")) {
-          // 状況(4番目)の前に挿入する場合の例。または単純に書き換えてもOK
-          thead.innerHTML = `<th>大会名</th><th>入力期限</th><th>担当者</th><th>参加費</th><th>状況</th><th class="delete-col">詳細/管理</th><th class="delete-col">削除</th>`;
+      // ヘッダーの定義
+      if(thead) {
+          thead.innerHTML = `
+            <th>大会名</th>
+            <th>入力期限</th>
+            <th>担当者</th>
+            <th>参加費</th>
+            <th style="min-width:150px;">参加者</th> <th>状況</th>
+            <th class="delete-col">詳細/管理</th>
+            <th class="delete-col">削除</th>
+          `;
       }
 
       tbody.innerHTML = ""; 
@@ -1306,19 +1370,40 @@ if (category === "task") {
         
         if (r.status === "申込完了") tr.classList.add("other-completed"); 
         
-        // 金額表示（なければ - ）
-        const feeDisplay = r.fee ? `¥${r.fee}` : "-";
+        // 金額表示
+        const feeDisplay = r.fee ? `¥${Number(r.fee).toLocaleString()}` : "-";
 
+        // ★修正箇所：参加者リストの生成処理
+        let participantsStr = "0名";
+        let participantsNames = ""; // ツールチップ用（念のため残す）
+        try {
+            const pList = JSON.parse(r.participants || "[]");
+            if (pList.length > 0) {
+                // 名前を「、」で区切って全員表示する
+                const names = pList.map(p => p.name).join("、");
+                participantsNames = names;
+                // 「◯名: 山田、佐藤...」の形式で作成
+                participantsStr = `<span style="font-weight:bold;">${pList.length}名</span><br>${names}`;
+            }
+        } catch(e) {
+            participantsStr = "データ取得エラー";
+        }
+
+        // 行のHTML生成
         tr.innerHTML = `
-        <td>${escapeHtml(r.name)}</td>
-        <td>${cleanDate}</td>
-        <td>${escapeHtml(r.person)}</td>
-        <td>${feeDisplay}</td> <td>${r.status}</td>
-        <td class="delete-col" style="white-space:nowrap;">
+        <td data-label="大会名">${escapeHtml(r.name)}</td>
+        <td data-label="入力期限">${cleanDate}</td>
+        <td data-label="担当者">${escapeHtml(r.person)}</td>
+        <td data-label="参加費">${feeDisplay}</td>
+        
+        <td data-label="参加者" class="participant-cell">${participantsStr}</td>
+        
+        <td data-label="状況">${r.status}</td>
+        <td data-label="操作" class="delete-col" style="white-space:nowrap;">
            <button type="button" style="background:#6f42c1; display:inline-block; width:auto; padding:6px 10px; margin-right:4px;" onclick="openTournamentDetail(${r.row})">詳細</button>
            <button type="button" style="background:#17a2b8; display:inline-block; width:auto; padding:6px 10px;" onclick="openEditTournament(${r.row})">編集</button>
         </td>
-        <td class="delete-col">
+        <td data-label="削除" class="delete-col">
            <button type="button" onclick="deleteTournament(${r.row})">削除</button>
         </td>`; 
         tbody.appendChild(tr); 

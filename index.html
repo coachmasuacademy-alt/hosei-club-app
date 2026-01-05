@@ -19,11 +19,61 @@
     header { background: linear-gradient(135deg, #FF9966 0%, #FF5E62 100%); padding: 20px; color: white; text-align: center; border-radius: 0 0 20px 20px; box-shadow: 0 4px 10px rgba(255, 94, 98, 0.3); margin-bottom: 20px; }
     h1 { font-size: 20px; margin: 0; letter-spacing: 1px; text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
 
-    /* ナビゲーション */
-    .nav-container { overflow-x: auto; white-space: nowrap; padding: 0 15px 15px 15px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
-    .nav-container::-webkit-scrollbar { display: none; }
-    .nav-item { display: inline-block; padding: 10px 18px; margin-right: 8px; background: white; border: 1px solid #eee; border-radius: 25px; font-weight: bold; color: #666; cursor: pointer; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: all 0.2s ease; }
-    .nav-item.active { background: #333; color: white; border-color: #333; transform: scale(1.05); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+   /* ナビゲーション（修正版：2列グリッド表示） */
+    .nav-container { 
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        padding: 0 15px 15px 15px; 
+    }
+    
+    .nav-item { 
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 5px; 
+        margin: 0;
+        background: white; 
+        border: 1px solid #eee; 
+        border-radius: 12px;
+        font-weight: bold; 
+        color: #555; 
+        cursor: pointer; 
+        font-size: 14px; 
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+        transition: all 0.2s ease; 
+        text-align: center;
+    }
+
+    /* ★修正：選択時のスタイル */
+    .nav-item.active { 
+        background: #ffe0b2;       /* 背景を薄いオレンジに変更（文字が見えるように） */
+        color: #333;               /* 文字色は黒のまま */
+        border: 2px solid #FF9966; /* 枠線を濃いオレンジで太くして強調 */
+        transform: scale(0.98); 
+        box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); 
+    }
+
+    /* ▼▼▼ カテゴリごとの色分け設定（左のバーのみ） ▼▼▼ */
+    
+    /* お金管理（月謝・ガット）→ 黄色バー */
+    .nav-item[onclick*="fee"], .nav-item[onclick*="gut"] {
+        border-left: 5px solid #ffc107;
+    }
+    /* 運営管理（シャトル・運搬・アリーナ）→ 水色バー */
+    .nav-item[onclick*="shuttle"], .nav-item[onclick*="carry"], .nav-item[onclick*="skyArena"] {
+        border-left: 5px solid #17a2b8;
+    }
+    /* 事務（名簿・その他・大会）→ グレーバー */
+    .nav-item[onclick*="member"], .nav-item[onclick*="other"], .nav-item[onclick*="tournament"] {
+        border-left: 5px solid #6c757d;
+    }
+    /* 練習（出欠・課題）→ オレンジバー */
+    .nav-item[onclick*="attendance"], .nav-item[onclick*="task"] {
+        border-left: 5px solid #FF9966;
+        /* 背景色の指定を削除しました */
+    }
+
 
     /* コンテンツエリア */
     .content-wrapper { padding: 0 15px 80px 15px; }
@@ -200,7 +250,9 @@
     <div class="nav-item" onclick="switchCategory('carry', this)">🚙 道具運搬</div>
     <div class="nav-item" onclick="switchCategory('skyArena', this)">🏟️ スカイアリーナ座間</div>
     <div class="nav-item" onclick="switchCategory('tournament', this)">🏆 大会申込</div>
-    <div class="nav-item" onclick="switchCategory('other', this)">📝 その他</div>
+    <div class="nav-item" onclick="switchCategory('fee', this)">💴 月謝</div>
+<div class="nav-item" onclick="switchCategory('gut', this)">🏸 ガット</div>
+<div class="nav-item" onclick="switchCategory('other', this)">📝 その他</div>
     <div class="nav-item" onclick="switchCategory('member', this)">👥 名簿</div>
   </div>
 
@@ -495,6 +547,76 @@
       </div>
     </div>
 
+<div id="feeSection" class="card-section" style="display:none;">
+    <h2>💴 月謝管理 (4,000円/月)</h2>
+    <div style="background:#fff; padding:15px; border-radius:12px; border:1px solid #FF9966; margin-bottom:20px; text-align:center;">
+       <label>対象月を選択</label>
+       <input type="month" id="feeMonthSelect" style="font-size:1.2em; font-weight:bold; text-align:center; color:#333;" onchange="loadFeeData()">
+    </div>
+
+    <div style="margin-bottom:10px; font-size:0.9em; color:#666; text-align:right;">
+       <span id="feeCountLabel">支払い済み: 0名</span>
+    </div>
+
+    <div class="table-container">
+      <table id="feeTable">
+        <thead>
+          <tr>
+            <th style="width:40%;">氏名</th>
+            <th>状況</th>
+            <th style="width:20%;">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="gutSection" class="card-section" style="display:none;">
+    <h2>🏸 ガット張り管理 (1,800円/本)</h2>
+    
+    <div style="background:#f9f9f9; padding:20px; border-radius:12px; border:1px solid #ddd; margin-bottom:30px;">
+      <h3 style="margin-top:0;">新規登録</h3>
+      <label>氏名</label>
+      <select id="gutNameSelect"><option value="">選択してください</option></select>
+      
+      <label>受付日</label>
+      <input type="date" id="gutDate">
+      
+      <div style="display:flex; gap:10px;">
+         <div style="flex:1;">
+           <label>本数</label>
+           <input type="number" id="gutCount" value="1" min="1">
+         </div>
+         <div style="flex:1;">
+           <label>テンション</label>
+           <input type="number" id="gutTension" placeholder="24" step="0.5">
+         </div>
+      </div>
+      
+      <button onclick="submitGut()">登録する</button>
+    </div>
+
+    <h3>📜 履歴・支払い状況</h3>
+    <button onclick="loadGutList()" style="width:auto; padding:6px 12px; font-size:0.8em; margin-bottom:10px; background:#666; box-shadow:none;">更新</button>
+    
+    <div class="table-container">
+      <table id="gutTable">
+        <thead>
+          <tr>
+            <th>日付</th>
+            <th>氏名</th>
+            <th>内容</th>
+            <th>金額/状況</th>
+            <th class="delete-col">削除</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
     <div id="memberSection" class="card-section" style="display:none;">
       <h2>クラブ名簿</h2>
       <div class="table-container">
@@ -576,7 +698,7 @@
     </div>
 
     <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
-       <h3>👥 参加希望者と支払い</h3>
+       <h3 style="margin:0;">👥 参加希望者 <span id="tParticipantCount" style="font-size:0.8em; font-weight:normal; color:#666; margin-left:5px;"></span></h3>
        <button onclick="toggleAddParticipantBox()" style="width:auto; padding:6px 12px; font-size:0.8em; margin:0;">＋ メンバー追加</button>
     </div>
     
@@ -624,7 +746,7 @@
 
 <script>
     // ▼▼▼ GASのURL（スクリプト先頭に移動） ▼▼▼
-    const SHEET_URL = "https://script.google.com/macros/s/AKfycbzm9ZuNeIXVcKMsvVoMC_md73PWiWlph5-SnneBQ-NcSkws617sK9YLIRQX_f4lV1r9/exec"; 
+    const SHEET_URL = "https://script.google.com/macros/s/AKfycbzBNT4fPm5l3RGBB951isl9bQTDi1vguf6YteoEi6XU7LSeOlec_rFMmuQrXBCxyAJK/exec"; 
 
     // ▼▼▼ Firebaseの設定 ▼▼▼
     const firebaseConfig = {
@@ -662,6 +784,9 @@
     let isShowingAll = false; 
     let shuttleUpdateCount = 0;
     
+let feeDataCache = null;  // 月謝データ用
+    let gutDataCache = null;  // ガットデータ用
+
     // ★大会用グローバル変数
     let currentTournamentRow = null; // 編集中の大会の行番号
     let currentTournamentParticipants = []; // 現在の参加者リスト [{name:xxx, paid:true/false}]
@@ -679,15 +804,34 @@
     function safeSetStorage(key, value) { try { localStorage.setItem(key, value); } catch (e) { console.warn("Quota Exceeded", e); } }
     function showLoading(show) { document.getElementById("loading").style.display = show ? "flex" : "none"; }
 
-    // 初期化
+        // 初期化（高速化対応版）
     document.addEventListener("DOMContentLoaded", async () => {
-      switchCategory('attendance', document.querySelector('.nav-item.active'));
-      await Promise.all([ loadWeeklyMatrix(), loadSchedule(), fetchArenaData(), loadMemberList(), loadShuttleData() ]);
+      // 1. まずUIの初期表示（出欠タブ）
+    switchCategory('attendance', document.querySelector('.nav-item.active'));
+
+      // 2. 最初の画面に必要なデータ（名簿・スケジュール・出欠データ）だけを待機して読み込む
+    await Promise.all([ loadMemberList(), loadSchedule(), loadWeeklyMatrix() ]);
+
+      // 3. その他のタブ（課題・月謝・ガット・アリーナ・シャトル）は「裏側」で読み込む
+    fetchArenaData();
+    loadShuttleData();
+
+      // 新機能の裏読み込み（引数 true = ローディング画面を出さずにデータだけ取る）
+      // ※関数側で true に対応していないとエラーになるので、前の手順で関数を更新している必要があります
+    if (typeof loadTasks === 'function') loadTasks(true);
+    if (typeof loadGutList === 'function') loadGutList(true);
+
+      // 月謝の初期値セット＆裏読み込み
+    const thisMonth = formatMonth(new Date());
+    const feeSelect = document.getElementById("feeMonthSelect");
+    if(feeSelect) feeSelect.value = thisMonth;
+      
+    if (typeof loadFeeData === 'function') loadFeeData(true);
     });
 
     // カテゴリ切り替え
     function switchCategory(category, btnElement) {
-      const sections = ["attendanceSection", "shuttleSection", "carrySection", "tournamentSection", "otherSection", "skyArenaSection", "memberSection"];
+      const sections = ["attendanceSection", "shuttleSection", "carrySection", "tournamentSection", "otherSection", "skyArenaSection", "memberSection", "taskSection", "feeSection", "gutSection"];
       sections.forEach(id => {
           const el = document.getElementById(id);
           if(el) el.style.display = "none";
@@ -703,7 +847,20 @@
 if (category === "task") {
           updateTaskMemberSelect();
           if(allTasksCache.length === 0) loadTasks(); // データ未取得なら読み込む
-      }      
+      }  
+
+    // ★追加: 月謝とガット張り
+      if (category === "fee") {
+         // 今月をセット
+         if(!document.getElementById("feeMonthSelect").value) {
+             document.getElementById("feeMonthSelect").value = formatMonth(new Date());
+         }
+         loadFeeData();
+      }
+      if (category === "gut") {
+         updateGutMemberSelect(); // 名簿セット
+         loadGutList();
+      }
 
       const navItems = document.querySelectorAll(".nav-item");
       navItems.forEach(item => item.classList.remove("active"));
@@ -1267,7 +1424,17 @@ if (category === "task") {
         const container = document.getElementById("tParticipantList");
         container.innerHTML = "";
 
-        if(currentTournamentParticipants.length === 0) {
+        // ▼▼▼ 集計処理（追加） ▼▼▼
+        const total = currentTournamentParticipants.length;
+        const paidCount = currentTournamentParticipants.filter(p => p.paid).length;
+        
+        const countLabel = document.getElementById("tParticipantCount");
+        if(countLabel) {
+            countLabel.innerHTML = `(済:<span style="color:#1976D2; font-weight:bold;">${paidCount}</span> / ${total}名)`;
+        }
+        // ▲▲▲ 集計処理ここまで ▲▲▲
+
+        if(total === 0) {
             container.innerHTML = "<p style='color:#999; text-align:center;'>参加者はまだ登録されていません</p>";
             return;
         }
@@ -2147,6 +2314,235 @@ function generateTeamPlanPrompt() {
     
     window.open(targetUrl, '_blank');
 }
+
+// --- ▼▼▼ 月謝管理ロジック ▼▼▼ ---
+    
+    async function loadFeeData() {
+       const month = document.getElementById("feeMonthSelect").value;
+       if(!month) return;
+       
+       // メンバーリストがなければロード
+       if (weeklyMembers.length === 0) await loadMemberList();
+
+       showLoading(true);
+       // GASからその月の支払い済みリストを取得
+       const paidStatus = await callGas('getFeeStatus', { month: month });
+       showLoading(false);
+       
+       const tbody = document.querySelector("#feeTable tbody");
+       tbody.innerHTML = "";
+       
+       let paidCount = 0;
+       let targetCount = 0; // 免除者を除いた対象人数
+
+       // 名簿順に表示
+       weeklyMembers.forEach(m => {
+          const tr = document.createElement("tr");
+          const isPaid = paidStatus && paidStatus[m.name];
+          const isExempt = m.isExempt; // ★GASから取得した免除フラグ(H列)
+
+          // ▼▼▼ パターンA：免除者の場合 ▼▼▼
+          if (isExempt) {
+              tr.style.backgroundColor = "#f9f9f9"; // 薄いグレー背景
+              tr.style.color = "#bbb";              // 文字色を薄く
+              
+              tr.innerHTML = `
+                 <td style="padding:12px 10px;">
+                    ${m.name} <span style="font-size:0.8em;">(${m.grade})</span>
+                    <span style="font-size:0.7em; background:#ddd; color:#fff; padding:1px 5px; border-radius:4px; margin-left:4px;">免除</span>
+                 </td>
+                 <td style="text-align:center;">-</td>
+                 <td style="text-align:center;">
+                    <button type="button" disabled 
+                       style="width:auto; padding:6px 10px; font-size:0.8em; background:none; border:1px solid #eee; color:#ccc; box-shadow:none; cursor:default;">
+                       対象外
+                    </button>
+                 </td>
+              `;
+          } 
+          // ▼▼▼ パターンB：通常メンバーの場合 ▼▼▼
+          else {
+              targetCount++; // 分母に加算
+              
+              if(isPaid) {
+                  tr.style.backgroundColor = "#E3F2FD"; // 支払い済みの青背景
+                  paidCount++;
+              }
+
+              const btnClass = isPaid ? "paid" : "unpaid";
+              const btnStyle = isPaid 
+                  ? "background:#28a745; border-color:#28a745; color:white;" 
+                  : "background:#fff; border-color:#ccc; color:#666;";
+
+              tr.innerHTML = `
+                 <td style="font-weight:bold; padding:12px 10px;">
+                    ${m.name} <span style="font-size:0.8em; font-weight:normal; color:#888;">(${m.grade})</span>
+                 </td>
+                 <td style="text-align:center;">
+                    <span style="font-weight:bold; color:${isPaid ? '#28a745':'#ccc'}">${isPaid ? '済' : '未'}</span>
+                 </td>
+                 <td style="text-align:center;">
+                    <button type="button" onclick="toggleFeePayment('${m.name}', ${!isPaid})" 
+                       style="width:auto; padding:8px 12px; font-size:0.9em; box-shadow:none; ${btnStyle}">
+                       ${isPaid ? '取消' : '支払'}
+                    </button>
+                 </td>
+              `;
+          }
+          tbody.appendChild(tr);
+       });
+       
+       // 集計表示（免除者を除いた数を表示）
+       document.getElementById("feeCountLabel").innerText = `集金状況: ${paidCount} / ${targetCount} 名 (免除を除く)`;
+    }
+
+    async function toggleFeePayment(name, isPaid) {
+        const month = document.getElementById("feeMonthSelect").value;
+        showLoading(true);
+        const res = await callGas('updateFeeStatus', { month, name, isPaid });
+        showLoading(false);
+        if(res) {
+            // alert(res); // いちいちアラートを出さなくても良いならコメントアウト
+            loadFeeData(); // 再描画
+        }
+    }
+
+    // --- ▼▼▼ ガット張り管理ロジック ▼▼▼ ---
+
+    function updateGutMemberSelect() {
+        const select = document.getElementById("gutNameSelect");
+        if (select.options.length > 1) return; 
+        
+        select.innerHTML = '<option value="">選択してください</option>';
+        if (weeklyMembers.length === 0) {
+            select.innerHTML = '<option>名簿読込中...</option>';
+            return;
+        }
+        weeklyMembers.forEach(m => {
+            const op = document.createElement("option");
+            op.value = m.name;
+            op.text = `${m.name} (${m.grade})`;
+            select.appendChild(op);
+        });
+        document.getElementById("gutDate").value = formatDate(new Date());
+    }
+
+    async function submitGut() {
+        const name = document.getElementById("gutNameSelect").value;
+        const date = document.getElementById("gutDate").value;
+        const count = document.getElementById("gutCount").value;
+        const tension = document.getElementById("gutTension").value;
+        
+        if(!name || !date || !count || !tension) return alert("すべての項目を入力してください");
+        
+        showLoading(true);
+        const res = await callGas('saveStringing', { name, date, count, tension });
+        
+        if(res) {
+            alert(res);
+            document.getElementById("gutCount").value = "1";
+            document.getElementById("gutTension").value = "";
+            gutDataCache = null; // キャッシュクリア
+            loadGutList();       // リスト更新
+        } else {
+            showLoading(false);
+        }
+    }
+
+    // ★修正：isBackground引数を追加（高速化対応）
+    async function loadGutList(isBackground = false) {
+        // キャッシュがあれば即表示
+        if (gutDataCache && !isBackground) {
+            renderGutTable(gutDataCache);
+            return;
+        }
+
+        if (!isBackground) showLoading(true);
+        const list = await callGas('getStringingList');
+        if (!isBackground) showLoading(false);
+        
+        if (list) {
+            gutDataCache = list;
+            if (!isBackground) renderGutTable(list);
+        }
+    }
+
+    // 描画関数
+    function renderGutTable(list) {
+        const tbody = document.querySelector("#gutTable tbody");
+        tbody.innerHTML = "";
+        
+        if(!list || list.length === 0) {
+            tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; color:#999;'>履歴はありません</td></tr>";
+            return;
+        }
+        
+        list.forEach(item => {
+            const tr = document.createElement("tr");
+            const cleanDate = formatDate(item.date);
+            const isPaid = (item.status === "支払い済み");
+            
+            // 支払い済みなら背景色を薄い緑に
+            if(isPaid) tr.style.backgroundColor = "#e8f5e9";
+            
+            // ★ボタンの切り替えロジック
+            // 未払いなら「支払（オレンジ）」、支払い済みなら「取消（白）」を表示
+            const btnHtml = isPaid 
+                ? `<button onclick="toggleGutPayment('${item.id}', false)" style="width:auto; padding:6px 12px; font-size:0.8em; background:#fff; border:1px solid #ccc; color:#666; box-shadow:none;">取消</button>`
+                : `<button onclick="toggleGutPayment('${item.id}', true)" style="width:auto; padding:6px 12px; font-size:0.8em; background:#FF9966; box-shadow:none; color:white;">支払</button>`;
+            
+            // ステータス文字
+            const statusText = isPaid 
+                ? `<span style="color:#28a745; font-weight:bold; font-size:0.9em; margin-right:5px;">✅ 済</span>`
+                : `<span style="color:#e67e22; font-weight:bold; font-size:0.9em; margin-right:5px;">未</span>`;
+
+            tr.innerHTML = `
+               <td style="font-size:0.9em;">${cleanDate}</td>
+               <td>${escapeHtml(item.name)}</td>
+               <td style="font-size:0.85em;">${item.count}本 / ${item.tension}P</td>
+               <td style="text-align:center;">
+                  <div style="font-weight:bold; font-size:0.95em;">¥${item.amount}</div>
+                  <div style="margin-top:6px; display:flex; align-items:center; justify-content:center;">
+                     ${statusText} ${btnHtml}
+                  </div>
+               </td>
+               <td class="delete-col">
+                  <button onclick="deleteGut('${item.id}')" style="padding:6px; font-size:0.8em;">削除</button>
+               </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    async function toggleGutPayment(id, toPaid) {
+        const msg = toPaid ? "支払い済みに変更しますか？" : "未払いに戻しますか？";
+        const statusStr = toPaid ? "支払い済み" : "未払い";
+
+        if(!confirm(msg)) return;
+        
+        showLoading(true);
+        // GASへ ID と 新しいステータス を送信
+        const res = await callGas('updateStringingPayment', { id: id, status: statusStr });
+        
+        if(res) {
+            gutDataCache = null; // キャッシュクリア
+            await loadGutList(); // 再読み込み
+        } else {
+            showLoading(false);
+        }
+    }
+
+    async function deleteGut(id) {
+        if(!confirm("削除しますか？")) return;
+        showLoading(true);
+        const res = await callGas('deleteStringing', { id });
+        if(res) {
+            gutDataCache = null; 
+            await loadGutList();
+        } else {
+            showLoading(false);
+        }
+    }
 
 </script>
 </body>

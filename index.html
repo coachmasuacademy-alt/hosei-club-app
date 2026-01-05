@@ -149,58 +149,76 @@
     .participant-cell {
         font-size: 0.85em;
         color: #555;
-        white-space: normal; /* 折り返しを許可 */
-        min-width: 150px;    /* 幅を確保して見やすくする */
-        line-height: 1.4;    /* 行間を少し広げる */
+        white-space: normal;       /* テキストの折り返しを有効化 */
+        word-wrap: break-word;     /* 長い単語も折り返す */
+        line-height: 1.5;
     }
 
-    /* ▼▼▼ 追加：スマホ表示最適化（カード型表示） ▼▼▼ */
+    /* ▼▼▼ 追加・修正：スマホ表示最適化（カード型・横スクロール防止） ▼▼▼ */
     @media (max-width: 600px) {
-        /* テーブルの強制横スクロールを解除 */
+        /* ★最重要：テーブルの強制的な最小幅(600px)を解除して画面内に収める */
+        table { 
+            min-width: 0 !important; 
+            width: 100%; 
+        }
+        
+        /* テーブルの横スクロール設定も解除 */
         .table-container { overflow-x: visible; }
         
-        /* 大会テーブルをカード型に変形 */
+        /* ヘッダーを非表示 */
         #tournamentTable thead { display: none; }
+        
+        /* 行をカード型デザインに変更 */
         #tournamentTable tbody tr {
             display: block;
+            width: 100%;
+            box-sizing: border-box; /* パディングを含めて幅計算 */
             margin-bottom: 20px;
             background: #fff;
-            border: 2px solid #FF9966; /* 枠線を強調 */
+            border: 2px solid #FF9966;
             border-radius: 12px;
             padding: 15px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
+        
+        /* 各セルのレイアウト調整 */
         #tournamentTable tbody td {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
+            align-items: flex-start; /* 上揃え */
             border-bottom: 1px dashed #eee;
-            padding: 8px 0;
+            padding: 10px 0;
             text-align: right;
             font-size: 0.95em;
+            width: 100%; /* 幅いっぱい使う */
+            box-sizing: border-box;
         }
         #tournamentTable tbody td:last-child { border-bottom: none; }
         
-        /* ラベル表示（data-label属性を使用） */
+        /* ラベル（項目名）の表示 */
         #tournamentTable tbody td::before {
             content: attr(data-label);
             font-weight: bold;
             color: #888;
             font-size: 0.85em;
             margin-right: 15px;
-            white-space: nowrap;
+            white-space: nowrap; /* ラベルは折り返さない */
             text-align: left;
-            flex-shrink: 0;
+            flex-shrink: 0; /* ラベル幅を縮めない */
         }
         
-        /* 参加者リストは折り返して表示 */
-        .participant-cell {
-            white-space: normal;
-            text-align: right;
-            max-width: 100%;
+        /* ★参加者リスト専用設定：見やすいように縦積みに変更 */
+        #tournamentTable tbody td[data-label="参加者"] {
+            display: block;      /* フレックス解除してブロック要素に */
+            text-align: left;    /* 左寄せ */
+        }
+        #tournamentTable tbody td[data-label="参加者"]::before {
+            display: block;      /* ラベルを1行目に */
+            margin-bottom: 5px;  /* 本文との隙間 */
+            color: #FF9966;      /* ラベル色を目立たせる */
         }
         
-        /* 操作ボタンの配置調整 */
+        /* 操作ボタンの配置 */
         .delete-col {
             justify-content: flex-end;
             gap: 5px;

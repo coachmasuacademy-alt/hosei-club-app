@@ -391,6 +391,87 @@
         border: none; border-radius: 50px; font-weight: bold; font-size: 16px;
         cursor: pointer; box-shadow: 0 4px 10px rgba(255, 153, 102, 0.3);
     }
+
+/* ▼▼▼ タイムライン（個人変遷）用CSS ▼▼▼ */
+    .timeline-container {
+        position: relative;
+        margin: 20px 0 0 10px;
+        padding-left: 20px;
+        border-left: 3px solid #FF9966; /* タイムラインの軸線 */
+    }
+    
+    .timeline-item {
+        position: relative;
+        margin-bottom: 30px;
+    }
+    
+    /* 軸上の丸ポチ */
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -29px; /* 線の太さ分調整 */
+        top: 15px;
+        width: 15px;
+        height: 15px;
+        background: white;
+        border: 3px solid #FF9966;
+        border-radius: 50%;
+        z-index: 1;
+    }
+
+    .timeline-date-label {
+        font-weight: bold;
+        color: #FF9966;
+        font-size: 0.9em;
+        margin-bottom: 5px;
+    }
+
+    .timeline-content-box {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        padding: 15px;
+        position: relative;
+        border: 1px solid #eee;
+    }
+    
+    /* 吹き出しの三角 */
+    .timeline-content-box::after {
+        content: '';
+        position: absolute;
+        left: -8px;
+        top: 20px;
+        width: 0;
+        height: 0;
+        border-top: 8px solid transparent;
+        border-bottom: 8px solid transparent;
+        border-right: 8px solid white;
+    }
+
+    .tl-task-section {
+        margin-bottom: 10px;
+    }
+    .tl-reflect-section {
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px dashed #ddd;
+        background: #f9fff9; /* 薄い緑背景 */
+        margin: 10px -15px -15px -15px; /* 親のpaddingを打ち消して下部を埋める */
+        padding: 10px 15px;
+        border-radius: 0 0 12px 12px;
+    }
+    .tl-label {
+        font-size: 0.75em;
+        font-weight: bold;
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 4px;
+        margin-bottom: 4px;
+        color: white;
+    }
+    .bg-task { background: #1976D2; }
+    .bg-reflect { background: #2E7D32; }
+
   </style>
 </head>
 <body>
@@ -494,7 +575,19 @@
 
   <hr style="margin: 30px 0; border:none; border-top:1px dashed #ccc;">
 
-  <h3>📊 カテゴリ別 分析・集計</h3>
+  <div style="display:flex; background:#fff; border-radius:30px; border:1px solid #ddd; padding:4px; margin: 20px 0; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
+    <button onclick="switchViewMode('category')" id="btnViewCategory" style="flex:1; margin:0; border-radius:25px; box-shadow:none; background:#FF9966; color:white; font-size:0.9em;">📊 全体・カテゴリ分析</button>
+    <button onclick="switchViewMode('personal')" id="btnViewPersonal" style="flex:1; margin:0; border-radius:25px; box-shadow:none; background:transparent; color:#666; font-size:0.9em;">👤 個人・変遷履歴</button>
+  </div>
+
+  <div id="personalHistoryArea" style="display:none; animation: fadeIn 0.3s ease;">
+      <h4 style="margin:0 0 10px 0; color:#333;">選手の成長記録</h4>
+      <select id="timelineMemberSelect" onchange="renderPersonalHistory()" style="margin-bottom:10px; border:2px solid #FF9966;">
+          <option value="">履歴を見たい選手を選択</option>
+      </select>
+      <div id="timelineContainer"></div>
+  </div>
+  <div id="categoryAnalysisArea"> <h3>📊 カテゴリ別 分析・集計</h3>
   
   <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:15px;">
     <button onclick="switchAnalysisTab('elem_s')" id="tab_elem_s" class="analysis-tab active" style="width:auto; padding:6px 10px; font-size:0.8em; margin:0;">小・シングル</button>
@@ -737,7 +830,7 @@
   </div>
 
   <div id="gutSection" class="card-section" style="display:none;">
-    <h2>🏸 ガット張り管理 (1,800円/本)</h2>
+    <h2>🏸 ガット張り管理</h2>
     
     <div style="background:#f9f9f9; padding:20px; border-radius:12px; border:1px solid #ddd; margin-bottom:30px;">
       <h3 style="margin-top:0;">新規登録</h3>
@@ -746,6 +839,29 @@
       
       <label>受付日</label>
       <input type="date" id="gutDate">
+      
+      <label>コース選択</label>
+      <div class="checkbox-container" style="margin-bottom:10px;">
+        <label class="checkbox-label">
+          <input type="radio" name="gutOption" value="included" checked onchange="toggleGutInfo()">
+          ガット込み (¥1,800)
+        </label>
+        <label class="checkbox-label">
+          <input type="radio" name="gutOption" value="carry_in" onchange="toggleGutInfo()">
+          持ち込み (¥1,000)
+        </label>
+      </div>
+
+      <div id="gutInfoBox" style="margin-bottom:15px; display:block;">
+        <div style="background:#fff; border:1px solid #ffe0b2; border-left:5px solid #FF9966; border-radius:6px; padding:12px 15px; font-size:0.9em; display:flex; align-items:center; gap:10px; box-shadow: 0 2px 4px rgba(0,0,0,0.03);">
+            <span style="font-weight:bold; color:#FF9966; white-space:nowrap;">ℹ️ 標準仕様</span>
+            <span style="color:#ddd;">|</span>
+            <span style="color:#333;">
+                <span style="font-weight:bold;">BG66 アルティマックス</span>
+                <span style="font-size:0.85em; color:#666; margin-left:2px;">(メタリックホワイト)</span>
+            </span>
+        </div>
+      </div>
       
       <div style="display:flex; gap:10px;">
          <div style="flex:1;">
@@ -908,7 +1024,27 @@
     </div>
   </div>
 </div>
+<div id="reflectionModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:5000; justify-content:center; align-items:center;">
+  <div style="background:white; width:90%; max-width:400px; border-radius:12px; padding:20px; box-shadow:0 4px 15px rgba(0,0,0,0.2);">
+    <h3 style="margin-top:0; color:#333;">今月の考察・振り返り</h3>
+    <p style="font-size:0.85em; color:#666;">課題に対する結果や気づきを入力してください。</p>
+    
+    <input type="hidden" id="reflectTaskRow"> 
+    
+    <div style="background:#f0f0f0; padding:10px; border-radius:8px; margin-bottom:15px;">
+        <label style="font-size:0.8em; color:#888; margin:0;">取り組んだ課題</label>
+        <div id="reflectTaskPreview" style="font-weight:bold; font-size:0.9em; color:#333;"></div>
+    </div>
 
+    <label style="font-weight:bold; display:block; margin-bottom:5px;">考察・振り返り</label>
+    <textarea id="reflectContent" rows="5" style="width:100%; margin-bottom:20px;" placeholder="例：足は動くようになったが、最後の決め球が浮いてしまうことが多かった。来月は..."></textarea>
+    
+    <div style="display:flex; gap:10px;">
+      <button onclick="saveReflection()" style="flex:1; background:#28a745; color:white;">保存</button>
+      <button onclick="document.getElementById('reflectionModal').style.display='none'" style="flex:1; background:#ccc; color:#333;">キャンセル</button>
+    </div>
+  </div>
+</div>
 
 <script>
 
@@ -1541,7 +1677,13 @@ if (category === "task") {
 
         tbody.innerHTML = ""; 
       
-        data.forEach(r => { 
+        // ★修正1：入力期限が新しい順（降順）に並び替え
+        const sortedData = [...data].sort((a, b) => {
+            // b - a にすることで新しい日付（未来）が上に来ます
+            return new Date(b.deadline) - new Date(a.deadline);
+        });
+
+        sortedData.forEach(r => { 
             const cleanDate = formatDate(r.deadline); 
             const tr = document.createElement("tr"); 
        
@@ -1557,19 +1699,25 @@ if (category === "task") {
                 if (pList.length > 0) {
                     const names = pList.map(p => p.name).join("、");
                     participantsStr = `<span style="font-weight:bold;">${pList.length}名</span><br>${names}`;
+
+                    // 全員支払済の場合の表示
+                    const isAllPaid = pList.every(p => p.paid === true);
+                    if (isAllPaid) {
+                        participantsStr += `<div style="margin-top:4px;"><span style="background:#28a745; color:white; padding:2px 8px; border-radius:10px; font-size:0.8em; font-weight:bold;">🉐 全員支払済</span></div>`;
+                    }
                 }
             } catch(e) {
                 participantsStr = "データ取得エラー";
             }
 
-            // ▼▼▼ 状況の色分けロジックを作成 ▼▼▼
-            let statusStyle = "font-weight:bold;"; // 基本スタイル
+            // 状況の色分けロジック
+            let statusStyle = "font-weight:bold;"; 
             if (r.status === "申込完了") {
-                statusStyle += "color: #28a745;"; // 完了は「緑色」
+                statusStyle += "color: #28a745;"; 
             } else if (r.status === "申請中") {
-                statusStyle += "color: #e67e22;"; // 申請中は「オレンジ」
+                statusStyle += "color: #e67e22;"; 
             } else {
-                statusStyle += "color: #333;";    // その他は黒
+                statusStyle += "color: #333;";    
             }
 
         // 行のHTML生成
@@ -2418,9 +2566,24 @@ function renderAnalysis() {
         // URLエンコード
         const encodedTask = encodeURIComponent(r.content);
 
+        const reflectionHtml = r.reflection 
+            ? `<div style="margin-top:8px; padding-top:8px; border-top:1px dashed #ccc; font-size:0.95em; color:#2E7D32;">
+                 <span style="font-weight:bold; font-size:0.8em; background:#E8F5E9; padding:2px 6px; border-radius:4px; margin-right:5px;">✅ 考察</span>
+                 ${escapeHtml(r.reflection).replace(/\r?\n/g, '<br>')}
+               </div>`
+            : `<div style="margin-top:8px;">
+                 <button onclick="openReflectionModal(${r.row}, '${contentForFunc}')" style="width:100%; padding:6px; font-size:0.85em; background:#fff; border:1px solid #28a745; color:#28a745; border-radius:6px; box-shadow:none;">
+                   ＋ 考察・振り返りを入力
+                 </button>
+               </div>`;
+
+        // テーブルの行（tr）の中身を設定
         tr.innerHTML = `
             <td data-label="氏名">${escapeHtml(r.name)}</td>
-            <td data-label="課題">${safeContent}</td>
+            <td data-label="課題と考察">
+                <div style="font-weight:bold; color:#333;">${safeContent}</div>
+                ${reflectionHtml}
+            </td>
             <td data-label="日時" style="font-size:0.8em; color:#999;">${formatDate(r.date)}</td>
             <td data-label="操作" class="delete-col" style="white-space:nowrap;">
                 <button onclick="window.open('${TRAINING_APP_URL}?task=${encodedTask}&role=admin', '_blank')" 
@@ -2717,29 +2880,73 @@ function generateTeamPlanPrompt() {
         document.getElementById("gutDate").value = formatDate(new Date());
     }
 
+    // ▼▼▼ 新規追加: ガット情報の表示切替 ▼▼▼
+    function toggleGutInfo() {
+        const radios = document.getElementsByName("gutOption");
+        let isIncluded = false;
+        for(const r of radios) {
+            if(r.checked && r.value === "included") isIncluded = true;
+        }
+        const infoBox = document.getElementById("gutInfoBox");
+        if(infoBox) {
+            infoBox.style.display = isIncluded ? "block" : "none";
+        }
+    }
+
+    // ▼▼▼ 修正: 登録処理（コースと金額を判定して送信） ▼▼▼
     async function submitGut() {
         const name = document.getElementById("gutNameSelect").value;
         const date = document.getElementById("gutDate").value;
-        const count = document.getElementById("gutCount").value;
+        const count = Number(document.getElementById("gutCount").value);
         const tension = document.getElementById("gutTension").value;
         
+        // ラジオボタンの選択を確認
+        const radios = document.getElementsByName("gutOption");
+        let option = "included";
+        for(const r of radios) { if(r.checked) option = r.value; }
+
         if(!name || !date || !count || !tension) return alert("すべての項目を入力してください");
         
+        // 金額とタイプを決定
+        let unitPrice = 1800;
+        let typeLabel = "ガット込み";
+        
+        if (option === "carry_in") {
+            unitPrice = 1000;
+            typeLabel = "持ち込み";
+        }
+
+        const totalAmount = unitPrice * count;
+        
         showLoading(true);
-        const res = await callGas('saveStringing', { name, date, count, tension });
+        // GASへ保存（amount と type を追加で送ります）
+        // ※GAS側で amount を受け取る処理になっていれば、そのまま保存されます
+        const res = await callGas('saveStringing', { 
+            name, date, count, tension, 
+            amount: totalAmount, // 計算した金額を送信
+            type: typeLabel      // 種類（ガット込み/持ち込み）を送信
+        });
         
         if(res) {
             alert(res);
+            // フォームのリセット
             document.getElementById("gutCount").value = "1";
             document.getElementById("gutTension").value = "";
-            gutDataCache = null; // キャッシュクリア
-            loadGutList();       // リスト更新
+            // ガット込みに戻す
+            const radios = document.getElementsByName("gutOption");
+            for(const r of radios) { 
+                if(r.value === "included") r.checked = true; 
+            }
+            toggleGutInfo(); // 表示をリセット
+
+            gutDataCache = null; 
+            loadGutList();       
         } else {
             showLoading(false);
         }
     }
 
-    // ★修正：isBackground引数を追加（高速化対応）
+// ▼▼▼ 追加：ガット張りリスト取得関数（これが抜けているとエラーになります） ▼▼▼
     async function loadGutList(isBackground = false) {
         // キャッシュがあれば即表示
         if (gutDataCache && !isBackground) {
@@ -2748,16 +2955,19 @@ function generateTeamPlanPrompt() {
         }
 
         if (!isBackground) showLoading(true);
+        // GASからデータを取得
         const list = await callGas('getStringingList');
         if (!isBackground) showLoading(false);
         
         if (list) {
             gutDataCache = list;
-            if (!isBackground) renderGutTable(list);
+            // 取得したデータでテーブルを描画
+            renderGutTable(list);
         }
     }
 
-    // 描画関数
+
+    // ▼▼▼ 修正: テーブル描画（内容列にタイプを表示） ▼▼▼
     function renderGutTable(list) {
         const tbody = document.querySelector("#gutTable tbody");
         tbody.innerHTML = "";
@@ -2772,28 +2982,31 @@ function generateTeamPlanPrompt() {
             const cleanDate = formatDate(item.date);
             const isPaid = (item.status === "支払い済み");
             
-            // 支払い済みなら背景色を薄い緑に
             if(isPaid) tr.style.backgroundColor = "#e8f5e9";
             
-            // ★ボタンの切り替えロジック
-            // 未払いなら「支払（オレンジ）」、支払い済みなら「取消（白）」を表示
             const btnHtml = isPaid 
                 ? `<button onclick="toggleGutPayment('${item.id}', false)" style="width:auto; padding:6px 12px; font-size:0.8em; background:#fff; border:1px solid #ccc; color:#666; box-shadow:none;">取消</button>`
                 : `<button onclick="toggleGutPayment('${item.id}', true)" style="width:auto; padding:6px 12px; font-size:0.8em; background:#FF9966; box-shadow:none; color:white;">支払</button>`;
             
-            // ステータス文字
             const statusText = isPaid 
                 ? `<span style="color:#28a745; font-weight:bold; font-size:0.9em; margin-right:5px;">✅ 済</span>`
                 : `<span style="color:#e67e22; font-weight:bold; font-size:0.9em; margin-right:5px;">未</span>`;
 
+            // タイプ（ガット込み/持ち込み）の表示処理
+            // 過去データなどで type がない場合は空文字にする
+            const typeDisplay = item.type ? `<span style="font-size:0.8em; color:#666; background:#eee; padding:2px 6px; border-radius:4px;">${item.type}</span><br>` : "";
+
             tr.innerHTML = `
                <td style="font-size:0.9em;">${cleanDate}</td>
                <td>${escapeHtml(item.name)}</td>
-               <td style="font-size:0.85em;">${item.count}本 / ${item.tension}P</td>
+               <td style="font-size:0.85em; line-height:1.4;">
+                 ${typeDisplay}
+                 ${item.count}本 / ${item.tension}P
+               </td>
                <td style="text-align:center;">
-                  <div style="font-weight:bold; font-size:0.95em;">¥${item.amount}</div>
+                  <div style="font-weight:bold; font-size:0.95em;">¥${Number(item.amount).toLocaleString()}</div>
                   <div style="margin-top:6px; display:flex; align-items:center; justify-content:center;">
-                     ${statusText} ${btnHtml}
+                      ${statusText} ${btnHtml}
                   </div>
                </td>
                <td class="delete-col">
@@ -2832,6 +3045,133 @@ function generateTeamPlanPrompt() {
         } else {
             showLoading(false);
         }
+    }
+
+function openReflectionModal(row, taskContent) {
+        document.getElementById("reflectTaskRow").value = row;
+        document.getElementById("reflectTaskPreview").innerText = taskContent;
+        document.getElementById("reflectContent").value = ""; 
+        
+        const target = allTasksCache.find(t => t.row === row);
+        if(target && target.reflection) {
+             document.getElementById("reflectContent").value = target.reflection;
+        }
+        document.getElementById("reflectionModal").style.display = "flex";
+    }
+
+    async function saveReflection() {
+        const row = document.getElementById("reflectTaskRow").value;
+        const reflection = document.getElementById("reflectContent").value;
+        if(!reflection) return alert("考察を入力してください");
+
+        showLoading(true);
+        const res = await callGas('updateTaskReflection', { row: row, reflection: reflection });
+        showLoading(false);
+
+        if(res) {
+            alert(res);
+            document.getElementById("reflectionModal").style.display = "none";
+            loadTasks(); 
+        }
+    }
+    
+// 表示モード切り替え（全体 vs 個人）
+    function switchViewMode(mode) {
+        const catArea = document.getElementById("categoryAnalysisArea");
+        const persArea = document.getElementById("personalHistoryArea");
+        const btnCat = document.getElementById("btnViewCategory");
+        const btnPers = document.getElementById("btnViewPersonal");
+
+        if (mode === 'category') {
+            catArea.style.display = "block";
+            persArea.style.display = "none";
+            
+            btnCat.style.background = "#FF9966"; btnCat.style.color = "white";
+            btnPers.style.background = "transparent"; btnPers.style.color = "#666";
+        } else {
+            catArea.style.display = "none";
+            persArea.style.display = "block";
+            
+            btnCat.style.background = "transparent"; btnCat.style.color = "#666";
+            btnPers.style.background = "#FF9966"; btnPers.style.color = "white";
+            
+            // 名簿プルダウンを更新
+            updateTimelineMemberSelect();
+        }
+    }
+
+    // タイムライン用の名簿更新
+    function updateTimelineMemberSelect() {
+        const select = document.getElementById("timelineMemberSelect");
+        if (select.options.length > 1) return; // 既に作成済みなら何もしない
+
+        select.innerHTML = '<option value="">履歴を見たい選手を選択</option>';
+        // 重複なしの名前リストを作成
+        const names = [...new Set(weeklyMembers.map(m => m.name))];
+        names.sort().forEach(name => {
+             const op = document.createElement("option");
+             op.value = name;
+             op.text = name;
+             select.appendChild(op);
+        });
+    }
+
+    // 個人の変遷を描画
+    function renderPersonalHistory() {
+        const name = document.getElementById("timelineMemberSelect").value;
+        const container = document.getElementById("timelineContainer");
+        container.innerHTML = "";
+
+        if (!name) return;
+
+        // 対象者の全データを抽出
+        const myTasks = allTasksCache.filter(t => t.name === name);
+
+        if (myTasks.length === 0) {
+            container.innerHTML = "<p style='color:#999; text-align:center;'>課題データがありません。</p>";
+            return;
+        }
+
+        // 日付順（古い順）にソートして成長過程を見せる
+        myTasks.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        // HTML生成
+        let html = '<div class="timeline-container">';
+        
+        myTasks.forEach(task => {
+            const dateStr = formatDate(task.date); // YYYY-MM-DD
+            // 月表示に変換 (例: 2024年 01月)
+            const dateObj = new Date(task.date);
+            const labelStr = `${dateObj.getFullYear()}年 ${(dateObj.getMonth()+1)}月`;
+
+            const reflectionContent = task.reflection 
+                ? `<div class="tl-reflect-section">
+                     <span class="tl-label bg-reflect">考察・結果</span>
+                     <div style="font-size:0.95em; color:#333;">${escapeHtml(task.reflection).replace(/\r?\n/g, '<br>')}</div>
+                   </div>`
+                : `<div class="tl-reflect-section" style="background:#f9f9f9; color:#999; font-size:0.8em;">
+                     (考察はまだ入力されていません)
+                   </div>`;
+
+            html += `
+            <div class="timeline-item">
+                <div class="timeline-date-label">${labelStr} <span style="font-size:0.8em; font-weight:normal; color:#999;">(${dateStr})</span></div>
+                <div class="timeline-content-box">
+                    <div class="tl-task-section">
+                        <span class="tl-label bg-task">課題 (${task.type})</span>
+                        <div style="font-size:1.05em; font-weight:bold; color:#333; line-height:1.5;">${escapeHtml(task.content).replace(/\r?\n/g, '<br>')}</div>
+                    </div>
+                    ${reflectionContent}
+                </div>
+            </div>`;
+        });
+
+        html += '</div>'; // close container
+        
+        // 最新のものが一番下に来る
+        html += `<div style="text-align:center; color:#FF9966; font-weight:bold; margin-top:20px;">⬇ 現在へ続く ⬇</div>`;
+
+        container.innerHTML = html;
     }
 
 </script>

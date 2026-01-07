@@ -1376,10 +1376,13 @@ if (category === "task") {
       container.innerHTML = ""; 
       
       weeklyEvents.forEach((evt, idx) => { 
-        let isTarget = false; 
-        if(evt.group === 'club' && currentIndMember.isClub) isTarget = true; 
-        if(evt.group === 'federation' && currentIndMember.isFed) isTarget = true; 
-        if(evt.group === 'skillup' && currentIndMember.isSkill) isTarget = true; 
+  let isTarget = false; 
+  
+  // ▼▼▼ 修正箇所：スキルアップ会員なら、通常のクラブ練習（全体練習）は表示しない ▼▼▼
+  if(evt.group === 'club' && currentIndMember.isClub && !currentIndMember.isSkill) isTarget = true; 
+  
+  if(evt.group === 'federation' && currentIndMember.isFed) isTarget = true; 
+  if(evt.group === 'skillup' && currentIndMember.isSkill) isTarget = true;
         
         if(isTarget) { 
           const key = `${evt.dateKey}_${evt.fullTitle}_${currentIndMember.name}`; 
@@ -1473,6 +1476,12 @@ if (category === "task") {
         containerFed.innerHTML = "";
         
         if (!weeklyEvents || weeklyEvents.length === 0) return; 
+
+        // ▼▼▼ 追加：表示設定で保存されたメンバーリストを取得 ▼▼▼
+        let myMembers = [];
+        try { 
+            myMembers = JSON.parse(localStorage.getItem("my_members_list") || "[]"); 
+        } catch(e) {}
         
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -1487,59 +1496,72 @@ if (category === "task") {
             const memoList = []; 
 
             weeklyMembers.forEach(m => { 
-            const key = `${evt.dateKey}_${evt.fullTitle}_${m.name}`; 
-            
-            if (weeklyStatus[key] === "出席") { 
-                attendees.push(m.name); 
-                const memo = weeklyMemo[key];
-                if (memo) memoList.push({ name: m.name, text: memo });
-            } 
+                // ▼▼▼ 前回の修正：スキルアップ会員はクラブ集計から除外 ▼▼▼
+                if (evt.group === 'club' && m.isSkill) return; 
+
+                const key = `${evt.dateKey}_${evt.fullTitle}_${m.name}`; 
+                
+                if (weeklyStatus[key] === "出席") { 
+                    attendees.push(m.name); 
+                    const memo = weeklyMemo[key];
+                    if (memo) memoList.push({ name: m.name, text: memo });
+                } 
             }); 
             
             if (attendees.length > 0) { 
-            const dayStr = getDayOfWeekStr(evt.dateKey);
-            
-            const div = document.createElement("div"); 
-            let cls = ""; 
-            let label = ""; 
-            let isFed = false;
-
-            if(evt.group === 'club') { cls = "club"; label = "【クラブ】"; } 
-            if(evt.group === 'federation') { cls = "fed"; label = "【中学生練習】"; isFed = true; } 
-            if(evt.group === 'skillup') { cls = "skill"; label = "【スキルアップ】"; } 
-            
-            div.className = `summary-box ${cls}`; 
-            
-            let htmlContent = `
-                <div class="summary-header">
-                <span>${label} ${evt.start}${evt.end ? '～' + evt.end : ''}${dayStr} ${evt.title}</span>
-                <span class="summary-count">${attendees.length}名</span>
-                </div>
-                <div class="summary-names">${attendees.join("、 ")}</div>
-            `;
-
-            if (memoList.length > 0) {
-                memoToggleCounter++;
-                const contentId = `memo-content-${memoToggleCounter}`;
-                const iconId = `memo-icon-${memoToggleCounter}`;
+                const dayStr = getDayOfWeekStr(evt.dateKey);
                 
-                htmlContent += `
-                <div class="summary-memo-container">
-                    <div class="memo-toggle-header" onclick="toggleMemoContent('${contentId}', '${iconId}')">
-                    <span>📝 連絡事項あり (${memoList.length}件)</span>
-                    <span id="${iconId}" style="font-size:0.8em; transform:rotate(0deg); transition:transform 0.2s;">▼</span>
-                    </div>
-                    <div id="${contentId}" class="memo-list-content">`;
-                    
-                memoList.forEach(item => {
-                    htmlContent += `<div class="memo-item"><span class="memo-person-name">${item.name}:</span><span class="memo-text">${escapeHtml(item.text)}</span></div>`;
-                });
-                htmlContent += `</div></div>`;
-            }
+                // ▼▼▼ 追加：名前リストを作成する際、設定済みメンバーをオレンジ色にする ▼▼▼
+                const formattedNames = attendees.map(name => {
+                    if (myMembers.includes(name)) {
+                        // 設定リストにある名前なら、オレンジ色の太字にする
+                        return `<span style="color:#FF9966; font-weight:bold;">${name}</span>`;
+                    }
+                    return name;
+                }).join("、 ");
+                // ▲▲▲ 追加ここまで ▲▲▲
 
-            div.innerHTML = htmlContent;
-            if (isFed) containerFed.appendChild(div);
-            else containerClub.appendChild(div);
+                const div = document.createElement("div"); 
+                let cls = ""; 
+                let label = ""; 
+                let isFed = false;
+
+                if(evt.group === 'club') { cls = "club"; label = "【クラブ】"; } 
+                if(evt.group === 'federation') { cls = "fed"; label = "【中学生練習】"; isFed = true; } 
+                if(evt.group === 'skillup') { cls = "skill"; label = "【スキルアップ】"; } 
+                
+                div.className = `summary-box ${cls}`; 
+                
+                let htmlContent = `
+                    <div class="summary-header">
+                    <span>${label} ${evt.start}${evt.end ? '～' + evt.end : ''}${dayStr} ${evt.title}</span>
+                    <span class="summary-count">${attendees.length}名</span>
+                    </div>
+                    <div class="summary-names">${formattedNames}</div>
+                `;
+
+                if (memoList.length > 0) {
+                    memoToggleCounter++;
+                    const contentId = `memo-content-${memoToggleCounter}`;
+                    const iconId = `memo-icon-${memoToggleCounter}`;
+                    
+                    htmlContent += `
+                    <div class="summary-memo-container">
+                        <div class="memo-toggle-header" onclick="toggleMemoContent('${contentId}', '${iconId}')">
+                        <span>📝 連絡事項あり (${memoList.length}件)</span>
+                        <span id="${iconId}" style="font-size:0.8em; transform:rotate(0deg); transition:transform 0.2s;">▼</span>
+                        </div>
+                        <div id="${contentId}" class="memo-list-content">`;
+                        
+                    memoList.forEach(item => {
+                        htmlContent += `<div class="memo-item"><span class="memo-person-name">${item.name}:</span><span class="memo-text">${escapeHtml(item.text)}</span></div>`;
+                    });
+                    htmlContent += `</div></div>`;
+                }
+
+                div.innerHTML = htmlContent;
+                if (isFed) containerFed.appendChild(div);
+                else containerClub.appendChild(div);
             } 
         }); 
         

@@ -19,7 +19,7 @@
     header { background: linear-gradient(135deg, #FF9966 0%, #FF5E62 100%); padding: 20px; color: white; text-align: center; border-radius: 0 0 20px 20px; box-shadow: 0 4px 10px rgba(255, 94, 98, 0.3); margin-bottom: 20px; }
     h1 { font-size: 20px; margin: 0; letter-spacing: 1px; text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
 
-   /* ナビゲーション（修正版：2列グリッド表示） */
+   /* ナビゲーション */
     .nav-container { 
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -45,34 +45,19 @@
         text-align: center;
     }
 
-    /* ★修正：選択時のスタイル */
     .nav-item.active { 
-        background: #ffe0b2;       /* 背景を薄いオレンジに変更（文字が見えるように） */
-        color: #333;               /* 文字色は黒のまま */
-        border: 2px solid #FF9966; /* 枠線を濃いオレンジで太くして強調 */
+        background: #ffe0b2;
+        color: #333; 
+        border: 2px solid #FF9966;
         transform: scale(0.98); 
         box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); 
     }
 
-    /* ▼▼▼ カテゴリごとの色分け設定（左のバーのみ） ▼▼▼ */
-    
-    /* お金管理（月謝・ガット）→ 黄色バー */
-    .nav-item[onclick*="fee"], .nav-item[onclick*="gut"] {
-        border-left: 5px solid #ffc107;
-    }
-    /* 運営管理（シャトル・運搬・アリーナ）→ 水色バー */
-    .nav-item[onclick*="shuttle"], .nav-item[onclick*="carry"], .nav-item[onclick*="skyArena"] {
-        border-left: 5px solid #17a2b8;
-    }
-    /* 事務（名簿・その他・大会）→ グレーバー */
-    .nav-item[onclick*="member"], .nav-item[onclick*="other"], .nav-item[onclick*="tournament"] {
-        border-left: 5px solid #6c757d;
-    }
-    /* 練習（出欠・課題）→ オレンジバー */
-    .nav-item[onclick*="attendance"], .nav-item[onclick*="task"] {
-        border-left: 5px solid #FF9966;
-        /* 背景色の指定を削除しました */
-    }
+    /* カテゴリごとの色分け */
+    .nav-item[onclick*="fee"], .nav-item[onclick*="gut"] { border-left: 5px solid #ffc107; }
+    .nav-item[onclick*="shuttle"], .nav-item[onclick*="carry"], .nav-item[onclick*="skyArena"] { border-left: 5px solid #17a2b8; }
+    .nav-item[onclick*="member"], .nav-item[onclick*="other"], .nav-item[onclick*="tournament"] { border-left: 5px solid #6c757d; }
+    .nav-item[onclick*="attendance"], .nav-item[onclick*="task"] { border-left: 5px solid #FF9966; }
 
 
     /* コンテンツエリア */
@@ -145,169 +130,74 @@
     /* マトリクス用（裏で使用） */
     .matrix-table { min-width: 800px; display:none; } 
 
-    /* ▼▼▼ 追加：大会一覧の参加者列用スタイル ▼▼▼ */
+    /* 大会一覧の参加者列用 */
     .participant-cell {
         font-size: 0.85em;
         color: #555;
-        white-space: normal;       /* テキストの折り返しを有効化 */
-        word-wrap: break-word;     /* 長い単語も折り返す */
+        white-space: normal;
+        word-wrap: break-word;
         line-height: 1.5;
     }
 
-    /* ▼▼▼ 追加・修正：スマホ表示最適化（カード型・横スクロール防止） ▼▼▼ */
+    /* スマホ表示最適化 */
     @media (max-width: 600px) {
-        /* ★最重要：テーブルの強制的な最小幅(600px)を解除して画面内に収める */
-        table { 
-            min-width: 0 !important; 
-            width: 100%; 
-        }
-       
-        /* テーブルの横スクロール設定も解除 */
+        table { min-width: 0 !important; width: 100%; }
         .table-container { overflow-x: visible; }
-        
-        /* ヘッダーを非表示 */
         #tournamentTable thead { display: none; }
-        
-        /* 行をカード型デザインに変更 */
         #tournamentTable tbody tr {
-            display: block;
-            width: 100%;
-            box-sizing: border-box; /* パディングを含めて幅計算 */
-            margin-bottom: 20px;
-            background: #fff;
-            border: 2px solid #FF9966;
-            border-radius: 12px;
-            padding: 15px;
+            display: block; width: 100%; box-sizing: border-box; margin-bottom: 20px;
+            background: #fff; border: 2px solid #FF9966; border-radius: 12px; padding: 15px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
-        
-        /* 各セルのレイアウト調整 */
         #tournamentTable tbody td {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start; /* 上揃え */
-            border-bottom: 1px dashed #eee;
-            padding: 10px 0;
-            text-align: right;
-            font-size: 0.95em;
-            width: 100%; /* 幅いっぱい使う */
-            box-sizing: border-box;
+            display: flex; justify-content: space-between; align-items: flex-start;
+            border-bottom: 1px dashed #eee; padding: 10px 0; text-align: right;
+            font-size: 0.95em; width: 100%; box-sizing: border-box;
         }
         #tournamentTable tbody td:last-child { border-bottom: none; }
-        
-        /* ラベル（項目名）の表示 */
         #tournamentTable tbody td::before {
-            content: attr(data-label);
-            font-weight: bold;
-            color: #888;
-            font-size: 0.85em;
-            margin-right: 15px;
-            white-space: nowrap; /* ラベルは折り返さない */
-            text-align: left;
-            flex-shrink: 0; /* ラベル幅を縮めない */
+            content: attr(data-label); font-weight: bold; color: #888; font-size: 0.85em;
+            margin-right: 15px; white-space: nowrap; text-align: left; flex-shrink: 0;
         }
-        
-        /* ★参加者リスト専用設定：見やすいように縦積みに変更 */
-        #tournamentTable tbody td[data-label="参加者"] {
-            display: block;      /* フレックス解除してブロック要素に */
-            text-align: left;    /* 左寄せ */
-        }
-        #tournamentTable tbody td[data-label="参加者"]::before {
-            display: block;      /* ラベルを1行目に */
-            margin-bottom: 5px;  /* 本文との隙間 */
-            color: #FF9966;      /* ラベル色を目立たせる */
-        }
-        
-        /* 操作ボタンの配置 */
-        .delete-col {
-            justify-content: flex-end;
-            gap: 5px;
-        }
+        #tournamentTable tbody td[data-label="参加者"] { display: block; text-align: left; }
+        #tournamentTable tbody td[data-label="参加者"]::before { display: block; margin-bottom: 5px; color: #FF9966; }
+        .delete-col { justify-content: flex-end; gap: 5px; }
 
-/* ヘッダーを非表示 */
+        /* 課題管理テーブルスマホ対応 */
         #taskTable thead { display: none; }
-
-        /* 行をカード型にする（青色枠） */
         #taskTable tbody tr {
-            display: block;
-            width: 100%;
-            margin-bottom: 20px;
-            background: #fff;
-            border: 2px solid #1976D2; /* 青色で区別 */
-            border-radius: 12px;
-            padding: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            box-sizing: border-box;
+            display: block; width: 100%; margin-bottom: 20px; background: #fff;
+            border: 2px solid #1976D2; border-radius: 12px; padding: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); box-sizing: border-box;
         }
-
-        /* セルを縦積みにする */
         #taskTable tbody td {
-            display: block;
-            width: 100%;
-            text-align: left;
-            padding: 8px 0;
-            border-bottom: 1px dashed #eee;
-            box-sizing: border-box;
+            display: block; width: 100%; text-align: left; padding: 8px 0;
+            border-bottom: 1px dashed #eee; box-sizing: border-box;
         }
-
-        /* 最後のセル（ボタン）は線なし・横並び */
         #taskTable tbody td:last-child {
-            border-bottom: none;
-            display: flex;
-            justify-content: flex-end;
-            flex-wrap: wrap;
-            gap: 5px;
+            border-bottom: none; display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 5px;
         }
-
-        /* 項目名（ラベル）を表示 */
         #taskTable tbody td::before {
-            content: attr(data-label);
-            display: block;
-            font-weight: bold;
-            color: #1976D2;
-            font-size: 0.85em;
-            margin-bottom: 4px;
+            content: attr(data-label); display: block; font-weight: bold; color: #1976D2;
+            font-size: 0.85em; margin-bottom: 4px;
         }
-
-        /* 課題内容（2列目）は見やすく調整 */
-        #taskTable tbody td:nth-child(2) {
-            font-size: 1.05em;
-            line-height: 1.6;
-            white-space: pre-wrap; /* 改行を反映 */
-        }
+        #taskTable tbody td:nth-child(2) { font-size: 1.05em; line-height: 1.6; white-space: pre-wrap; }
     }
 
-    /* チェックボックス用のスタイル */
-    .checkbox-container { 
-        display: flex; 
-        flex-wrap: wrap; 
-        gap: 8px; 
-        margin-top: 10px; 
-        margin-bottom: 20px; 
-    }
-    
-    .checkbox-label { 
-        display: inline-block; 
-        padding: 10px 16px; 
-        background: #fff; 
-        border: 1px solid #ddd; 
-        border-radius: 20px; 
-        cursor: pointer; 
-        font-size: 14px; 
-        color: #555;
-        transition: all 0.2s ease;
-        user-select: none;
+    /* チェックボックス */
+    .checkbox-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; margin-bottom: 20px; }
+    .checkbox-label {
+        display: inline-block; padding: 10px 16px; background: #fff;
+        border: 1px solid #ddd; border-radius: 20px; cursor: pointer;
+        font-size: 14px; color: #555; transition: all 0.2s ease; user-select: none;
     }
     .checkbox-label input { display: none; }
     .checkbox-label:has(input:checked) {
-        background-color: #FF9966;
-        color: white;
-        border-color: #FF9966;
-        font-weight: bold;
-        box-shadow: 0 2px 5px rgba(255, 153, 102, 0.4);
+        background-color: #FF9966; color: white; border-color: #FF9966;
+        font-weight: bold; box-shadow: 0 2px 5px rgba(255, 153, 102, 0.4);
     }
 
-    /* アコーディオン全体のコンテナ */
+    /* アコーディオン */
     .summary-container { margin-bottom: 20px; background: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid #eee; }
     .summary-toggle-header { background: #fff; color: #333; padding: 16px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 1.1em; border-left: 6px solid #FF9966; transition: background 0.3s; }
     .summary-toggle-header:active { background: #f0f0f0; }
@@ -318,39 +208,77 @@
     .fed-header { border-left-color: #17a2b8; }
 
     /* シャトル管理 */
-    .shuttle-group-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 30px; }
-    .shuttle-card { border-radius: 16px; padding: 20px; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: relative; overflow: hidden; }
+    .shuttle-group-container { 
+        display: grid; 
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+        gap: 40px; 
+        margin-bottom: 30px; 
+    }
+    .shuttle-card { 
+        border-radius: 16px; 
+        padding: 20px; 
+        color: white; 
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+        position: relative; 
+        overflow: hidden; 
+        margin-bottom: 10px; 
+    }
+    /* カテゴリカラー */
     .jr-card { background: linear-gradient(135deg, #FF9966 0%, #FF5E62 100%); }
     .fed-card { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+    .kamitsu-card { 
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); 
+        color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+
     .shuttle-card h4 { margin: 0 0 10px 0; font-size: 1.1em; display: flex; align-items: center; }
     .stock-display { text-align: center; margin: 15px 0; }
-    .stock-number { font-size: 2.5em; font-weight: bold; line-height: 1; }
-    .stock-unit { font-size: 0.4em; margin-left: 5px; }
+    .stock-number { font-size: 3.5em; font-weight: bold; line-height: 1; text-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+    .stock-unit { font-size: 24px; margin-left: 5px; font-weight: bold; vertical-align: baseline; }
+    
     .shuttle-control { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+    .shuttle-details { margin-top: 10px; background: rgba(255,255,255,0.2); padding: 10px; border-radius: 8px; }
     .shuttle-control div { text-align: center; }
-    .shuttle-control label { display: block; font-size: 0.7em; color: rgba(255,255,255,0.9); margin-bottom: 4px; font-weight: bold; }
-    .shuttle-control input { width: 100%; border-radius: 8px; padding: 8px; text-align: center; font-size: 1.1em; box-sizing: border-box; background: #ffffff; border: 2px solid #fff; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    .jr-card .shuttle-control input { color: #FF5E62; border-color: #FF5E62; }
+    
+    .shuttle-control label, .shuttle-details label { display: block; font-size: 0.75em; color: rgba(255,255,255,0.95); margin-bottom: 4px; font-weight: bold; }
+    
+    /* 入力欄共通 */
+    .shuttle-control input, .shuttle-details select, .shuttle-details input { 
+        width: 100%; border-radius: 8px; padding: 8px; 
+        font-size: 1em; box-sizing: border-box; 
+        background: #ffffff; border: 2px solid #fff; 
+        font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+        color: #333;
+    }
+    .shuttle-control input { text-align: center; font-size: 1.2em; }
+    
+    /* 各カードごとの入力色調整 */
+    .jr-card .shuttle-control input, .jr-card .shuttle-details input, .jr-card .shuttle-details select { color: #FF5E62; }
     .jr-card .shuttle-control input::placeholder { color: #ffcdd2; }
-    .fed-card .shuttle-control input { color: #0277BD; border-color: #4facfe; }
+    
+    .fed-card .shuttle-control input, .fed-card .shuttle-details input, .fed-card .shuttle-details select { color: #0277BD; }
     .fed-card .shuttle-control input::placeholder { color: #b3e5fc; }
+
+    .kamitsu-card .shuttle-control input, .kamitsu-card .shuttle-details input, .kamitsu-card .shuttle-details select { color: #00897b; }
+    .kamitsu-card .shuttle-control input::placeholder { color: #b2dfdb; }
+    .kamitsu-card button { color: #00897b; }
+
     .stats-row { display: flex; justify-content: space-around; margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.2); font-size: 0.85em; }
     .stat-item { text-align: center; }
     .stat-val { display: block; font-weight: bold; font-size: 1.2em; }
 
-    /* メモまとめ */
+    /* メモ */
     .summary-memo-container { margin-top: 8px; border-top: 1px dashed #eee; }
     .memo-toggle-header { padding: 6px 4px; cursor: pointer; color: #666; font-size: 0.85em; font-weight: bold; display: flex; justify-content: space-between; align-items: center; user-select: none; border-radius: 4px; transition: background 0.2s; }
     .memo-toggle-header:active { background-color: #f5f5f5; }
-    .memo-toggle-header span:first-child { display: flex; align-items: center; gap: 5px; }
     .memo-list-content { display: none; padding: 5px 10px 10px 10px; background-color: #fafafa; border-radius: 6px; margin-top: 2px; }
     .memo-item { font-size: 0.9em; margin-bottom: 6px; border-bottom: 1px solid #eee; padding-bottom: 4px; line-height: 1.4; }
     .memo-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
     .memo-person-name { font-weight: bold; margin-right: 6px; color: #333; }
     .memo-text { color: #333; }
 
-    /* ★大会詳細モーダル用スタイル */
-    #tournamentDetailModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:3000; overflow-y:auto; padding-bottom:80px; }
+    /* モーダル */
+    #tournamentDetailModal, #taskEditModal, #reflectionModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:3000; overflow-y:auto; padding-bottom:80px; }
     .tournament-file-area { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; border: 2px dashed #ddd; }
     .participant-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
     .payment-status-btn { padding: 5px 12px; border-radius: 15px; font-size: 0.8em; font-weight: bold; cursor: pointer; border: 1px solid #ddd; background: #eee; color: #888; transition: all 0.2s; }
@@ -358,119 +286,123 @@
     .payment-status-btn.unpaid { background: #FFEBEE; color: #D32F2F; border-color: #FFCDD2; }
     .add-participant-box { margin-top: 15px; padding: 15px; background: #fafafa; border-radius: 8px; border: 1px solid #eee; }
 
-
-/* ▼▼▼ ログイン画面用CSS（ここから追加） ▼▼▼ */
-    .login-overlay {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: #f4f7f6; /* アプリロックは背景色で隠す */
-        z-index: 10000; /* 最前面 */
-        display: none; /* 初期状態はJSで制御 */
-        justify-content: center; align-items: center;
-        flex-direction: column;
-    }
-    .login-overlay.active { display: flex; } /* 表示用クラス */
-
-    .login-box {
-        width: 85%; max-width: 320px;
-        background: white; padding: 30px 20px;
-        border-radius: 16px; text-align: center;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    }
+    /* ログイン画面 */
+    .login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f4f7f6; z-index: 10000; display: none; justify-content: center; align-items: center; flex-direction: column; }
+    .login-overlay.active { display: flex; }
+    .login-box { width: 85%; max-width: 320px; background: white; padding: 30px 20px; border-radius: 16px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
     .login-icon { font-size: 3em; margin-bottom: 15px; display: block; }
     .login-title { font-size: 1.1em; font-weight: bold; margin-bottom: 20px; color: #333; }
-    
-    .pass-input {
-        width: 100%; padding: 14px; font-size: 18px; border: 2px solid #ddd;
-        border-radius: 12px; margin-bottom: 20px; box-sizing: border-box; 
-        text-align: center; letter-spacing: 2px; -webkit-text-security: disc;
-    }
+    .pass-input { width: 100%; padding: 14px; font-size: 18px; border: 2px solid #ddd; border-radius: 12px; margin-bottom: 20px; box-sizing: border-box; text-align: center; letter-spacing: 2px; -webkit-text-security: disc; }
     .pass-input:focus { border-color: #FF9966; outline: none; }
-    
-    .login-btn {
-        width: 100%; padding: 12px; background: #FF9966; color: white;
-        border: none; border-radius: 50px; font-weight: bold; font-size: 16px;
-        cursor: pointer; box-shadow: 0 4px 10px rgba(255, 153, 102, 0.3);
-    }
+    .login-btn { width: 100%; padding: 12px; background: #FF9966; color: white; border: none; border-radius: 50px; font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 4px 10px rgba(255, 153, 102, 0.3); }
 
-/* ▼▼▼ タイムライン（個人変遷）用CSS ▼▼▼ */
-    .timeline-container {
-        position: relative;
-        margin: 20px 0 0 10px;
-        padding-left: 20px;
-        border-left: 3px solid #FF9966; /* タイムラインの軸線 */
-    }
-    
-    .timeline-item {
-        position: relative;
-        margin-bottom: 30px;
-    }
-    
-    /* 軸上の丸ポチ */
-    .timeline-item::before {
-        content: '';
-        position: absolute;
-        left: -29px; /* 線の太さ分調整 */
-        top: 15px;
-        width: 15px;
-        height: 15px;
-        background: white;
-        border: 3px solid #FF9966;
-        border-radius: 50%;
-        z-index: 1;
-    }
-
-    .timeline-date-label {
-        font-weight: bold;
-        color: #FF9966;
-        font-size: 0.9em;
-        margin-bottom: 5px;
-    }
-
-    .timeline-content-box {
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        padding: 15px;
-        position: relative;
-        border: 1px solid #eee;
-    }
-    
-    /* 吹き出しの三角 */
-    .timeline-content-box::after {
-        content: '';
-        position: absolute;
-        left: -8px;
-        top: 20px;
-        width: 0;
-        height: 0;
-        border-top: 8px solid transparent;
-        border-bottom: 8px solid transparent;
-        border-right: 8px solid white;
-    }
-
-    .tl-task-section {
-        margin-bottom: 10px;
-    }
-    .tl-reflect-section {
-        margin-top: 10px;
-        padding-top: 10px;
-        border-top: 1px dashed #ddd;
-        background: #f9fff9; /* 薄い緑背景 */
-        margin: 10px -15px -15px -15px; /* 親のpaddingを打ち消して下部を埋める */
-        padding: 10px 15px;
-        border-radius: 0 0 12px 12px;
-    }
-    .tl-label {
-        font-size: 0.75em;
-        font-weight: bold;
-        display: inline-block;
-        padding: 2px 8px;
-        border-radius: 4px;
-        margin-bottom: 4px;
-        color: white;
-    }
+    /* タイムライン */
+    .timeline-container { position: relative; margin: 20px 0 0 10px; padding-left: 20px; border-left: 3px solid #FF9966; }
+    .timeline-item { position: relative; margin-bottom: 30px; }
+    .timeline-item::before { content: ''; position: absolute; left: -29px; top: 15px; width: 15px; height: 15px; background: white; border: 3px solid #FF9966; border-radius: 50%; z-index: 1; }
+    .timeline-date-label { font-weight: bold; color: #FF9966; font-size: 0.9em; margin-bottom: 5px; }
+    .timeline-content-box { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); padding: 15px; position: relative; border: 1px solid #eee; }
+    .timeline-content-box::after { content: ''; position: absolute; left: -8px; top: 20px; width: 0; height: 0; border-top: 8px solid transparent; border-bottom: 8px solid transparent; border-right: 8px solid white; }
+    .tl-task-section { margin-bottom: 10px; }
+    .tl-reflect-section { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ddd; background: #f9fff9; margin: 10px -15px -15px -15px; padding: 10px 15px; border-radius: 0 0 12px 12px; }
+    .tl-label { font-size: 0.75em; font-weight: bold; display: inline-block; padding: 2px 8px; border-radius: 4px; margin-bottom: 4px; color: white; }
     .bg-task { background: #1976D2; }
     .bg-reflect { background: #2E7D32; }
+
+    /* シャトルカレンダー */
+    .shuttle-cal-wrapper { margin-top: 30px; border-top: 1px dashed #ccc; padding-top: 20px; }
+    .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    .cal-month-title { font-size: 1.2em; font-weight: bold; color: #333; }
+    
+    .cal-grid { 
+        display: grid; 
+        grid-template-columns: repeat(7, 1fr); 
+        gap: 4px; 
+        background: #ddd; 
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .cal-weekday { background: #f0f0f0; text-align: center; font-size: 0.8em; font-weight: bold; padding: 5px 0; color: #666; }
+    .cal-weekday.sun { color: #FF5E62; }
+    .cal-weekday.sat { color: #4facfe; }
+
+    .cal-cell { 
+        background: white; 
+        min-height: 80px; 
+        padding: 4px; 
+        position: relative; 
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+    }
+    .cal-cell:active { background: #fafafa; }
+    
+    /* 日付の色は常に黒 */
+    .cal-date-num { font-size: 0.9em; font-weight: bold; color: #333 !important; margin-bottom: 2px; }
+    
+    /* データがある日は太字強調のみ */
+    .cal-has-data { font-weight: 900; } 
+
+    .cal-today { background: #fff5e0; border: 2px solid #FF9966; box-sizing: border-box; }
+    
+    /* バッジエリア */
+    .cal-indicators {
+        display: flex;
+        flex-wrap: wrap; /* 横並び、溢れたら改行 */
+        gap: 2px;
+        justify-content: center;
+        width: 100%;
+        margin-top: 2px;
+    }
+    
+    /* カテゴリ別ドット（バッジ） */
+    .cal-info-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+    .badge-kamiho { background-color: #FF5E62; } /* 上星 */
+    .badge-kamitsu { background-color: #00897b; } /* 上鶴間 */
+    .badge-fed { background-color: #0277BD; }     /* 中学 */
+
+    /* 詳細表示 */
+    #shuttleDayDetail { 
+        display: none; 
+        margin-top: 20px; 
+        background: white; 
+        border-radius: 12px; 
+        padding: 15px; 
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+        border: 1px solid #eee;
+        animation: fadeIn 0.3s ease;
+    }
+    .detail-item { border-bottom: 1px solid #f0f0f0; padding: 8px 0; font-size: 0.9em; }
+    .detail-item:last-child { border-bottom: none; }
+    
+    /* 詳細リストのバッジ */
+    .detail-cat { 
+        font-weight: bold; 
+        font-size: 0.85em; 
+        padding: 3px 10px; 
+        border-radius: 15px; 
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        display: inline-block;
+        min-width: 60px;
+        text-align: center;
+        margin-right: 10px;
+    }
+    /* 色定義（詳細リスト用） */
+    .bg-kamiho { background: linear-gradient(135deg, #FF9966 0%, #FF5E62 100%); color: white; }
+    .bg-kamitsu { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+    .bg-fed { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; }
+
+    .detail-row-header { display: flex; justify-content: flex-start; align-items: center; margin-bottom: 6px; }
+    .detail-stats { font-size: 0.95em; color: #333; }
 
   </style>
 </head>
@@ -486,14 +418,14 @@
   
   <div class="nav-container">
     <div class="nav-item active" onclick="switchCategory('attendance', this)">📅 出欠確認</div>
-<div class="nav-item" onclick="switchCategory('task', this)">📊 課題分析</div>
+    <div class="nav-item" onclick="switchCategory('task', this)">📊 課題分析</div>
     <div class="nav-item" onclick="switchCategory('shuttle', this)">🏸 シャトル</div>
     <div class="nav-item" onclick="switchCategory('carry', this)">🚙 道具運搬</div>
     <div class="nav-item" onclick="switchCategory('skyArena', this)">🏟️ スカイアリーナ座間</div>
     <div class="nav-item" onclick="switchCategory('tournament', this)">🏆 大会申込</div>
     <div class="nav-item" onclick="switchCategory('fee', this)">💴 月謝</div>
-<div class="nav-item" onclick="switchCategory('gut', this)">🏸 ガット</div>
-<div class="nav-item" onclick="switchCategory('other', this)">📝 その他</div>
+    <div class="nav-item" onclick="switchCategory('gut', this)">🏸 ガット</div>
+    <div class="nav-item" onclick="switchCategory('other', this)">📝 その他</div>
     <div class="nav-item" onclick="switchCategory('member', this)">👥 名簿</div>
   </div>
 
@@ -633,6 +565,7 @@
 
   <div id="shuttleSection" class="card-section" style="display:none; background:transparent; box-shadow:none; padding:0;">
     <h2>シャトル在庫管理</h2>
+    
     <div class="shuttle-group-container">
       
       <div class="shuttle-card jr-card">
@@ -641,26 +574,48 @@
           <span class="stock-number" id="jrKamihoStock">0</span><span class="stock-unit">筒</span>
         </div>
         <div class="shuttle-control">
-          <div><label>使用数</label><input type="number" id="jrKamihoUsed" placeholder="0"></div>
-          <div><label>追加数</label><input type="number" id="jrKamihoAdded" placeholder="0"></div>
+          <div><label>使用数 (-)</label><input type="number" id="jrKamihoUsed" placeholder="0"></div>
+          <div><label>追加数 (+)</label><input type="number" id="jrKamihoAdded" placeholder="0"></div>
         </div>
-        <button onclick="updateShuttleStock('jr_kamiho')" style="background:white; color:#FF5E62; margin-top:15px; width:100%; padding:10px; border-radius:10px; border:none; font-weight:bold;">在庫を更新</button>
+        <div class="shuttle-details">
+            <label>用途</label>
+            <select id="jrKamihoType" style="margin-bottom:8px;">
+                <option value="練習">練習</option>
+                <option value="練習試合">練習試合</option>
+                <option value="大会">大会</option>
+                <option value="その他">その他</option>
+            </select>
+            <label>備考</label>
+            <input type="text" id="jrKamihoMemo" placeholder="詳細メモ">
+        </div>
+        <button onclick="updateShuttleStock('jr_kamiho')" style="background:white; color:#FF5E62; margin-top:15px; width:100%; padding:10px; border-radius:10px; border:none; font-weight:bold;">在庫を更新・記録</button>
         <div class="stats-row">
           <div class="stat-item"><span style="opacity:0.8;">今週の使用</span><span class="stat-val"><span id="jrKamihoWeekUsed">0</span><small>筒</small></span></div>
           <div class="stat-item"><span style="opacity:0.8;">今月の使用</span><span class="stat-val"><span id="jrKamihoMonthUsed">0</span><small>筒</small></span></div>
         </div>
       </div>
 
-      <div class="shuttle-card jr-card">
+      <div class="shuttle-card kamitsu-card">
         <h4 style="font-size:1em;">🏸 法政Jr.バドミントンクラブ（上鶴間小学校）</h4>
         <div class="stock-display">
           <span class="stock-number" id="jrKamitsuStock">0</span><span class="stock-unit">筒</span>
         </div>
         <div class="shuttle-control">
-          <div><label>使用数</label><input type="number" id="jrKamitsuUsed" placeholder="0"></div>
-          <div><label>追加数</label><input type="number" id="jrKamitsuAdded" placeholder="0"></div>
+          <div><label>使用数 (-)</label><input type="number" id="jrKamitsuUsed" placeholder="0"></div>
+          <div><label>追加数 (+)</label><input type="number" id="jrKamitsuAdded" placeholder="0"></div>
         </div>
-        <button onclick="updateShuttleStock('jr_kamitsu')" style="background:white; color:#FF5E62; margin-top:15px; width:100%; padding:10px; border-radius:10px; border:none; font-weight:bold;">在庫を更新</button>
+        <div class="shuttle-details">
+            <label>用途</label>
+            <select id="jrKamitsuType" style="margin-bottom:8px;">
+                <option value="練習">練習</option>
+                <option value="練習試合">練習試合</option>
+                <option value="大会">大会</option>
+                <option value="その他">その他</option>
+            </select>
+            <label>備考</label>
+            <input type="text" id="jrKamitsuMemo" placeholder="詳細メモ">
+        </div>
+        <button onclick="updateShuttleStock('jr_kamitsu')" style="background:white; color:#FF5E62; margin-top:15px; width:100%; padding:10px; border-radius:10px; border:none; font-weight:bold;">在庫を更新・記録</button>
         <div class="stats-row">
           <div class="stat-item"><span style="opacity:0.8;">今週の使用</span><span class="stat-val"><span id="jrKamitsuWeekUsed">0</span><small>筒</small></span></div>
           <div class="stat-item"><span style="opacity:0.8;">今月の使用</span><span class="stat-val"><span id="jrKamitsuMonthUsed">0</span><small>筒</small></span></div>
@@ -673,379 +628,413 @@
           <span class="stock-number" id="fedStock">0</span><span class="stock-unit">筒</span>
         </div>
         <div class="shuttle-control">
-          <div><label>使用数</label><input type="number" id="fedUsed" placeholder="0"></div>
-          <div><label>追加数</label><input type="number" id="fedAdded" placeholder="0"></div>
+          <div><label>使用数 (-)</label><input type="number" id="fedUsed" placeholder="0"></div>
+          <div><label>追加数 (+)</label><input type="number" id="fedAdded" placeholder="0"></div>
         </div>
-        <button onclick="updateShuttleStock('fed')" style="background:white; color:#4facfe; margin-top:15px; width:100%; padding:10px; border-radius:10px; border:none; font-weight:bold;">在庫を更新</button>
+        <div class="shuttle-details">
+            <label>用途</label>
+            <select id="fedType" style="margin-bottom:8px;">
+                <option value="練習">練習</option>
+                <option value="練習試合">練習試合</option>
+                <option value="大会">大会</option>
+                <option value="その他">その他</option>
+            </select>
+            <label>備考</label>
+            <input type="text" id="fedMemo" placeholder="詳細メモ">
+        </div>
+        <button onclick="updateShuttleStock('fed')" style="background:white; color:#4facfe; margin-top:15px; width:100%; padding:10px; border-radius:10px; border:none; font-weight:bold;">在庫を更新・記録</button>
         <div class="stats-row">
           <div class="stat-item"><span style="opacity:0.8;">今週の使用</span><span class="stat-val"><span id="fedWeekUsed">0</span><small>筒</small></span></div>
-          <div class="stat-item"><span style="opacity:0.8;">今月の使用</span><span class="stat-val"><span id="fedMonthUsed">0</span><small>筒</small></span></div>
+         <div class="stat-item">
+            <span style="opacity:0.8;">今月の使用</span>
+            <span class="stat-val"><span id="fedMonthUsed">0</span><small>筒</small></span>
+          </div>
+        </div> </div> </div> <div class="shuttle-cal-wrapper">
+        <h3 style="color:#555; border-left:5px solid #666; padding-left:10px;">📅 使用・入荷履歴カレンダー</h3>
+        
+        <div class="cal-header">
+            <button onclick="changeShuttleMonth(-1)" style="width:auto; padding:5px 15px; margin:0; background:#eee; color:#333; box-shadow:none;">◀</button>
+            <span id="shuttleCalTitle" class="cal-month-title">2024年 1月</span>
+            <button onclick="changeShuttleMonth(1)" style="width:auto; padding:5px 15px; margin:0; background:#eee; color:#333; box-shadow:none;">▶</button>
         </div>
-      </div>
 
+        <div class="cal-grid" id="shuttleCalendarGrid"></div>
+
+        <div id="shuttleDayDetail">
+            <h4 id="detailDateStr" style="margin:0 0 10px 0; color:#333; border-bottom:2px solid #FF9966; padding-bottom:5px;"></h4>
+            <div id="detailListContent"></div>
+            <button onclick="document.getElementById('shuttleDayDetail').style.display='none'" style="margin-top:15px; background:#ccc; color:#333;">閉じる</button>
+        </div>
+    </div> </div> <div id="carrySection" class="card-section" style="display:none;">
+    <h2>道具運搬管理</h2>
+    <label>練習日</label>
+    <select id="dateSelect" onchange="updateGym()"><option value="">選択してください</option></select>
+    <label>体育館</label>
+    <input type="text" id="gym" readonly style="background-color:#eee;">
+    
+    <label>担当者</label>
+    <input type="text" id="person" placeholder="名前を入力">
+
+    <label>持参物</label>
+    <div id="carryItemsBox" class="checkbox-container">
+      <label class="checkbox-label"><input type="checkbox" value="ネット"> ネット</label>
+      <label class="checkbox-label"><input type="checkbox" value="ノックケース"> ノックケース</label>
+<label class="checkbox-label"><input type="checkbox" value="ニューシャトル"> ニューシャトル</label>
+      <label class="checkbox-label"><input type="checkbox" value="ラダー"> ラダー</label>
+      <label class="checkbox-label"><input type="checkbox" value="タイマー"> タイマー</label>
+      <label class="checkbox-label"><input type="checkbox" value="鍵開け"> 鍵開け</label>
+      <label class="checkbox-label"><input type="checkbox" value="受付"> 受付</label>
+    </div>
+    
+    <button type="button" onclick="submitForm()">この内容で登録する</button>
+    
+    <div style="margin-top:30px; border-top:1px solid #eee; padding-top:20px;">
+      <h2>登録済み一覧</h2>
+      <div class="table-container">
+        <table id="listTable">
+          <thead>
+            <tr>
+              <th>日付</th><th>体育館</th><th>担当者</th><th>持参物</th>
+              <th class="delete-col">編集</th><th class="delete-col">削除</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </div>
   </div>
 
-    <div id="carrySection" class="card-section" style="display:none;">
-      <h2>道具運搬管理</h2>
-      <label>練習日</label>
-      <select id="dateSelect" onchange="updateGym()"><option value="">選択してください</option></select>
-      <label>体育館</label>
-      <input type="text" id="gym" readonly style="background-color:#eee;">
-      
-      <label>担当者</label>
-      <input type="text" id="person" placeholder="名前を入力">
-      <label>持参物</label>
-      <div id="carryItemsBox" class="checkbox-container">
-        <label class="checkbox-label"><input type="checkbox" value="ネット"> ネット</label>
-        <label class="checkbox-label"><input type="checkbox" value="ノックケース"> ノックケース</label>
-        <label class="checkbox-label"><input type="checkbox" value="ラダー"> ラダー</label>
-<label class="checkbox-label"><input type="checkbox" value="タイマー"> タイマー</label>
-        <label class="checkbox-label"><input type="checkbox" value="ニューシャトル"> ニューシャトル</label>
-<label class="checkbox-label"><input type="checkbox" value="中学生シャトル"> 中学生シャトル</label>
-        <label class="checkbox-label"><input type="checkbox" value="鍵開け"> 鍵開け</label>
-                <label class="checkbox-label"><input type="checkbox" value="受付"> 受付</label>
-      </div>
-      
-      <button type="button" onclick="submitForm()">この内容で登録する</button>
-      
-      <div style="margin-top:30px; border-top:1px solid #eee; padding-top:20px;">
-        <h2>登録済み一覧</h2>
-        <div class="table-container"><table id="listTable"><thead><tr><th>日付</th><th>体育館</th><th>担当者</th><th>持参物</th><th class="delete-col">編集</th><th class="delete-col">削除</th></tr></thead><tbody></tbody></table></div>
-      </div>
-    </div>
-
-    <div id="skyArenaSection" class="card-section" style="display:none;">
-      <h2>スカイアリーナ座間タスク</h2>
-      <label>対象月</label>
-      <input type="month" id="arenaMonth">
-      <label>タスク内容</label>
-      <select id="arenaTask">
-        <option value="抽選予約（体育館の機械）">抽選予約（体育館の機械）</option>
-        <option value="追加予約（電話）">追加予約（電話）</option>
-        <option value="仮予約表の受け取り（抽選予約）">仮予約表の受け取り（抽選予約）</option>
-        <option value="仮予約表の受け取り（追加予約）">仮予約表の受け取り（追加予約）</option>
-        <option value="使用料の支払い">使用料の支払い</option>
-        <option value="カレンダーの確認">カレンダーの確認</option>
-      </select>
-      <label>担当者</label>
-      <input type="text" id="arenaPerson" placeholder="名前を入力">
-      <label>完了状況</label>
-      <select id="arenaCompleted"><option value="false">⬜ 未完了</option><option value="true">✅ 完了</option></select>
-      <label>写真 (任意・Firebase保存)</label>
-      <input type="file" id="arenaPhoto" accept="image/*" style="padding:10px; border:1px dashed #ccc;">
-      <button type="button" onclick="addArenaTask()">タスクを登録する</button>
-      <div style="margin-top:30px;">
-        <h2>タスク一覧</h2>
-        <button type="button" onclick="forceReloadArena()" style="margin-top:0; padding:8px 16px; font-size:12px; width:auto; background:#666; box-shadow:none; color:white; border:none; border-radius:20px;">データを再読み込み</button>
-        <div class="table-container">
-          <table id="arenaTable"><thead><tr><th>No</th><th>月</th><th>タスク</th><th>担当者</th><th>完了</th><th>写真</th><th class="delete-col">編集</th><th class="delete-col">削除</th></tr></thead><tbody></tbody></table>
-        </div>
+  <div id="skyArenaSection" class="card-section" style="display:none;">
+    <h2>スカイアリーナ座間タスク</h2>
+    <label>対象月</label>
+    <input type="month" id="arenaMonth">
+    <label>タスク内容</label>
+    <select id="arenaTask">
+      <option value="抽選予約（体育館の機械）">抽選予約（体育館の機械）</option>
+      <option value="追加予約（電話）">追加予約（電話）</option>
+      <option value="仮予約表の受け取り（抽選予約）">仮予約表の受け取り（抽選予約）</option>
+      <option value="仮予約表の受け取り（追加予約）">仮予約表の受け取り（追加予約）</option>
+      <option value="使用料の支払い">使用料の支払い</option>
+      <option value="カレンダーの確認">カレンダーの確認</option>
+    </select>
+    <label>担当者</label>
+    <input type="text" id="arenaPerson" placeholder="名前を入力">
+    <label>完了状況</label>
+    <select id="arenaCompleted"><option value="false">⬜ 未完了</option><option value="true">✅ 完了</option></select>
+    <label>写真 (任意・Firebase保存)</label>
+    <input type="file" id="arenaPhoto" accept="image/*" style="padding:10px; border:1px dashed #ccc;">
+    <button type="button" onclick="addArenaTask()">タスクを登録する</button>
+    <div style="margin-top:30px;">
+      <h2>タスク一覧</h2>
+      <button type="button" onclick="forceReloadArena()" style="margin-top:0; padding:8px 16px; font-size:12px; width:auto; background:#666; box-shadow:none; color:white; border:none; border-radius:20px;">データを再読み込み</button>
+      <div class="table-container">
+        <table id="arenaTable"><thead><tr><th>No</th><th>月</th><th>タスク</th><th>担当者</th><th>完了</th><th>写真</th><th class="delete-col">編集</th><th class="delete-col">削除</th></tr></thead><tbody></tbody></table>
       </div>
     </div>
+  </div>
 
-    <div id="tournamentSection" class="card-section" style="display:none;">
-      <h2>大会申込</h2>
-      <label>大会名</label>
-      <input type="text" id="tournamentName" placeholder="大会名を入力">
-      <label>入力期限</label>
-      <input type="date" id="deadline">
-      <label>担当者</label>
-      <input type="text" id="tournamentPerson" placeholder="名前を入力">
-      <label>状況</label>
-      <select id="status"><option value="申込予定">申込予定</option><option value="申請中">申請中</option><option value="申込完了">申込完了</option></select>
+  <div id="tournamentSection" class="card-section" style="display:none;">
+    <h2>大会申込</h2>
+    <label>大会名</label>
+    <input type="text" id="tournamentName" placeholder="大会名を入力">
+    <label>入力期限</label>
+    <input type="date" id="deadline">
+    <label>担当者</label>
+    <input type="text" id="tournamentPerson" placeholder="名前を入力">
+    <label>状況</label>
+    <select id="status"><option value="申込予定">申込予定</option><option value="申請中">申請中</option><option value="申込完了">申込完了</option></select>
 
-      <label>出場制限</label>
-      <select id="restriction">
-        <option value="elem_all">小学生全員（クラブ員）</option>
-        <option value="elem_fed">小学生連盟登録者</option>
-        <option value="jhs_fed">中学生連盟登録者</option>
-        <option value="all">制限なし（全員）</option>
-      </select>
+    <label>出場制限</label>
+    <select id="restriction">
+      <option value="elem_all">小学生全員（クラブ員）</option>
+      <option value="elem_fed">小学生連盟登録者</option>
+      <option value="jhs_fed">中学生連盟登録者</option>
+      <option value="all">制限なし（全員）</option>
+    </select>
 
-<label>参加費 (1人あたり)</label>
-      <input type="number" id="tournamentFee" placeholder="例：1500">
+    <label>参加費 (1人あたり)</label>
+    <input type="number" id="tournamentFee" placeholder="例：1500">
 
-      <button type="button" onclick="submitTournament()">新規登録</button>
-      
-      <div style="margin-top:30px;">
-        <h2>申込一覧</h2>
-        <div class="table-container">
-          <table id="tournamentTable">
-            <thead>
-              <tr>
-                <th>大会名</th>
-                <th>入力期限</th>
-                <th>担当者</th>
-                <th>状況</th>
-                <th class="delete-col">詳細/管理</th>
-                <th class="delete-col">削除</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
+    <button type="button" onclick="submitTournament()">新規登録</button>
+    
+    <div style="margin-top:30px;">
+      <h2>申込一覧</h2>
+      <div class="table-container">
+        <table id="tournamentTable">
+          <thead>
+            <tr>
+              <th>大会名</th>
+              <th>入力期限</th>
+              <th>担当者</th>
+              <th>状況</th>
+              <th class="delete-col">詳細/管理</th>
+              <th class="delete-col">削除</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
       </div>
     </div>
+  </div>
 
-    <div id="otherSection" class="card-section" style="display:none;">
-      <h2>その他連絡事項</h2>
-      <label>タイトル</label>
-      <input type="text" id="otherTitle">
-      <label>内容</label>
-      <textarea id="otherContent" rows="3"></textarea>
-      <label>担当者</label>
-      <input type="text" id="otherPerson">
-      <label>状況</label>
-      <input type="text" id="otherStatus" placeholder="例：確認中、完了など">
-      <button type="button" onclick="saveOtherData()">登録する</button>
-      <div style="margin-top:30px;">
-        <h2>その他一覧</h2>
-        <div class="table-container"><table id="otherList"><thead><tr><th>タイトル</th><th>内容</th><th>担当者</th><th>状況</th><th class="delete-col">編集</th><th class="delete-col">削除</th></tr></thead><tbody></tbody></table></div>
-      </div>
+  <div id="otherSection" class="card-section" style="display:none;">
+    <h2>その他連絡事項</h2>
+    <label>タイトル</label>
+    <input type="text" id="otherTitle">
+    <label>内容</label>
+    <textarea id="otherContent" rows="3"></textarea>
+    <label>担当者</label>
+    <input type="text" id="otherPerson">
+    <label>状況</label>
+    <input type="text" id="otherStatus" placeholder="例：確認中、完了など">
+    <button type="button" onclick="saveOtherData()">登録する</button>
+    <div style="margin-top:30px;">
+      <h2>その他一覧</h2>
+      <div class="table-container"><table id="otherList"><thead><tr><th>タイトル</th><th>内容</th><th>担当者</th><th>状況</th><th class="delete-col">編集</th><th class="delete-col">削除</th></tr></thead><tbody></tbody></table></div>
     </div>
+  </div>
 
 <div id="feeSection" class="card-section" style="display:none;">
-    <h2>💴 月謝管理 (4,000円/月)</h2>
-    <div style="background:#fff; padding:15px; border-radius:12px; border:1px solid #FF9966; margin-bottom:20px; text-align:center;">
-       <label>対象月を選択</label>
-       <input type="month" id="feeMonthSelect" style="font-size:1.2em; font-weight:bold; text-align:center; color:#333;" onchange="loadFeeData()">
-    </div>
-
-    <div style="margin-bottom:10px; font-size:0.9em; color:#666; text-align:right;">
-       <span id="feeCountLabel">支払い済み: 0名</span>
-    </div>
-
-    <div class="table-container">
-      <table id="feeTable">
-        <thead>
-          <tr>
-            <th style="width:40%;">氏名</th>
-            <th>状況</th>
-            <th style="width:20%;">操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          </tbody>
-      </table>
-    </div>
+  <h2>💴 月謝管理 (4,000円/月)</h2>
+  <div style="background:#fff; padding:15px; border-radius:12px; border:1px solid #FF9966; margin-bottom:20px; text-align:center;">
+     <label>対象月を選択</label>
+     <input type="month" id="feeMonthSelect" style="font-size:1.2em; font-weight:bold; text-align:center; color:#333;" onchange="loadFeeData()">
   </div>
 
-  <div id="gutSection" class="card-section" style="display:none;">
-    <h2>🏸 ガット張り管理</h2>
+  <div style="margin-bottom:10px; font-size:0.9em; color:#666; text-align:right;">
+     <span id="feeCountLabel">支払い済み: 0名</span>
+  </div>
+
+  <div class="table-container">
+    <table id="feeTable">
+      <thead>
+        <tr>
+          <th style="width:40%;">氏名</th>
+          <th>状況</th>
+          <th style="width:20%;">操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        </tbody>
+    </table>
+  </div>
+</div>
+
+<div id="gutSection" class="card-section" style="display:none;">
+  <h2>🏸 ガット張り管理</h2>
+  
+  <div style="background:#f9f9f9; padding:20px; border-radius:12px; border:1px solid #ddd; margin-bottom:30px;">
+    <h3 style="margin-top:0;">新規登録</h3>
+    <label>氏名</label>
+    <select id="gutNameSelect"><option value="">選択してください</option></select>
     
-    <div style="background:#f9f9f9; padding:20px; border-radius:12px; border:1px solid #ddd; margin-bottom:30px;">
-      <h3 style="margin-top:0;">新規登録</h3>
-      <label>氏名</label>
-      <select id="gutNameSelect"><option value="">選択してください</option></select>
-      
-      <label>受付日</label>
-      <input type="date" id="gutDate">
-      
-      <label>コース選択</label>
-      <div class="checkbox-container" style="margin-bottom:10px;">
-        <label class="checkbox-label">
-          <input type="radio" name="gutOption" value="included" checked onchange="toggleGutInfo()">
-          ガット込み (¥1,800)
-        </label>
-        <label class="checkbox-label">
-          <input type="radio" name="gutOption" value="carry_in" onchange="toggleGutInfo()">
-          持ち込み (¥1,000)
-        </label>
-      </div>
-
-      <div id="gutInfoBox" style="margin-bottom:15px; display:block;">
-        <div style="background:#fff; border:1px solid #ffe0b2; border-left:5px solid #FF9966; border-radius:6px; padding:12px 15px; font-size:0.9em; display:flex; align-items:center; gap:10px; box-shadow: 0 2px 4px rgba(0,0,0,0.03);">
-            <span style="font-weight:bold; color:#FF9966; white-space:nowrap;">ℹ️ 標準仕様</span>
-            <span style="color:#ddd;">|</span>
-            <span style="color:#333;">
-                <span style="font-weight:bold;">BG66 アルティマックス</span>
-                <span style="font-size:0.85em; color:#666; margin-left:2px;">(メタリックホワイト)</span>
-            </span>
-        </div>
-      </div>
-      
-      <div style="display:flex; gap:10px;">
-         <div style="flex:1;">
-           <label>本数</label>
-           <input type="number" id="gutCount" value="1" min="1">
-         </div>
-         <div style="flex:1;">
-           <label>テンション</label>
-           <input type="number" id="gutTension" placeholder="24" step="0.5">
-         </div>
-      </div>
-      
-      <button onclick="submitGut()">登録する</button>
-    </div>
-
-    <h3>📜 履歴・支払い状況</h3>
-    <button onclick="loadGutList()" style="width:auto; padding:6px 12px; font-size:0.8em; margin-bottom:10px; background:#666; box-shadow:none;">更新</button>
+    <label>受付日</label>
+    <input type="date" id="gutDate">
     
+    <label>コース選択</label>
+    <div class="checkbox-container" style="margin-bottom:10px;">
+      <label class="checkbox-label">
+        <input type="radio" name="gutOption" value="included" checked onchange="toggleGutInfo()">
+        ガット込み (¥1,800)
+      </label>
+      <label class="checkbox-label">
+        <input type="radio" name="gutOption" value="carry_in" onchange="toggleGutInfo()">
+        持ち込み (¥1,000)
+      </label>
+    </div>
+
+    <div id="gutInfoBox" style="margin-bottom:15px; display:block;">
+      <div style="background:#fff; border:1px solid #ffe0b2; border-left:5px solid #FF9966; border-radius:6px; padding:12px 15px; font-size:0.9em; display:flex; align-items:center; gap:10px; box-shadow: 0 2px 4px rgba(0,0,0,0.03);">
+          <span style="font-weight:bold; color:#FF9966; white-space:nowrap;">ℹ️ 標準仕様</span>
+          <span style="color:#ddd;">|</span>
+          <span style="color:#333;">
+              <span style="font-weight:bold;">BG66 アルティマックス</span>
+              <span style="font-size:0.85em; color:#666; margin-left:2px;">(メタリックホワイト)</span>
+          </span>
+      </div>
+    </div>
+    
+    <div style="display:flex; gap:10px;">
+       <div style="flex:1;">
+         <label>本数</label>
+         <input type="number" id="gutCount" value="1" min="1">
+       </div>
+       <div style="flex:1;">
+         <label>テンション</label>
+         <input type="number" id="gutTension" placeholder="24" step="0.5">
+       </div>
+    </div>
+    
+    <button onclick="submitGut()">登録する</button>
+  </div>
+
+  <h3>📜 履歴・支払い状況</h3>
+  <button onclick="loadGutList()" style="width:auto; padding:6px 12px; font-size:0.8em; margin-bottom:10px; background:#666; box-shadow:none;">更新</button>
+  
+  <div class="table-container">
+    <table id="gutTable">
+      <thead>
+        <tr>
+          <th>日付</th>
+          <th>氏名</th>
+          <th>内容</th>
+          <th>金額/状況</th>
+          <th class="delete-col">削除</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+  <div id="memberSection" class="card-section" style="display:none;">
+    <h2>クラブ名簿</h2>
     <div class="table-container">
-      <table id="gutTable">
-        <thead>
-          <tr>
-            <th>日付</th>
-            <th>氏名</th>
-            <th>内容</th>
-            <th>金額/状況</th>
-            <th class="delete-col">削除</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+      <table id="memberTable"><thead><tr><th>番号</th><th>氏名</th><th>学年</th></tr></thead><tbody></tbody></table>
     </div>
   </div>
+</div>
 
-    <div id="memberSection" class="card-section" style="display:none;">
-      <h2>クラブ名簿</h2>
-      <div class="table-container">
-        <table id="memberTable"><thead><tr><th>番号</th><th>氏名</th><th>学年</th></tr></thead><tbody></tbody></table>
+<div id="individualModal"><div class="ind-header"><h3 id="indModalTitle" style="margin:0;">氏名</h3>
+<button style="width:auto; margin:0; padding:8px 16px; background:#f0f0f0; color:#333; border:1px solid #ddd; box-shadow:none;" onclick="closeIndModal()">閉じる</button>
+</div>
+<div class="ind-content" id="indList">
+</div>
+<div style="padding:15px; background:rgba(255,255,255,0.95); text-align:center; position:sticky; bottom:0; border-top:1px solid #eee;">
+<button type="button" onclick="saveIndData()" style="width:100%; max-width:400px; margin-top:0;">この内容で保存する</button>
+</div>
+</div>
+
+<div id="photoModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); justify-content:center; align-items:center; z-index:3000;"><img id="modalImage" src="" style="max-width:95%; max-height:80%; border-radius:8px; box-shadow:0 0 20px rgba(255,255,255,0.2);"><div style="position:absolute; bottom:30px; color:white; font-size:14px;">画像をタップして閉じる</div></div>
+
+<div id="settingModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:4000; justify-content:center; align-items:center;">
+  <div style="background:white; width:90%; max-width:400px; max-height:80%; border-radius:12px; display:flex; flex-direction:column; overflow:hidden;">
+    <div style="padding:15px; background:#f9f9f9; border-bottom:1px solid #eee; font-weight:bold;">表示メンバー選択</div>
+    <div id="settingMemberContainer" style="padding:15px; overflow-y:auto; flex:1;">
       </div>
+    <div style="padding:15px; border-top:1px solid #eee; text-align:center; background:white;">
+      <button onclick="saveMySettings()" style="width:100%; margin:0;">決定して保存</button>
+      <button onclick="document.getElementById('settingModal').style.display='none'" style="width:100%; margin-top:10px; background:#ccc; color:#333; box-shadow:none;">キャンセル</button>
     </div>
   </div>
-
-  <div id="individualModal"><div class="ind-header"><h3 id="indModalTitle" style="margin:0;">氏名</h3>
-  <button style="width:auto; margin:0; padding:8px 16px; background:#f0f0f0; color:#333; border:1px solid #ddd; box-shadow:none;" onclick="closeIndModal()">閉じる</button>
-  </div>
-  <div class="ind-content" id="indList">
-  </div>
-  <div style="padding:15px; background:rgba(255,255,255,0.95); text-align:center; position:sticky; bottom:0; border-top:1px solid #eee;">
-  <button type="button" onclick="saveIndData()" style="width:100%; max-width:400px; margin-top:0;">この内容で保存する</button>
-  </div>
-  </div>
-
-  <div id="photoModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); justify-content:center; align-items:center; z-index:3000;"><img id="modalImage" src="" style="max-width:95%; max-height:80%; border-radius:8px; box-shadow:0 0 20px rgba(255,255,255,0.2);"><div style="position:absolute; bottom:30px; color:white; font-size:14px;">画像をタップして閉じる</div></div>
-
-  <div id="settingModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:4000; justify-content:center; align-items:center;">
-    <div style="background:white; width:90%; max-width:400px; max-height:80%; border-radius:12px; display:flex; flex-direction:column; overflow:hidden;">
-      <div style="padding:15px; background:#f9f9f9; border-bottom:1px solid #eee; font-weight:bold;">表示メンバー選択</div>
-      <div id="settingMemberContainer" style="padding:15px; overflow-y:auto; flex:1;">
-        </div>
-      <div style="padding:15px; border-top:1px solid #eee; text-align:center; background:white;">
-        <button onclick="saveMySettings()" style="width:100%; margin:0;">決定して保存</button>
-        <button onclick="document.getElementById('settingModal').style.display='none'" style="width:100%; margin-top:10px; background:#ccc; color:#333; box-shadow:none;">キャンセル</button>
-      </div>
-    </div>
-  </div>
+</div>
 
 <div id="tournamentEditModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:4000; justify-content:center; align-items:center;">
-  <div style="background:white; width:90%; max-width:400px; max-height:90%; border-radius:12px; display:flex; flex-direction:column; overflow-y:auto;">
-    <div style="padding:15px; background:#f9f9f9; border-bottom:1px solid #eee; font-weight:bold;">大会情報の編集</div>
-    <div style="padding:20px;">
-      <input type="hidden" id="edit_t_row">
-      <label>大会名</label>
-      <input type="text" id="edit_t_name">
-      
-      <label>入力期限</label>
-      <input type="date" id="edit_t_deadline">
-      
-      <label>担当者</label>
-      <input type="text" id="edit_t_person">
-      
-      <label>状況</label>
-      <select id="edit_t_status">
-          <option value="申込予定">申込予定</option>
-          <option value="申請中">申請中</option>
-          <option value="申込完了">申込完了</option>
-      </select>
+<div style="background:white; width:90%; max-width:400px; max-height:90%; border-radius:12px; display:flex; flex-direction:column; overflow-y:auto;">
+  <div style="padding:15px; background:#f9f9f9; border-bottom:1px solid #eee; font-weight:bold;">大会情報の編集</div>
+  <div style="padding:20px;">
+    <input type="hidden" id="edit_t_row">
+    <label>大会名</label>
+    <input type="text" id="edit_t_name">
+    
+    <label>入力期限</label>
+    <input type="date" id="edit_t_deadline">
+    
+    <label>担当者</label>
+    <input type="text" id="edit_t_person">
+    
+    <label>状況</label>
+    <select id="edit_t_status">
+        <option value="申込予定">申込予定</option>
+        <option value="申請中">申請中</option>
+        <option value="申込完了">申込完了</option>
+    </select>
 
-      <label>出場制限</label>
-      <select id="edit_t_restriction">
-        <option value="elem_all">小学生全員（クラブ員）</option>
-        <option value="elem_fed">小学生連盟登録者</option>
-        <option value="jhs_fed">中学生連盟登録者</option>
-        <option value="all">制限なし（全員）</option>
-      </select>
+    <label>出場制限</label>
+    <select id="edit_t_restriction">
+      <option value="elem_all">小学生全員（クラブ員）</option>
+      <option value="elem_fed">小学生連盟登録者</option>
+      <option value="jhs_fed">中学生連盟登録者</option>
+      <option value="all">制限なし（全員）</option>
+    </select>
 
 <label>参加費</label>
-      <input type="number" id="edit_t_fee">
+    <input type="number" id="edit_t_fee">
 
-      <button onclick="submitEditTournament()" style="margin-top:20px;">更新して保存</button>
-      <button onclick="document.getElementById('tournamentEditModal').style.display='none'" style="background:#ccc; color:#333; margin-top:10px;">キャンセル</button>
-    </div>
+    <button onclick="submitEditTournament()" style="margin-top:20px;">更新して保存</button>
+    <button onclick="document.getElementById('tournamentEditModal').style.display='none'" style="background:#ccc; color:#333; margin-top:10px;">キャンセル</button>
   </div>
+</div>
 </div>
 
 <div id="tournamentDetailModal">
-  <div class="ind-header">
-    <h3 style="margin:0; font-size:1em; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;" id="tDetailTitle">大会詳細</h3>
-    <button style="width:auto; margin:0; padding:8px 16px; background:#f0f0f0; color:#333; border:1px solid #ddd; box-shadow:none;" onclick="closeTournamentDetail()">閉じる</button>
+<div class="ind-header">
+  <h3 style="margin:0; font-size:1em; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;" id="tDetailTitle">大会詳細</h3>
+  <button style="width:auto; margin:0; padding:8px 16px; background:#f0f0f0; color:#333; border:1px solid #ddd; box-shadow:none;" onclick="closeTournamentDetail()">閉じる</button>
+</div>
+<div class="ind-content">
+  
+  <h3>📁 大会要項・資料</h3>
+  <div class="tournament-file-area">
+    <div id="tFileLinkArea" style="margin-bottom:10px;"></div>
+    <input type="file" id="tFileUpload" style="font-size:0.8em;">
   </div>
-  <div class="ind-content">
-    
-    <h3>📁 大会要項・資料</h3>
-    <div class="tournament-file-area">
-      <div id="tFileLinkArea" style="margin-bottom:10px;"></div>
-      <input type="file" id="tFileUpload" style="font-size:0.8em;">
-    </div>
 
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
-       <h3 style="margin:0;">👥 参加希望者 <span id="tParticipantCount" style="font-size:0.8em; font-weight:normal; color:#666; margin-left:5px;"></span></h3>
-       <button onclick="toggleAddParticipantBox()" style="width:auto; padding:6px 12px; font-size:0.8em; margin:0;">＋ メンバー追加</button>
-    </div>
-    
-    <div id="addParticipantBox" class="add-participant-box" style="display:none;">
-        <p style="font-size:0.8em; margin-top:0;">追加するメンバーを選んでください</p>
-        <select id="tMemberSelect" style="margin-bottom:10px;"></select>
-        <button onclick="addParticipantToTournament()" style="margin-top:0; padding:10px;">追加</button>
-    </div>
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
+     <h3 style="margin:0;">👥 参加希望者 <span id="tParticipantCount" style="font-size:0.8em; font-weight:normal; color:#666; margin-left:5px;"></span></h3>
+     <button onclick="toggleAddParticipantBox()" style="width:auto; padding:6px 12px; font-size:0.8em; margin:0;">＋ メンバー追加</button>
+  </div>
+  
+  <div id="addParticipantBox" class="add-participant-box" style="display:none;">
+      <p style="font-size:0.8em; margin-top:0;">追加するメンバーを選んでください</p>
+      <select id="tMemberSelect" style="margin-bottom:10px;"></select>
+      <button onclick="addParticipantToTournament()" style="margin-top:0; padding:10px;">追加</button>
+  </div>
 
-    <div id="tParticipantList" style="margin-top:10px;"></div>
-    
-  </div>
-  <div style="padding:15px; background:rgba(255,255,255,0.95); text-align:center; position:sticky; bottom:0; border-top:1px solid #eee;">
-    <button type="button" onclick="saveTournamentDetails()" style="width:100%; max-width:400px; margin-top:0;">内容を保存する</button>
-  </div>
+  <div id="tParticipantList" style="margin-top:10px;"></div>
+  
+</div>
+<div style="padding:15px; background:rgba(255,255,255,0.95); text-align:center; position:sticky; bottom:0; border-top:1px solid #eee;">
+  <button type="button" onclick="saveTournamentDetails()" style="width:100%; max-width:400px; margin-top:0;">内容を保存する</button>
+</div>
 </div>
 
 <div id="taskEditModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:5000; justify-content:center; align-items:center;">
-  <div style="background:white; width:90%; max-width:400px; border-radius:12px; padding:20px; box-shadow:0 4px 15px rgba(0,0,0,0.2);">
-    <h3 style="margin-top:0; color:#333;">課題の編集</h3>
-    
-    <input type="hidden" id="editTaskRow"> 
-    <div style="margin-bottom:15px;">
-      <label style="font-weight:bold; display:block; margin-bottom:5px;">種目</label>
-      <div class="checkbox-container">
-        <label class="checkbox-label">
-          <input type="radio" name="editTaskType" value="シングルス"> シングルス
-        </label>
-        <label class="checkbox-label">
-          <input type="radio" name="editTaskType" value="ダブルス"> ダブルス
-        </label>
-      </div>
+<div style="background:white; width:90%; max-width:400px; border-radius:12px; padding:20px; box-shadow:0 4px 15px rgba(0,0,0,0.2);">
+  <h3 style="margin-top:0; color:#333;">課題の編集</h3>
+  
+  <input type="hidden" id="editTaskRow"> 
+  <div style="margin-bottom:15px;">
+    <label style="font-weight:bold; display:block; margin-bottom:5px;">種目</label>
+    <div class="checkbox-container">
+      <label class="checkbox-label">
+        <input type="radio" name="editTaskType" value="シングルス"> シングルス
+      </label>
+      <label class="checkbox-label">
+        <input type="radio" name="editTaskType" value="ダブルス"> ダブルス
+      </label>
     </div>
+  </div>
 
-    <label style="font-weight:bold; display:block; margin-bottom:5px;">課題内容</label>
-    <textarea id="editTaskContent" rows="4" style="width:100%; margin-bottom:20px;"></textarea>
-    
-    <div style="display:flex; gap:10px;">
-      <button onclick="saveTaskEdit()" style="flex:1; background:#FF9966; color:white;">保存</button>
-      <button onclick="document.getElementById('taskEditModal').style.display='none'" style="flex:1; background:#ccc; color:#333;">キャンセル</button>
-    </div>
+  <label style="font-weight:bold; display:block; margin-bottom:5px;">課題内容</label>
+  <textarea id="editTaskContent" rows="4" style="width:100%; margin-bottom:20px;"></textarea>
+  
+  <div style="display:flex; gap:10px;">
+    <button onclick="saveTaskEdit()" style="flex:1; background:#FF9966; color:white;">保存</button>
+    <button onclick="document.getElementById('taskEditModal').style.display='none'" style="flex:1; background:#ccc; color:#333;">キャンセル</button>
   </div>
 </div>
+</div>
 <div id="reflectionModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:5000; justify-content:center; align-items:center;">
-  <div style="background:white; width:90%; max-width:400px; border-radius:12px; padding:20px; box-shadow:0 4px 15px rgba(0,0,0,0.2);">
-    <h3 style="margin-top:0; color:#333;">今月の考察・振り返り</h3>
-    <p style="font-size:0.85em; color:#666;">課題に対する結果や気づきを入力してください。</p>
-    
-    <input type="hidden" id="reflectTaskRow"> 
-    
-    <div style="background:#f0f0f0; padding:10px; border-radius:8px; margin-bottom:15px;">
-        <label style="font-size:0.8em; color:#888; margin:0;">取り組んだ課題</label>
-        <div id="reflectTaskPreview" style="font-weight:bold; font-size:0.9em; color:#333;"></div>
-    </div>
-
-    <label style="font-weight:bold; display:block; margin-bottom:5px;">考察・振り返り</label>
-    <textarea id="reflectContent" rows="5" style="width:100%; margin-bottom:20px;" placeholder="例：足は動くようになったが、最後の決め球が浮いてしまうことが多かった。来月は..."></textarea>
-    
-    <div style="display:flex; gap:10px;">
-      <button onclick="saveReflection()" style="flex:1; background:#28a745; color:white;">保存</button>
-      <button onclick="document.getElementById('reflectionModal').style.display='none'" style="flex:1; background:#ccc; color:#333;">キャンセル</button>
-    </div>
+<div style="background:white; width:90%; max-width:400px; border-radius:12px; padding:20px; box-shadow:0 4px 15px rgba(0,0,0,0.2);">
+  <h3 style="margin-top:0; color:#333;">今月の考察・振り返り</h3>
+  <p style="font-size:0.85em; color:#666;">課題に対する結果や気づきを入力してください。</p>
+  
+  <input type="hidden" id="reflectTaskRow"> 
+  
+  <div style="background:#f0f0f0; padding:10px; border-radius:8px; margin-bottom:15px;">
+      <label style="font-size:0.8em; color:#888; margin:0;">取り組んだ課題</label>
+      <div id="reflectTaskPreview" style="font-weight:bold; font-size:0.9em; color:#333;"></div>
   </div>
+
+  <label style="font-weight:bold; display:block; margin-bottom:5px;">考察・振り返り</label>
+  <textarea id="reflectContent" rows="5" style="width:100%; margin-bottom:20px;" placeholder="例：足は動くようになったが、最後の決め球が浮いてしまうことが多かった。来月は..."></textarea>
+  
+  <div style="display:flex; gap:10px;">
+    <button onclick="saveReflection()" style="flex:1; background:#28a745; color:white;">保存</button>
+    <button onclick="document.getElementById('reflectionModal').style.display='none'" style="flex:1; background:#ccc; color:#333;">キャンセル</button>
+  </div>
+</div>
 </div>
 
 <script>
@@ -1115,7 +1104,7 @@
     }
 
     // ▼▼▼ GASのURL（スクリプト先頭に移動） ▼▼▼
-    const SHEET_URL = "https://script.google.com/macros/s/AKfycbzXrwvEuphQSBvNNHnnTOv3j-iS6YAq9HqZ_eIFr4vb6Ml6-BVKa2v6U6-w8JPFdoi5/exec"; 
+    const SHEET_URL = "https://script.google.com/macros/s/AKfycbz5H1kjQSo7S_Q0q3Qo46b5DeP6qb5wJA3zn_Vye1wvCi1-5Y3jN60G9pznfGfHpXcc/exec"; 
 
     // ▼▼▼ Firebaseの設定 ▼▼▼
     const firebaseConfig = {
@@ -1152,9 +1141,13 @@
     let currentIndMember = null;
     let isShowingAll = false; 
     let shuttleUpdateCount = 0;
-    
-let feeDataCache = null;  // 月謝データ用
+    // ★ここに追加・移動★
+    let shuttleLogsCache = [];
+    let currentCalDate = new Date();
+    let feeDataCache = null;  // 月謝データ用
     let gutDataCache = null;  // ガットデータ用
+let allTasksCache = [];
+    let currentAnalysisMode = 'elem_s';
 
     // ★大会用グローバル変数
     let currentTournamentRow = null; // 編集中の大会の行番号
@@ -1173,37 +1166,37 @@ let feeDataCache = null;  // 月謝データ用
     function safeSetStorage(key, value) { try { localStorage.setItem(key, value); } catch (e) { console.warn("Quota Exceeded", e); } }
     function showLoading(show) { document.getElementById("loading").style.display = show ? "flex" : "none"; }
 
-        // 初期化（高速化対応版）
+    // 初期化（高速化対応版）
     document.addEventListener("DOMContentLoaded", async () => {
-checkAppLogin();
+        checkAppLogin();
 
-      // 1. まずUIの初期表示（出欠タブ）
-    switchCategory('attendance', document.querySelector('.nav-item.active'));
+        // 1. まずUIの初期表示（出欠タブ）
+        switchCategory('attendance', document.querySelector('.nav-item.active'));
 
-      // 2. 最初の画面に必要なデータ（名簿・スケジュール・出欠データ）だけを待機して読み込む
-    await Promise.all([ loadMemberList(), loadSchedule(), loadWeeklyMatrix() ]);
+        // 2. 最初の画面に必要なデータ（名簿・スケジュール・出欠データ）だけを待機して読み込む
+        await Promise.all([ loadMemberList(), loadSchedule(), loadWeeklyMatrix() ]);
 
-      // 3. その他のタブ（課題・月謝・ガット・アリーナ・シャトル）は「裏側」で読み込む
-    fetchArenaData();
-    loadShuttleData();
+        // 3. その他のタブ（課題・月謝・ガット・アリーナ・シャトル）は「裏側」で読み込む
+        fetchArenaData();
+        loadShuttleData();
 
-      // 新機能の裏読み込み（引数 true = ローディング画面を出さずにデータだけ取る）
-      // ※関数側で true に対応していないとエラーになるので、前の手順で関数を更新している必要があります
-    if (typeof loadTasks === 'function') loadTasks(true);
-    if (typeof loadGutList === 'function') loadGutList(true);
+        // 新機能の裏読み込み（引数 true = ローディング画面を出さずにデータだけ取る）
+        // ※関数側で true に対応していないとエラーになるので、前の手順で関数を更新している必要があります
+        if (typeof loadTasks === 'function') loadTasks(true);
+        if (typeof loadGutList === 'function') loadGutList(true);
 
-      // 月謝の初期値セット＆裏読み込み
-    const thisMonth = formatMonth(new Date());
-    const feeSelect = document.getElementById("feeMonthSelect");
-    if(feeSelect) feeSelect.value = thisMonth;
-      
-    if (typeof loadFeeData === 'function') loadFeeData(true);
+        // 月謝の初期値セット＆裏読み込み
+        const thisMonth = formatMonth(new Date());
+        const feeSelect = document.getElementById("feeMonthSelect");
+        if(feeSelect) feeSelect.value = thisMonth;
+        
+        if (typeof loadFeeData === 'function') loadFeeData(true);
     });
 
     // カテゴリ切り替え
     function switchCategory(category, btnElement) {
 
-// ▼▼▼ 課題管理のロック確認ロジックを追加 ▼▼▼
+      // ▼▼▼ 課題管理のロック確認ロジックを追加 ▼▼▼
       if (category === 'task') {
           // 認証チェック関数を呼び出す（falseならここで中断）
           if (!checkTaskLogin(btnElement)) return;
@@ -1222,22 +1215,23 @@ checkAppLogin();
       if (category === "tournament") loadTournamentList();
       if (category === "other") loadOtherList();
       if (category === "shuttle") loadShuttleData(); 
-if (category === "task") {
-          updateTaskMemberSelect();
-          if(allTasksCache.length === 0) loadTasks(); // データ未取得なら読み込む
+      
+      if (category === "task") {
+          if (typeof updateTaskMemberSelect === 'function') updateTaskMemberSelect();
+          if (allTasksCache.length === 0 && typeof loadTasks === 'function') loadTasks(); 
       }  
 
-    // ★追加: 月謝とガット張り
+      // ★追加: 月謝とガット張り
       if (category === "fee") {
          // 今月をセット
          if(!document.getElementById("feeMonthSelect").value) {
              document.getElementById("feeMonthSelect").value = formatMonth(new Date());
          }
-         loadFeeData();
+         if (typeof loadFeeData === 'function') loadFeeData();
       }
       if (category === "gut") {
-         updateGutMemberSelect(); // 名簿セット
-         loadGutList();
+         if (typeof updateGutMemberSelect === 'function') updateGutMemberSelect(); // 名簿セット
+         if (typeof loadGutList === 'function') loadGutList();
       }
 
       const navItems = document.querySelectorAll(".nav-item");
@@ -1380,7 +1374,6 @@ if (category === "task") {
       weeklyEvents.forEach((evt, idx) => { 
   let isTarget = false; 
   
-  // ▼▼▼ 修正箇所：スキルアップ会員なら、通常のクラブ練習（全体練習）は表示しない ▼▼▼
   if(evt.group === 'club' && currentIndMember.isClub && !currentIndMember.isSkill) isTarget = true; 
   
   if(evt.group === 'federation' && currentIndMember.isFed) isTarget = true; 
@@ -1479,7 +1472,6 @@ if (category === "task") {
         
         if (!weeklyEvents || weeklyEvents.length === 0) return; 
 
-        // ▼▼▼ 追加：表示設定で保存されたメンバーリストを取得 ▼▼▼
         let myMembers = [];
         try { 
             myMembers = JSON.parse(localStorage.getItem("my_members_list") || "[]"); 
@@ -1498,7 +1490,6 @@ if (category === "task") {
             const memoList = []; 
 
             weeklyMembers.forEach(m => { 
-                // ▼▼▼ 前回の修正：スキルアップ会員はクラブ集計から除外 ▼▼▼
                 if (evt.group === 'club' && m.isSkill) return; 
 
                 const key = `${evt.dateKey}_${evt.fullTitle}_${m.name}`; 
@@ -1513,15 +1504,12 @@ if (category === "task") {
             if (attendees.length > 0) { 
                 const dayStr = getDayOfWeekStr(evt.dateKey);
                 
-                // ▼▼▼ 追加：名前リストを作成する際、設定済みメンバーをオレンジ色にする ▼▼▼
                 const formattedNames = attendees.map(name => {
                     if (myMembers.includes(name)) {
-                        // 設定リストにある名前なら、オレンジ色の太字にする
                         return `<span style="color:#FF9966; font-weight:bold;">${name}</span>`;
                     }
                     return name;
                 }).join("、 ");
-                // ▲▲▲ 追加ここまで ▲▲▲
 
                 const div = document.createElement("div"); 
                 let cls = ""; 
@@ -1617,6 +1605,7 @@ if (category === "task") {
 
         carryData.forEach(m => {
             const cleanDate = formatDate(m.date);
+            // シャトル列は削除
             const row = document.createElement("tr");
             row.innerHTML = `
             <td>${cleanDate}</td>
@@ -1639,29 +1628,57 @@ if (category === "task") {
     }
     
     async function submitForm() {
-      const date = document.getElementById("dateSelect").value;
-      const gym = document.getElementById("gym").value;
-      const person = document.getElementById("person").value;
-      const checkboxes = document.querySelectorAll('#carryItemsBox input[type="checkbox"]:checked');
-      const itemsArr = Array.from(checkboxes).map(cb => cb.value);
-      const items = itemsArr.join("、"); 
+        const date = document.getElementById("dateSelect").value;
+        const gym = document.getElementById("gym").value;
+        const person = document.getElementById("person").value;
+        // const shuttle = document.getElementById("carryShuttle").value; // 削除
+        const checkboxes = document.querySelectorAll('#carryItemsBox input[type="checkbox"]:checked');
+        const itemsArr = Array.from(checkboxes).map(cb => cb.value);
+        const items = itemsArr.join("、"); 
 
-      if (!date || !person) return alert("練習日・担当者を入力してください。");
-      
-      showLoading(true);
-      const res = await callGas('saveCarryItem', {date, gym, person, items});
-      
-      if (res) {
-        alert(res);
-        document.getElementById("person").value = "";
-        document.querySelectorAll('#carryItemsBox input').forEach(cb => cb.checked = false);
-        await loadList();
-      }
-      showLoading(false);
+        if (!date || !person) return alert("練習日・担当者を入力してください。");
+        
+        showLoading(true);
+        // shuttleパラメータを削除して送信
+        const res = await callGas('saveCarryItem', {date, gym, person, items}); 
+        
+        if (res) {
+            alert(res);
+            document.getElementById("person").value = "";
+            document.querySelectorAll('#carryItemsBox input').forEach(cb => cb.checked = false);
+            await loadList();
+        }
+        showLoading(false);
     }
 
-    function editCarryItem(row, date, gym, person, items) { const tbody = document.querySelector("#listTable tbody"); const tr = Array.from(tbody.children).find(tr => tr.innerHTML.includes(`editCarryItem(${row}`)); if (!tr) return; tr.innerHTML = `<td>${date}</td><td>${gym}</td><td><input type="text" id="editPerson${row}" value="${person}" style="width:90%"></td><td><textarea id="editCarryItems${row}" style="width:95%; height:40px;">${items ? items : ""}</textarea></td><td colspan="2" class="delete-col"><button type="button" onclick="saveEditItem(${row}, '${date}', '${gym}')">保存</button><button type="button" onclick="loadList()">中止</button></td>`; }
-    async function saveEditItem(row, date, gym) { const person = document.getElementById(`editPerson${row}`).value; const items = document.getElementById(`editCarryItems${row}`).value; if (!person || !items) return alert("担当者と持参物を入力してください。"); showLoading(true); const res = await callGas('updateCarryItem', {row, date, gym, person, items}); if (res) { alert(res); await loadList(); } showLoading(false); }
+    function editCarryItem(row, date, gym, person, items) { 
+        const tbody = document.querySelector("#listTable tbody"); 
+        const tr = Array.from(tbody.children).find(tr => tr.innerHTML.includes(`editCarryItem(${row}`)); 
+        if (!tr) return; 
+        
+        tr.innerHTML = `
+            <td>${date}</td>
+            <td>${gym}</td>
+            <td><input type="text" id="editPerson${row}" value="${person}" style="width:90%"></td>
+            <td><textarea id="editCarryItems${row}" style="width:95%; height:40px;">${items ? items : ""}</textarea></td>
+            <td colspan="2" class="delete-col">
+                <button type="button" onclick="saveEditItem(${row}, '${date}', '${gym}')">保存</button>
+                <button type="button" onclick="loadList()">中止</button>
+            </td>`; 
+    }
+
+    async function saveEditItem(row, date, gym) { 
+        const person = document.getElementById(`editPerson${row}`).value; 
+        const items = document.getElementById(`editCarryItems${row}`).value; 
+        
+        if (!person) return alert("担当者を入力してください。"); 
+        showLoading(true); 
+        // shuttle削除して更新
+        const res = await callGas('updateCarryItem', {row, date, gym, person, items}); 
+        if (res) { alert(res); await loadList(); } 
+        showLoading(false); 
+    }
+    
     async function deleteCarryItem(row) { if (confirm("この登録を削除しますか？")) { showLoading(true); const res = await callGas('deleteCarryItem', {row}); if (res) { alert(res); await loadList(); } showLoading(false); } }
     
     // --- 大会申込（大幅改修）---
@@ -2283,16 +2300,34 @@ async function deleteTournamentFile() {
 
         const used = Number(document.getElementById(idPrefix + 'Used').value) || 0;
         const added = Number(document.getElementById(idPrefix + 'Added').value) || 0;
-        if (used === 0 && added === 0) return;
+        
+        // ★追加: 用途と備考の取得
+        const usageType = document.getElementById(idPrefix + 'Type').value;
+        const remarks = document.getElementById(idPrefix + 'Memo').value;
+
+        if (used === 0 && added === 0) return alert("使用数または追加数を入力してください");
 
         showLoading(true);
-        const res = await callGas('updateShuttleStock', { type, used, added });
+        
+        // ★修正: GASへ usageType と remarks も一緒に送る
+        const res = await callGas('updateShuttleStock', { 
+            type, 
+            used, 
+            added,
+            usageType, // 用途（練習、大会など）
+            remarks    // 備考
+        });
+        
         showLoading(false);
 
         if (res) {
             alert("更新が完了しました");
+            // 入力欄のクリア
             document.getElementById(idPrefix + 'Used').value = "";
             document.getElementById(idPrefix + 'Added').value = "";
+            document.getElementById(idPrefix + 'Type').value = "練習"; // デフォルトに戻す
+            document.getElementById(idPrefix + 'Memo').value = "";      // クリア
+            
             refreshShuttleUI(res);
             safeSetStorage(CACHE_KEY_SHUTTLE, JSON.stringify(res));
         }
@@ -2304,69 +2339,205 @@ async function deleteTournamentFile() {
         if (data.fed) { document.getElementById('fedStock').innerText = data.fed.stock; document.getElementById('fedWeekUsed').innerText = data.fed.week; document.getElementById('fedMonthUsed').innerText = data.fed.month; }
     }
 
-    async function loadShuttleData() {
+async function loadShuttleData() {
         const cache = localStorage.getItem(CACHE_KEY_SHUTTLE);
         const notice = document.getElementById("cache-notice");
-        if (cache) { refreshShuttleUI(JSON.parse(cache)); if (notice) { notice.style.display = "inline-block"; notice.innerText = "最新情報を確認中..."; } } else { showLoading(true); }
-        const myCount = shuttleUpdateCount;
-        const res = await callGas('getShuttleStock');
-        showLoading(false);
-        if (shuttleUpdateCount !== myCount) return; 
-        if (res) { refreshShuttleUI(res); safeSetStorage(CACHE_KEY_SHUTTLE, JSON.stringify(res)); if (notice && cache) { notice.innerText = "最新の状態です"; setTimeout(() => { notice.style.display = "none"; }, 2000); } }
-    }
-
-function openEditTournament(rowNum) {
-        const target = tournamentListCache.find(r => r.row == rowNum);
-        if (!target) return alert("データが見つかりません");
-
-        document.getElementById("edit_t_row").value = rowNum;
-        document.getElementById("edit_t_name").value = target.name;
-        document.getElementById("edit_t_deadline").value = target.deadline; 
-        document.getElementById("edit_t_person").value = target.person;
-        document.getElementById("edit_t_status").value = target.status;
-        document.getElementById("edit_t_restriction").value = target.restriction || "all";
-        document.getElementById("edit_t_fee").value = target.fee || ""; // ★追加
-
-        document.getElementById("tournamentEditModal").style.display = "flex";
-    }
-
-    async function submitEditTournament() {
-        const row = document.getElementById("edit_t_row").value;
-        const name = document.getElementById("edit_t_name").value;
-        const deadline = document.getElementById("edit_t_deadline").value;
-        const person = document.getElementById("edit_t_person").value;
-        const status = document.getElementById("edit_t_status").value;
-        const restriction = document.getElementById("edit_t_restriction").value;
-        const fee = document.getElementById("edit_t_fee").value; // ★追加
-
-        if (!name || !deadline || !person) return alert("必須項目を入力してください");
-
-        showLoading(true);
-        const res = await callGas('updateTournament', {
-            row, name, deadline, person, status, restriction, fee // ★fee追加
-        });
         
-        if (res) {
-            alert(res);
-            document.getElementById("tournamentEditModal").style.display = "none";
-            localStorage.removeItem(CACHE_KEY_TOURNAMENT);
-            loadTournamentList(); 
+        // キャッシュがあれば先に表示
+        if (cache) { 
+            refreshShuttleUI(JSON.parse(cache)); 
+            if (notice) { 
+                notice.style.display = "inline-block"; 
+                notice.innerText = "最新情報を確認中..."; 
+            } 
+        } else { 
+            showLoading(true); 
         }
+
+        const myCount = shuttleUpdateCount;
+        const res = await callGas('getShuttleStock'); // 最新データを取得
         showLoading(false);
+
+        // 通信中に別の更新があった場合は古いデータで上書きしない
+        if (shuttleUpdateCount !== myCount) return; 
+        
+        if (res) { 
+            refreshShuttleUI(res); 
+            safeSetStorage(CACHE_KEY_SHUTTLE, JSON.stringify(res)); 
+
+            // カレンダー読み込みを実行（関数が存在する場合のみ）
+            if (typeof loadShuttleCalendarData === 'function') {
+                loadShuttleCalendarData();
+            }
+
+            if (notice && cache) { 
+                notice.innerText = "最新の状態です"; 
+                setTimeout(() => { notice.style.display = "none"; }, 2000); 
+            } 
+        }
+    }
+    
+    async function loadShuttleCalendarData() {
+        const res = await callGas('getShuttleLogDetails'); 
+        if (res) {
+            shuttleLogsCache = res;
+            renderShuttleCalendar();
+        }
     }
 
+    function changeShuttleMonth(diff) {
+        currentCalDate.setMonth(currentCalDate.getMonth() + diff);
+        renderShuttleCalendar();
+        document.getElementById("shuttleDayDetail").style.display = 'none';
+    }
 
-// --- 課題分析機能（名簿選択 & フィルタ機能付き） ---
+    function renderShuttleCalendar() {
+        const year = currentCalDate.getFullYear();
+        const month = currentCalDate.getMonth(); 
+        
+        document.getElementById("shuttleCalTitle").innerText = `${year}年 ${month + 1}月`;
+        
+        const container = document.getElementById("shuttleCalendarGrid");
+        container.innerHTML = "";
 
-// グローバル変数：取得したタスク全量と現在のフィルタ状態
-let allTasksCache = [];
-let currentAnalysisMode = 'elem_s'; // 初期値: 小学生シングルス
+        const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
+        weekdays.forEach((w, i) => {
+            const div = document.createElement("div");
+            div.className = `cal-weekday ${i===0?'sun':''} ${i===6?'sat':''}`;
+            div.innerText = w;
+            container.appendChild(div);
+        });
+
+        const firstDay = new Date(year, month, 1).getDay();
+        const lastDate = new Date(year, month + 1, 0).getDate();
+        
+        for (let i = 0; i < firstDay; i++) {
+            const empty = document.createElement("div");
+            empty.className = "cal-cell";
+            empty.style.background = "#f9f9f9";
+            container.appendChild(empty);
+        }
+
+        const today = new Date();
+        const isCurrentMonth = (today.getFullYear() === year && today.getMonth() === month);
+
+        for (let d = 1; d <= lastDate; d++) {
+            const cell = document.createElement("div");
+            cell.className = "cal-cell";
+            if (isCurrentMonth && d === today.getDate()) cell.classList.add("cal-today");
+            
+            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+            
+            // ログの集計とカテゴリ別フラグ
+            const dayLogs = shuttleLogsCache.filter(l => l.date === dateStr);
+            
+            // --- 集計ロジック ---
+            let summary = {
+                kamiho: { used: 0, added: 0 },
+                kamitsu: { used: 0, added: 0 },
+                fed: { used: 0, added: 0 }
+            };
+
+            dayLogs.forEach(l => {
+                if(l.category.includes('kamiho')) { summary.kamiho.used += l.used; summary.kamiho.added += l.added; }
+                if(l.category.includes('kamitsu')) { summary.kamitsu.used += l.used; summary.kamitsu.added += l.added; }
+                if(l.category.includes('fed')) { summary.fed.used += l.used; summary.fed.added += l.added; }
+            });
+
+            // 日付は常に黒色（太字クラスだけ付与）
+            let numClass = "cal-date-num";
+            if (dayLogs.length > 0) numClass += " cal-has-data";
+
+            let html = `<div class="${numClass}">${d}</div>`;
+            
+            // --- バッジ生成 ---
+            // ヘルパー関数: (タイプ, 使用数, 追加数) -> HTML
+            const makeBadge = (typeClass, u, a) => {
+                let text = "";
+                if (u > 0) text += `-${u}`;
+                if (a > 0) text += `${text ? ' ' : ''}+${a}`;
+                
+                if (!text) return "";
+                return `<div class="cal-info-badge ${typeClass}">${text}</div>`;
+            };
+
+            if (dayLogs.length > 0) {
+                html += `<div class="cal-indicators">`;
+                html += makeBadge('badge-kamiho', summary.kamiho.used, summary.kamiho.added);
+                html += makeBadge('badge-kamitsu', summary.kamitsu.used, summary.kamitsu.added);
+                html += makeBadge('badge-fed', summary.fed.used, summary.fed.added);
+                html += `</div>`;
+            }
+
+            cell.innerHTML = html;
+            cell.onclick = () => showShuttleDayDetail(dateStr, dayLogs);
+            container.appendChild(cell);
+        }
+    }
+
+    function showShuttleDayDetail(dateStr, logs) {
+        const detailBox = document.getElementById("shuttleDayDetail");
+        const listContent = document.getElementById("detailListContent");
+        document.getElementById("detailDateStr").innerText = `${dateStr} の履歴`;
+        
+        listContent.innerHTML = "";
+        
+        if (logs.length === 0) {
+            listContent.innerHTML = "<p style='color:#999; text-align:center;'>履歴はありません</p>";
+        } else {
+            logs.forEach(l => {
+                const div = document.createElement("div");
+                div.className = "detail-item";
+                
+                let catName = "不明";
+                let catClass = "bg-jr"; 
+
+                if (l.category.includes("fed")) { 
+                    catName = "中学"; 
+                    catClass = "bg-fed"; 
+                } else if (l.category.includes("kamiho")) { 
+                    catName = "上星"; 
+                    catClass = "bg-kamiho"; 
+                } else if (l.category.includes("kamitsu")) { 
+                    catName = "上鶴"; 
+                    catClass = "bg-kamitsu"; 
+                }
+                
+                let actionText = "";
+                const parts = [];
+                if (l.used > 0) parts.push(`<span style="color:#FF5E62; font-weight:bold;">消費: ${l.used}筒</span>`);
+                if (l.added > 0) parts.push(`<span style="color:#0277BD; font-weight:bold;">入荷: ${l.added}筒</span>`);
+                actionText = parts.join(" / "); 
+                
+                let detailText = "";
+                if (l.usageType) detailText += `[${l.usageType}] `;
+                if (l.remarks) detailText += `${l.remarks}`;
+                if (!detailText) detailText = "(詳細なし)";
+
+                div.innerHTML = `
+                    <div class="detail-row-header">
+                        <span class="detail-cat ${catClass}">${catName}</span>
+                        <span class="detail-stats">${actionText}</span>
+                    </div>
+                    <div style="font-size:0.85em; color:#666; padding-left:5px; margin-left: 5px; border-left: 2px solid #eee;">
+                        📝 ${detailText}
+                    </div>
+                `;
+                listContent.appendChild(div);
+            });
+        }
+        
+        detailBox.style.display = "block";
+        detailBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+const TRAINING_APP_URL = "https://coachmasuacademy-alt.github.io/my-website/";
 
 // 分析キーワード辞書
 const ANALYSIS_RULES = [
   // --- ダブルス ポジション・連携 ---
   {
-    label: "ローテーション", // ★追加
+    label: "ローテーション",
     keywords: ["ローテ", "回る", "入れ替", "トップアンド", "サイドバイ", "被る"],
     required: []
   },
@@ -2397,16 +2568,16 @@ const ANALYSIS_RULES = [
   { label: "クリア", keywords: ["クリア", "ハイクリア", "ドリブン"], required: [] },
   { label: "ロブ", keywords: ["ロブ", "上げる", "上げ"], required: [] },
   { 
-    label: "フォア奥からのショット", // ★追加
-    keywords: ["フォア奥", "正対", "右奥"], // 右利き想定で右奥も含める場合
+    label: "フォア奥からのショット",
+    keywords: ["フォア奥", "正対", "右奥"],
     required: [] 
   },
 
   // --- フットワーク・動き ---
   { 
-    label: "コート後方への動き出し", // ★追加
+    label: "コート後方への動き出し",
     keywords: ["下がる", "下がり", "後ろ", "後方", "バックステップ", "下げられ"], 
-    required: [] // 必須条件なしで「下がる」があればヒットさせる
+    required: [] 
   },
   { 
     label: "ネット前の動き出し", 
@@ -2437,108 +2608,89 @@ const ANALYSIS_RULES = [
   { label: "ドライブ", keywords: ["ドライブ"], required: [] },
 ];
 
-// ▼ 名簿プルダウンの更新（入力制限ロジック）
-function updateTaskMemberSelect() {
-    const select = document.getElementById("taskName");
-    if (select.options.length > 1) return; 
+// 表示モード切り替え
+function switchViewMode(mode) {
+    const catArea = document.getElementById("categoryAnalysisArea");
+    const persArea = document.getElementById("personalHistoryArea");
+    const btnCat = document.getElementById("btnViewCategory");
+    const btnPers = document.getElementById("btnViewPersonal");
 
-    select.innerHTML = '<option value="">名前を選択してください</option>';
-    
-    if (!weeklyMembers || weeklyMembers.length === 0) {
-        const op = document.createElement("option");
-        op.text = "名簿データを読み込み中...";
-        select.appendChild(op);
+    if (mode === 'category') {
+        catArea.style.display = "block";
+        persArea.style.display = "none";
+        btnCat.style.background = "#FF9966"; btnCat.style.color = "white";
+        btnPers.style.background = "transparent"; btnPers.style.color = "#666";
+    } else {
+        catArea.style.display = "none";
+        persArea.style.display = "block";
+        btnCat.style.background = "transparent"; btnCat.style.color = "#666";
+        btnPers.style.background = "#FF9966"; btnPers.style.color = "white";
+        updateTimelineMemberSelect();
+    }
+}
+
+// タイムライン用の名簿更新
+function updateTimelineMemberSelect() {
+    const select = document.getElementById("timelineMemberSelect");
+    if (select.options.length > 1) return;
+    select.innerHTML = '<option value="">履歴を見たい選手を選択</option>';
+    const names = [...new Set(weeklyMembers.map(m => m.name))];
+    names.sort().forEach(name => {
+         const op = document.createElement("option");
+         op.value = name; op.text = name;
+         select.appendChild(op);
+    });
+}
+
+// 個人の変遷を描画
+function renderPersonalHistory() {
+    const name = document.getElementById("timelineMemberSelect").value;
+    const container = document.getElementById("timelineContainer");
+    container.innerHTML = "";
+    if (!name) return;
+
+    const myTasks = allTasksCache.filter(t => t.name === name);
+    if (myTasks.length === 0) {
+        container.innerHTML = "<p style='color:#999; text-align:center;'>課題データがありません。</p>";
         return;
     }
+    myTasks.sort((a, b) => new Date(a.date) - new Date(b.date));
 
-    weeklyMembers.forEach(m => {
-        // 条件: G列(isElemFed) または E列(isFed) がある人のみ
-        if (m.isElemFed || m.isFed) {
-            // 所属判定（表示用にラベルをつける）
-            let label = "";
-            if (m.isElemFed) label = "【小】";
-            else if (m.isFed) label = "【中】";
+    let html = '<div class="timeline-container">';
+    myTasks.forEach(task => {
+        const dateStr = formatDate(task.date);
+        const dateObj = new Date(task.date);
+        const labelStr = `${dateObj.getFullYear()}年 ${(dateObj.getMonth()+1)}月`;
+        const reflectionContent = task.reflection 
+            ? `<div class="tl-reflect-section"><span class="tl-label bg-reflect">考察・結果</span><div style="font-size:0.95em; color:#333;">${escapeHtml(task.reflection).replace(/\r?\n/g, '<br>')}</div></div>`
+            : `<div class="tl-reflect-section" style="background:#f9f9f9; color:#999; font-size:0.8em;">(考察はまだ入力されていません)</div>`;
 
-            const op = document.createElement("option");
-            op.value = m.name;
-            op.text = `${label} ${m.name}`;
-            select.appendChild(op);
-        }
+        html += `<div class="timeline-item"><div class="timeline-date-label">${labelStr} <span style="font-size:0.8em; font-weight:normal; color:#999;">(${dateStr})</span></div><div class="timeline-content-box"><div class="tl-task-section"><span class="tl-label bg-task">課題 (${task.type})</span><div style="font-size:1.05em; font-weight:bold; color:#333; line-height:1.5;">${escapeHtml(task.content).replace(/\r?\n/g, '<br>')}</div></div>${reflectionContent}</div></div>`;
     });
+    html += '</div><div style="text-align:center; color:#FF9966; font-weight:bold; margin-top:20px;">⬇ 現在へ続く ⬇</div>';
+    container.innerHTML = html;
 }
 
-// ▼ 課題を登録
-async function submitTask() {
-    const name = document.getElementById("taskName").value;
-    const content = document.getElementById("taskContent").value;
-    
-    // ラジオボタンの選択値を取得
-    const typeRadios = document.getElementsByName("taskType");
-    let typeVal = "";
-    for(let r of typeRadios) { if(r.checked) typeVal = r.value; }
-    
-    if (!name) return alert("名前を選択してください");
-    if (!content) return alert("課題を入力してください");
-    if (!typeVal) return alert("種目を選択してください");
-
-    showLoading(true);
-    // 種目(type)も含めて送信
-    const res = await callGas('saveTask', { name, content, type: typeVal });
-    
-    if (res) {
-        alert("登録しました");
-        document.getElementById("taskContent").value = "";
-        loadTasks(); 
-    }
-    showLoading(false);
-}
-
-// ▼ 課題データを取得
-async function loadTasks() {
-    updateTaskMemberSelect(); // 名簿更新
-    showLoading(true);
-    const data = await callGas('getTaskList'); 
-    showLoading(false);
-
-    if (data) {
-        allTasksCache = data; 
-        renderAnalysis(); // 現在のタブで集計実行
-    }
-}
-
-// ▼ タブ切り替え処理
+// タブ切り替え処理
 function switchAnalysisTab(mode) {
     currentAnalysisMode = mode;
-    
-    // ボタンの見た目制御
     const tabs = document.querySelectorAll('.analysis-tab');
     tabs.forEach(btn => {
-        btn.style.background = "#eee";
-        btn.style.color = "#666";
-        btn.style.boxShadow = "none";
+        btn.style.background = "#eee"; btn.style.color = "#666"; btn.style.boxShadow = "none";
         btn.classList.remove('active');
     });
-    
     const activeBtn = document.getElementById(`tab_${mode}`);
     if(activeBtn) {
-        activeBtn.style.background = "#FF9966";
-        activeBtn.style.color = "white";
+        activeBtn.style.background = "#FF9966"; activeBtn.style.color = "white";
         activeBtn.style.boxShadow = "0 2px 5px rgba(255, 153, 102, 0.4)";
         activeBtn.classList.add('active');
     }
-
     renderAnalysis();
 }
 
-// 定数：Smart CoachアプリのURL（ここをあなたのアプリのURLに書き換えてください）
-const TRAINING_APP_URL = "https://coachmasuacademy-alt.github.io/my-website/";
-
-// ▼ 集計と表示の実行ロジック
-// ▼ 集計と表示の実行ロジック（ボタンの表示内容を修正）
+// 分析データの描画
 function renderAnalysis() {
     const titleEl = document.getElementById("analysisTitle");
-
-    // 0. タイトルの更新
     if (currentAnalysisMode === 'elem_s') titleEl.innerText = "🏸 小学生・シングルスの課題";
     else if (currentAnalysisMode === 'elem_d') titleEl.innerText = "🏸 小学生・ダブルスの課題";
     else if (currentAnalysisMode === 'mid_s') titleEl.innerText = "🏸 中学生・シングルスの課題";
@@ -2549,26 +2701,18 @@ function renderAnalysis() {
         return;
     }
 
-    // 1. フィルタリング
     const targetTasks = allTasksCache.filter(task => {
         const member = weeklyMembers.find(m => m.name === task.name);
         if (!member) return false; 
-
-        let schoolType = "unknown";
-        if (member.isElemFed) schoolType = "elem";
-        else if (member.isFed) schoolType = "mid";
-        
+        let schoolType = member.isElemFed ? "elem" : (member.isFed ? "mid" : "unknown");
         const taskType = task.type || "シングルス"; 
-
         if (currentAnalysisMode === 'elem_s') return schoolType === 'elem' && taskType === 'シングルス';
         if (currentAnalysisMode === 'elem_d') return schoolType === 'elem' && taskType === 'ダブルス';
         if (currentAnalysisMode === 'mid_s') return schoolType === 'mid' && taskType === 'シングルス';
         if (currentAnalysisMode === 'mid_d') return schoolType === 'mid' && taskType === 'ダブルス';
-        
         return false;
     });
 
-    // 2. テーブル描画
     const tbody = document.querySelector("#taskTable tbody");
     tbody.innerHTML = "";
     
@@ -2578,96 +2722,45 @@ function renderAnalysis() {
         return;
     }
 
-    // 新しい順に表示
     targetTasks.slice().reverse().forEach(r => {
         const tr = document.createElement("tr");
-        
-        // エスケープ処理
         const safeContent = escapeHtml(r.content);
         const safeType = r.type || "シングルス";
         const contentForFunc = safeContent.replace(/\r?\n/g, '\\n').replace(/'/g, "\\'");
-        
-        // URLエンコード
         const encodedTask = encodeURIComponent(r.content);
-
         const reflectionHtml = r.reflection 
-            ? `<div style="margin-top:8px; padding-top:8px; border-top:1px dashed #ccc; font-size:0.95em; color:#2E7D32;">
-                 <span style="font-weight:bold; font-size:0.8em; background:#E8F5E9; padding:2px 6px; border-radius:4px; margin-right:5px;">✅ 考察</span>
-                 ${escapeHtml(r.reflection).replace(/\r?\n/g, '<br>')}
-               </div>`
-            : `<div style="margin-top:8px;">
-                 <button onclick="openReflectionModal(${r.row}, '${contentForFunc}')" style="width:100%; padding:6px; font-size:0.85em; background:#fff; border:1px solid #28a745; color:#28a745; border-radius:6px; box-shadow:none;">
-                   ＋ 考察・振り返りを入力
-                 </button>
-               </div>`;
+            ? `<div style="margin-top:8px; padding-top:8px; border-top:1px dashed #ccc; font-size:0.95em; color:#2E7D32;"><span style="font-weight:bold; font-size:0.8em; background:#E8F5E9; padding:2px 6px; border-radius:4px; margin-right:5px;">✅ 考察</span>${escapeHtml(r.reflection).replace(/\r?\n/g, '<br>')}</div>`
+            : `<div style="margin-top:8px;"><button onclick="openReflectionModal(${r.row}, '${contentForFunc}')" style="width:100%; padding:6px; font-size:0.85em; background:#fff; border:1px solid #28a745; color:#28a745; border-radius:6px; box-shadow:none;">＋ 考察・振り返りを入力</button></div>`;
 
-        // テーブルの行（tr）の中身を設定
-        tr.innerHTML = `
-            <td data-label="氏名">${escapeHtml(r.name)}</td>
-            <td data-label="課題と考察">
-                <div style="font-weight:bold; color:#333;">${safeContent}</div>
-                ${reflectionHtml}
-            </td>
-            <td data-label="日時" style="font-size:0.8em; color:#999;">${formatDate(r.date)}</td>
-            <td data-label="操作" class="delete-col" style="white-space:nowrap;">
-                <button onclick="window.open('${TRAINING_APP_URL}?task=${encodedTask}&role=admin', '_blank')" 
-                        style="width:auto; padding:8px 10px; font-size:11px; background:linear-gradient(135deg, #2b5876 0%, #4e4376 100%); color:white; border:none; box-shadow:0 2px 5px rgba(0,0,0,0.2); margin-right:4px; margin-bottom:6px; display:inline-block; text-align:left; line-height:1.4;">
-                    <span style="font-weight:bold; font-size:1.1em; display:block;">🚀 Smart Coach</span>
-                </button>
-                <div style="margin-top:2px;">
-                    <button onclick="openEditTask(${r.row}, '${safeType}', '${contentForFunc}')" style="width:auto; padding:5px 10px; font-size:11px; background:#17a2b8; margin-right:4px;">編集</button>
-                    <button onclick="deleteTask(${r.row})" style="width:auto; padding:5px 10px; font-size:11px; background:#dc3545;">削除</button>
-                </div>
-            </td>
-        `;
-        
+        tr.innerHTML = `<td data-label="氏名">${escapeHtml(r.name)}</td><td data-label="課題と考察"><div style="font-weight:bold; color:#333;">${safeContent}</div>${reflectionHtml}</td><td data-label="日時" style="font-size:0.8em; color:#999;">${formatDate(r.date)}</td><td data-label="操作" class="delete-col" style="white-space:nowrap;"><button onclick="window.open('${TRAINING_APP_URL}?task=${encodedTask}&role=admin', '_blank')" style="width:auto; padding:8px 10px; font-size:11px; background:linear-gradient(135deg, #2b5876 0%, #4e4376 100%); color:white; border:none; box-shadow:0 2px 5px rgba(0,0,0,0.2); margin-right:4px; margin-bottom:6px; display:inline-block; text-align:left; line-height:1.4;"><span style="font-weight:bold; font-size:1.1em; display:block;">🚀 Smart Coach</span></button><div style="margin-top:2px;"><button onclick="openEditTask(${r.row}, '${safeType}', '${contentForFunc}')" style="width:auto; padding:5px 10px; font-size:11px; background:#17a2b8; margin-right:4px;">編集</button><button onclick="deleteTask(${r.row})" style="width:auto; padding:5px 10px; font-size:11px; background:#dc3545;">削除</button></div></td>`;
         tbody.appendChild(tr);
     });
-    
-    // 3. キーワード集計
     analyzeKeywords(targetTasks);
 }
 
-// ▼ キーワード分析
+// キーワード分析
 function analyzeKeywords(data) {
     const counts = {};
-    
     data.forEach(row => {
         const text = row.content;
-        
-        // ★修正: matchedフラグと break を削除しました。
-        // これにより、1つの文章が複数のルールに当てはまる場合、それぞれカウントされます。
-
         for (const rule of ANALYSIS_RULES) {
-            // A. メインキーワード判定
             const hasKeyword = rule.keywords.some(k => text.includes(k));
-            
-            // B. 必須キーワード判定
             const hasRequired = rule.required.length === 0 || rule.required.some(r => text.includes(r));
-
-            if (hasKeyword && hasRequired) {
-                counts[rule.label] = (counts[rule.label] || 0) + 1;
-                // ここにあった break; を削除しました
-            }
+            if (hasKeyword && hasRequired) counts[rule.label] = (counts[rule.label] || 0) + 1;
         }
     });
-
-    // --- 以下、表示処理（変更なし） ---
     const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
     const container = document.getElementById("keywordRanking");
     container.innerHTML = "";
-
     if (sorted.length === 0) {
         container.innerHTML = "<span style='color:#999; font-size:0.9em;'>キーワードなし</span>";
         return;
     }
-
     sorted.forEach(([word, count]) => {
         const isTop = count >= 3;
         const bg = isTop ? "#FF9966" : "#f0f0f0";
         const color = isTop ? "white" : "#333";
         const weight = isTop ? "bold" : "normal";
-        
         const div = document.createElement("div");
         div.style.cssText = `padding:6px 12px; background:${bg}; color:${color}; border-radius:15px; font-size:0.85em; font-weight:${weight}; display:flex; align-items:center;`;
         div.innerHTML = `${word} <span style="background:rgba(255,255,255,0.7); color:#333; padding:1px 6px; border-radius:8px; font-size:0.8em; margin-left:6px;">${count}</span>`;
@@ -2675,528 +2768,114 @@ function analyzeKeywords(data) {
     });
 }
 
-// 編集モーダルを開く
+// 名簿プルダウンの更新
+function updateTaskMemberSelect() {
+    const select = document.getElementById("taskName");
+    if (select.options.length > 1) return; 
+    select.innerHTML = '<option value="">名前を選択してください</option>';
+    if (!weeklyMembers || weeklyMembers.length === 0) {
+        const op = document.createElement("option"); op.text = "名簿データを読み込み中..."; select.appendChild(op); return;
+    }
+    weeklyMembers.forEach(m => {
+        if (m.isElemFed || m.isFed) {
+            let label = m.isElemFed ? "【小】" : "【中】";
+            const op = document.createElement("option");
+            op.value = m.name; op.text = `${label} ${m.name}`;
+            select.appendChild(op);
+        }
+    });
+}
+
+// 課題を登録
+async function submitTask() {
+    const name = document.getElementById("taskName").value;
+    const content = document.getElementById("taskContent").value;
+    const typeRadios = document.getElementsByName("taskType");
+    let typeVal = "";
+    for(let r of typeRadios) { if(r.checked) typeVal = r.value; }
+    if (!name) return alert("名前を選択してください");
+    if (!content) return alert("課題を入力してください");
+    showLoading(true);
+    const res = await callGas('saveTask', { name, content, type: typeVal });
+    if (res) { alert("登録しました"); document.getElementById("taskContent").value = ""; loadTasks(); }
+    showLoading(false);
+}
+
+// 課題データを取得
+async function loadTasks() {
+    updateTaskMemberSelect(); 
+    showLoading(true);
+    const data = await callGas('getTaskList'); 
+    showLoading(false);
+    if (data) { allTasksCache = data; renderAnalysis(); }
+}
+
 function openEditTask(row, type, content) {
     document.getElementById("editTaskRow").value = row;
     document.getElementById("editTaskContent").value = content;
-    
-    // ラジオボタンのセット
     const radios = document.getElementsByName("editTaskType");
-    for(const r of radios) {
-        // 文字列比較でチェックを入れる
-        r.checked = (r.value === type);
-    }
-    
+    for(const r of radios) { r.checked = (r.value === type); }
     document.getElementById("taskEditModal").style.display = "flex";
 }
 
-// 編集内容を保存
 async function saveTaskEdit() {
     const row = document.getElementById("editTaskRow").value;
     const content = document.getElementById("editTaskContent").value;
-    
     let type = "シングルス";
     const radios = document.getElementsByName("editTaskType");
     for(const r of radios) { if(r.checked) type = r.value; }
-
     if (!content) return alert("課題内容を入力してください");
-
     showLoading(true);
-    // GASの updateTask を呼び出す
     const res = await callGas('updateTask', { row, content, type });
-    if (res) {
-        alert(res);
-        document.getElementById("taskEditModal").style.display = "none";
-        loadTasks(); // リスト再読み込み
-    }
+    if (res) { alert(res); document.getElementById("taskEditModal").style.display = "none"; loadTasks(); }
     showLoading(false);
 }
 
-// 課題を削除
 async function deleteTask(row) {
     if(!confirm("本当にこの課題を削除しますか？")) return;
-    
     showLoading(true);
-    // GASの deleteTask を呼び出す
     const res = await callGas('deleteTask', { row });
-    if (res) {
-        alert(res);
-        loadTasks(); // リスト再読み込み
-    }
+    if (res) { alert(res); loadTasks(); }
     showLoading(false);
 }
 
-// ▼▼▼ AIプロンプト生成機能（新規追加） ▼▼▼
 function generateTeamPlanPrompt() {
-    // 1. 現在のフィルタリング条件でタスクを取得
     if (!allTasksCache || allTasksCache.length === 0) return alert("データがありません");
-
     const targetTasks = allTasksCache.filter(task => {
         const member = weeklyMembers.find(m => m.name === task.name);
         if (!member) return false; 
-        let schoolType = "unknown";
-        if (member.isElemFed) schoolType = "elem";
-        else if (member.isFed) schoolType = "mid";
+        let schoolType = member.isElemFed ? "elem" : (member.isFed ? "mid" : "unknown");
         const taskType = task.type || "シングルス"; 
-        
         if (currentAnalysisMode === 'elem_s') return schoolType === 'elem' && taskType === 'シングルス';
         if (currentAnalysisMode === 'elem_d') return schoolType === 'elem' && taskType === 'ダブルス';
         if (currentAnalysisMode === 'mid_s') return schoolType === 'mid' && taskType === 'シングルス';
         if (currentAnalysisMode === 'mid_d') return schoolType === 'mid' && taskType === 'ダブルス';
         return false;
     });
-
     if (targetTasks.length === 0) return alert("現在のカテゴリには課題データがありません。");
 
-    // 2. キーワードを集計
     const counts = {};
     targetTasks.forEach(row => {
         const text = row.content;
         for (const rule of ANALYSIS_RULES) {
             const hasKeyword = rule.keywords.some(k => text.includes(k));
             const hasRequired = rule.required.length === 0 || rule.required.some(r => text.includes(r));
-            if (hasKeyword && hasRequired) {
-                counts[rule.label] = (counts[rule.label] || 0) + 1;
-            }
+            if (hasKeyword && hasRequired) counts[rule.label] = (counts[rule.label] || 0) + 1;
         }
     });
-
-    // 3. 上位の課題を抽出（配列化）
-    const sortedIssues = Object.entries(counts)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 5) 
-        .map(([key, val]) => `${key}(${val}名)`);
-
+    const sortedIssues = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([key, val]) => `${key}(${val}名)`);
     if (sortedIssues.length === 0) return alert("キーワードが抽出できませんでした。");
 
-    // 4. カテゴリ名の取得
     let categoryName = "";
     if (currentAnalysisMode === 'elem_s') categoryName = "小学生・シングルス";
     else if (currentAnalysisMode === 'elem_d') categoryName = "小学生・ダブルス";
     else if (currentAnalysisMode === 'mid_s') categoryName = "中学生・シングルス";
     else if (currentAnalysisMode === 'mid_d') categoryName = "中学生・ダブルス";
 
-    // 5. データをオブジェクトにまとめる
-    const teamData = {
-        category: categoryName,
-        issues: sortedIssues
-    };
-
-    // 6. JSONにしてURLエンコードし、Smart Coachを開く
-    const jsonString = JSON.stringify(teamData);
-    const encodedData = encodeURIComponent(jsonString);
-    
-    // team_plan パラメータとして渡す
-    const targetUrl = `${TRAINING_APP_URL}?mode=team_link&data=${encodedData}`; // ★ここを変更
-    
-    window.open(targetUrl, '_blank');
+    const teamData = { category: categoryName, issues: sortedIssues };
+    const encodedData = encodeURIComponent(JSON.stringify(teamData));
+    window.open(`${TRAINING_APP_URL}?mode=team_link&data=${encodedData}`, '_blank');
 }
-
-// --- ▼▼▼ 月謝管理ロジック ▼▼▼ ---
-    
-    async function loadFeeData() {
-       const month = document.getElementById("feeMonthSelect").value;
-       if(!month) return;
-       
-       // メンバーリストがなければロード
-       if (weeklyMembers.length === 0) await loadMemberList();
-
-       showLoading(true);
-       // GASからその月の支払い済みリストを取得
-       const paidStatus = await callGas('getFeeStatus', { month: month });
-       showLoading(false);
-       
-       const tbody = document.querySelector("#feeTable tbody");
-       tbody.innerHTML = "";
-       
-       let paidCount = 0;
-       let targetCount = 0; // 免除者を除いた対象人数
-
-       // 名簿順に表示
-       weeklyMembers.forEach(m => {
-          const tr = document.createElement("tr");
-          const isPaid = paidStatus && paidStatus[m.name];
-          const isExempt = m.isExempt; // ★GASから取得した免除フラグ(H列)
-
-          // ▼▼▼ パターンA：免除者の場合 ▼▼▼
-          if (isExempt) {
-              tr.style.backgroundColor = "#f9f9f9"; // 薄いグレー背景
-              tr.style.color = "#bbb";              // 文字色を薄く
-              
-              tr.innerHTML = `
-                 <td style="padding:12px 10px;">
-                    ${m.name} <span style="font-size:0.8em;">(${m.grade})</span>
-                    <span style="font-size:0.7em; background:#ddd; color:#fff; padding:1px 5px; border-radius:4px; margin-left:4px;">免除</span>
-                 </td>
-                 <td style="text-align:center;">-</td>
-                 <td style="text-align:center;">
-                    <button type="button" disabled 
-                       style="width:auto; padding:6px 10px; font-size:0.8em; background:none; border:1px solid #eee; color:#ccc; box-shadow:none; cursor:default;">
-                       対象外
-                    </button>
-                 </td>
-              `;
-          } 
-          // ▼▼▼ パターンB：通常メンバーの場合 ▼▼▼
-          else {
-              targetCount++; // 分母に加算
-              
-              if(isPaid) {
-                  tr.style.backgroundColor = "#E3F2FD"; // 支払い済みの青背景
-                  paidCount++;
-              }
-
-              const btnClass = isPaid ? "paid" : "unpaid";
-              const btnStyle = isPaid 
-                  ? "background:#28a745; border-color:#28a745; color:white;" 
-                  : "background:#fff; border-color:#ccc; color:#666;";
-
-              tr.innerHTML = `
-                 <td style="font-weight:bold; padding:12px 10px;">
-                    ${m.name} <span style="font-size:0.8em; font-weight:normal; color:#888;">(${m.grade})</span>
-                 </td>
-                 <td style="text-align:center;">
-                    <span style="font-weight:bold; color:${isPaid ? '#28a745':'#ccc'}">${isPaid ? '済' : '未'}</span>
-                 </td>
-                 <td style="text-align:center;">
-                    <button type="button" onclick="toggleFeePayment('${m.name}', ${!isPaid})" 
-                       style="width:auto; padding:8px 12px; font-size:0.9em; box-shadow:none; ${btnStyle}">
-                       ${isPaid ? '取消' : '支払'}
-                    </button>
-                 </td>
-              `;
-          }
-          tbody.appendChild(tr);
-       });
-       
-       // 集計表示（免除者を除いた数を表示）
-       document.getElementById("feeCountLabel").innerText = `集金状況: ${paidCount} / ${targetCount} 名 (免除を除く)`;
-    }
-
-    async function toggleFeePayment(name, isPaid) {
-        const month = document.getElementById("feeMonthSelect").value;
-        showLoading(true);
-        const res = await callGas('updateFeeStatus', { month, name, isPaid });
-        showLoading(false);
-        if(res) {
-            // alert(res); // いちいちアラートを出さなくても良いならコメントアウト
-            loadFeeData(); // 再描画
-        }
-    }
-
-    // --- ▼▼▼ ガット張り管理ロジック ▼▼▼ ---
-
-    function updateGutMemberSelect() {
-        const select = document.getElementById("gutNameSelect");
-        if (select.options.length > 1) return; 
-        
-        select.innerHTML = '<option value="">選択してください</option>';
-        if (weeklyMembers.length === 0) {
-            select.innerHTML = '<option>名簿読込中...</option>';
-            return;
-        }
-        weeklyMembers.forEach(m => {
-            const op = document.createElement("option");
-            op.value = m.name;
-            op.text = `${m.name} (${m.grade})`;
-            select.appendChild(op);
-        });
-        document.getElementById("gutDate").value = formatDate(new Date());
-    }
-
-    // ▼▼▼ 新規追加: ガット情報の表示切替 ▼▼▼
-    function toggleGutInfo() {
-        const radios = document.getElementsByName("gutOption");
-        let isIncluded = false;
-        for(const r of radios) {
-            if(r.checked && r.value === "included") isIncluded = true;
-        }
-        const infoBox = document.getElementById("gutInfoBox");
-        if(infoBox) {
-            infoBox.style.display = isIncluded ? "block" : "none";
-        }
-    }
-
-    // ▼▼▼ 修正: 登録処理（コースと金額を判定して送信） ▼▼▼
-    async function submitGut() {
-        const name = document.getElementById("gutNameSelect").value;
-        const date = document.getElementById("gutDate").value;
-        const count = Number(document.getElementById("gutCount").value);
-        const tension = document.getElementById("gutTension").value;
-        
-        // ラジオボタンの選択を確認
-        const radios = document.getElementsByName("gutOption");
-        let option = "included";
-        for(const r of radios) { if(r.checked) option = r.value; }
-
-        if(!name || !date || !count || !tension) return alert("すべての項目を入力してください");
-        
-        // 金額とタイプを決定
-        let unitPrice = 1800;
-        let typeLabel = "ガット込み";
-        
-        if (option === "carry_in") {
-            unitPrice = 1000;
-            typeLabel = "持ち込み";
-        }
-
-        const totalAmount = unitPrice * count;
-        
-        showLoading(true);
-        // GASへ保存（amount と type を追加で送ります）
-        // ※GAS側で amount を受け取る処理になっていれば、そのまま保存されます
-        const res = await callGas('saveStringing', { 
-            name, date, count, tension, 
-            amount: totalAmount, // 計算した金額を送信
-            type: typeLabel      // 種類（ガット込み/持ち込み）を送信
-        });
-        
-        if(res) {
-            alert(res);
-            // フォームのリセット
-            document.getElementById("gutCount").value = "1";
-            document.getElementById("gutTension").value = "";
-            // ガット込みに戻す
-            const radios = document.getElementsByName("gutOption");
-            for(const r of radios) { 
-                if(r.value === "included") r.checked = true; 
-            }
-            toggleGutInfo(); // 表示をリセット
-
-            gutDataCache = null; 
-            loadGutList();       
-        } else {
-            showLoading(false);
-        }
-    }
-
-// ▼▼▼ 追加：ガット張りリスト取得関数（これが抜けているとエラーになります） ▼▼▼
-    async function loadGutList(isBackground = false) {
-        // キャッシュがあれば即表示
-        if (gutDataCache && !isBackground) {
-            renderGutTable(gutDataCache);
-            return;
-        }
-
-        if (!isBackground) showLoading(true);
-        // GASからデータを取得
-        const list = await callGas('getStringingList');
-        if (!isBackground) showLoading(false);
-        
-        if (list) {
-            gutDataCache = list;
-            // 取得したデータでテーブルを描画
-            renderGutTable(list);
-        }
-    }
-
-
-    // ▼▼▼ 修正: テーブル描画（内容列にタイプを表示） ▼▼▼
-    function renderGutTable(list) {
-        const tbody = document.querySelector("#gutTable tbody");
-        tbody.innerHTML = "";
-        
-        if(!list || list.length === 0) {
-            tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; color:#999;'>履歴はありません</td></tr>";
-            return;
-        }
-        
-        list.forEach(item => {
-            const tr = document.createElement("tr");
-            const cleanDate = formatDate(item.date);
-            const isPaid = (item.status === "支払い済み");
-            
-            if(isPaid) tr.style.backgroundColor = "#e8f5e9";
-            
-            const btnHtml = isPaid 
-                ? `<button onclick="toggleGutPayment('${item.id}', false)" style="width:auto; padding:6px 12px; font-size:0.8em; background:#fff; border:1px solid #ccc; color:#666; box-shadow:none;">取消</button>`
-                : `<button onclick="toggleGutPayment('${item.id}', true)" style="width:auto; padding:6px 12px; font-size:0.8em; background:#FF9966; box-shadow:none; color:white;">支払</button>`;
-            
-            const statusText = isPaid 
-                ? `<span style="color:#28a745; font-weight:bold; font-size:0.9em; margin-right:5px;">✅ 済</span>`
-                : `<span style="color:#e67e22; font-weight:bold; font-size:0.9em; margin-right:5px;">未</span>`;
-
-            // タイプ（ガット込み/持ち込み）の表示処理
-            // 過去データなどで type がない場合は空文字にする
-            const typeDisplay = item.type ? `<span style="font-size:0.8em; color:#666; background:#eee; padding:2px 6px; border-radius:4px;">${item.type}</span><br>` : "";
-
-            tr.innerHTML = `
-               <td style="font-size:0.9em;">${cleanDate}</td>
-               <td>${escapeHtml(item.name)}</td>
-               <td style="font-size:0.85em; line-height:1.4;">
-                 ${typeDisplay}
-                 ${item.count}本 / ${item.tension}P
-               </td>
-               <td style="text-align:center;">
-                  <div style="font-weight:bold; font-size:0.95em;">¥${Number(item.amount).toLocaleString()}</div>
-                  <div style="margin-top:6px; display:flex; align-items:center; justify-content:center;">
-                      ${statusText} ${btnHtml}
-                  </div>
-               </td>
-               <td class="delete-col">
-                  <button onclick="deleteGut('${item.id}')" style="padding:6px; font-size:0.8em;">削除</button>
-               </td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
-
-    async function toggleGutPayment(id, toPaid) {
-        const msg = toPaid ? "支払い済みに変更しますか？" : "未払いに戻しますか？";
-        const statusStr = toPaid ? "支払い済み" : "未払い";
-
-        if(!confirm(msg)) return;
-        
-        showLoading(true);
-        // GASへ ID と 新しいステータス を送信
-        const res = await callGas('updateStringingPayment', { id: id, status: statusStr });
-        
-        if(res) {
-            gutDataCache = null; // キャッシュクリア
-            await loadGutList(); // 再読み込み
-        } else {
-            showLoading(false);
-        }
-    }
-
-    async function deleteGut(id) {
-        if(!confirm("削除しますか？")) return;
-        showLoading(true);
-        const res = await callGas('deleteStringing', { id });
-        if(res) {
-            gutDataCache = null; 
-            await loadGutList();
-        } else {
-            showLoading(false);
-        }
-    }
-
-function openReflectionModal(row, taskContent) {
-        document.getElementById("reflectTaskRow").value = row;
-        document.getElementById("reflectTaskPreview").innerText = taskContent;
-        document.getElementById("reflectContent").value = ""; 
-        
-        const target = allTasksCache.find(t => t.row === row);
-        if(target && target.reflection) {
-             document.getElementById("reflectContent").value = target.reflection;
-        }
-        document.getElementById("reflectionModal").style.display = "flex";
-    }
-
-    async function saveReflection() {
-        const row = document.getElementById("reflectTaskRow").value;
-        const reflection = document.getElementById("reflectContent").value;
-        if(!reflection) return alert("考察を入力してください");
-
-        showLoading(true);
-        const res = await callGas('updateTaskReflection', { row: row, reflection: reflection });
-        showLoading(false);
-
-        if(res) {
-            alert(res);
-            document.getElementById("reflectionModal").style.display = "none";
-            loadTasks(); 
-        }
-    }
-    
-// 表示モード切り替え（全体 vs 個人）
-    function switchViewMode(mode) {
-        const catArea = document.getElementById("categoryAnalysisArea");
-        const persArea = document.getElementById("personalHistoryArea");
-        const btnCat = document.getElementById("btnViewCategory");
-        const btnPers = document.getElementById("btnViewPersonal");
-
-        if (mode === 'category') {
-            catArea.style.display = "block";
-            persArea.style.display = "none";
-            
-            btnCat.style.background = "#FF9966"; btnCat.style.color = "white";
-            btnPers.style.background = "transparent"; btnPers.style.color = "#666";
-        } else {
-            catArea.style.display = "none";
-            persArea.style.display = "block";
-            
-            btnCat.style.background = "transparent"; btnCat.style.color = "#666";
-            btnPers.style.background = "#FF9966"; btnPers.style.color = "white";
-            
-            // 名簿プルダウンを更新
-            updateTimelineMemberSelect();
-        }
-    }
-
-    // タイムライン用の名簿更新
-    function updateTimelineMemberSelect() {
-        const select = document.getElementById("timelineMemberSelect");
-        if (select.options.length > 1) return; // 既に作成済みなら何もしない
-
-        select.innerHTML = '<option value="">履歴を見たい選手を選択</option>';
-        // 重複なしの名前リストを作成
-        const names = [...new Set(weeklyMembers.map(m => m.name))];
-        names.sort().forEach(name => {
-             const op = document.createElement("option");
-             op.value = name;
-             op.text = name;
-             select.appendChild(op);
-        });
-    }
-
-    // 個人の変遷を描画
-    function renderPersonalHistory() {
-        const name = document.getElementById("timelineMemberSelect").value;
-        const container = document.getElementById("timelineContainer");
-        container.innerHTML = "";
-
-        if (!name) return;
-
-        // 対象者の全データを抽出
-        const myTasks = allTasksCache.filter(t => t.name === name);
-
-        if (myTasks.length === 0) {
-            container.innerHTML = "<p style='color:#999; text-align:center;'>課題データがありません。</p>";
-            return;
-        }
-
-        // 日付順（古い順）にソートして成長過程を見せる
-        myTasks.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-        // HTML生成
-        let html = '<div class="timeline-container">';
-        
-        myTasks.forEach(task => {
-            const dateStr = formatDate(task.date); // YYYY-MM-DD
-            // 月表示に変換 (例: 2024年 01月)
-            const dateObj = new Date(task.date);
-            const labelStr = `${dateObj.getFullYear()}年 ${(dateObj.getMonth()+1)}月`;
-
-            const reflectionContent = task.reflection 
-                ? `<div class="tl-reflect-section">
-                     <span class="tl-label bg-reflect">考察・結果</span>
-                     <div style="font-size:0.95em; color:#333;">${escapeHtml(task.reflection).replace(/\r?\n/g, '<br>')}</div>
-                   </div>`
-                : `<div class="tl-reflect-section" style="background:#f9f9f9; color:#999; font-size:0.8em;">
-                     (考察はまだ入力されていません)
-                   </div>`;
-
-            html += `
-            <div class="timeline-item">
-                <div class="timeline-date-label">${labelStr} <span style="font-size:0.8em; font-weight:normal; color:#999;">(${dateStr})</span></div>
-                <div class="timeline-content-box">
-                    <div class="tl-task-section">
-                        <span class="tl-label bg-task">課題 (${task.type})</span>
-                        <div style="font-size:1.05em; font-weight:bold; color:#333; line-height:1.5;">${escapeHtml(task.content).replace(/\r?\n/g, '<br>')}</div>
-                    </div>
-                    ${reflectionContent}
-                </div>
-            </div>`;
-        });
-
-        html += '</div>'; // close container
-        
-        // 最新のものが一番下に来る
-        html += `<div style="text-align:center; color:#FF9966; font-weight:bold; margin-top:20px;">⬇ 現在へ続く ⬇</div>`;
-
-        container.innerHTML = html;
-    }
 
 </script>
 

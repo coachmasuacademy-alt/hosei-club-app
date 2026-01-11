@@ -682,7 +682,7 @@
 <label class="checkbox-label"><input type="checkbox" value="ニューシャトル"> ニューシャトル</label>
       <label class="checkbox-label"><input type="checkbox" value="ラダー"> ラダー</label>
       <label class="checkbox-label"><input type="checkbox" value="タイマー"> タイマー</label>
-      <label class="checkbox-label"><input type="checkbox" value="鍵開け"> 鍵開け</label>
+      <label class="checkbox-label"><input type="checkbox" value="鍵"> 鍵</label>
       <label class="checkbox-label"><input type="checkbox" value="受付"> 受付</label>
     </div>
     
@@ -807,16 +807,14 @@
 
   <div class="table-container">
     <table id="feeTable">
-      <thead>
-        <tr>
-          <th style="width:40%;">氏名</th>
-          <th>状況</th>
-          <th style="width:20%;">操作</th>
-        </tr>
-      </thead>
-      <tbody>
-        </tbody>
-    </table>
+  <thead>
+    <tr>
+      <th style="width:65%;">氏名</th>
+      <th style="width:35%;">状況</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
   </div>
 </div>
 
@@ -1104,7 +1102,7 @@
     }
 
     // ▼▼▼ GASのURL（スクリプト先頭に移動） ▼▼▼
-    const SHEET_URL = "https://script.google.com/macros/s/AKfycbz5H1kjQSo7S_Q0q3Qo46b5DeP6qb5wJA3zn_Vye1wvCi1-5Y3jN60G9pznfGfHpXcc/exec"; 
+    const SHEET_URL = "https://script.google.com/macros/s/AKfycbyx--02g7KN0Z32nCdfCWN5CFE3NKQVjWWlBYDxgxDWqykxKHK5Q-BKhLCsfetgYlM/exec"; 
 
     // ▼▼▼ Firebaseの設定 ▼▼▼
     const firebaseConfig = {
@@ -1134,6 +1132,8 @@
     const CACHE_KEY_TOURNAMENT = 'badminton_tournament_v1';
     const CACHE_KEY_OTHER = 'badminton_other_v1';
     const CACHE_KEY_SHUTTLE = 'badminton_shuttle_v1';
+const CACHE_KEY_FEE = 'badminton_fee_v1';
+    const CACHE_KEY_GUT = 'badminton_gut_v1';
 
     // グローバル変数
     let sheetData=[], arenaData=[], memberData=[], weeklyEvents=[], weeklyMembers=[], weeklyStatus={};
@@ -2876,6 +2876,274 @@ function generateTeamPlanPrompt() {
     const encodedData = encodeURIComponent(JSON.stringify(teamData));
     window.open(`${TRAINING_APP_URL}?mode=team_link&data=${encodedData}`, '_blank');
 }
+
+// 月謝データの読み込み
+    async function loadFeeData(isBackground = false) {
+        const monthInput = document.getElementById("feeMonthSelect");
+        if (!monthInput.value) monthInput.value = formatMonth(new Date());
+        const targetMonth = monthInput.value;
+        const notice = document.getElementById("cache-notice");
+
+        // 1. キャッシュがあれば先に表示する
+        const cache = localStorage.getItem(CACHE_KEY_FEE);
+        if (cache && !isBackground) {
+            try {
+                const cachedObj = JSON.parse(cache);
+                // キャッシュの月と、今見ようとしている月が同じなら表示
+                if (cachedObj.month === targetMonth) {
+                    renderFeeTable(cachedObj.data, targetMonth);
+                    // 裏読み込みモードに切り替え（ローディング画面を出さない）
+                    isBackground = true;
+                    // 「更新中」の通知を出す
+                    if(notice) {
+                        notice.style.display = "inline-block";
+                        notice.innerText = "最新情報を確認中...";
+                    }
+                }
+            } catch (e) { console.error("Cache Error", e); }
+        }
+
+        // 2. ローディング表示（キャッシュがなくて、かつ裏読み込みでもない場合のみ）
+        if (!isBackground) showLoading(true);
+        
+        // 3. GASから最新データを取得
+        const data = await callGas('getFeeData', { month: targetMonth });
+        
+        if (!isBackground) showLoading(false);
+
+        // 4. データが取得できたら表示更新＆キャッシュ保存
+        if (data) {
+            // 通知を消す
+            if(notice && isBackground) {
+                notice.innerText = "最新の状態です";
+                setTimeout(() => { notice.style.display = "none"; }, 2000);
+            }
+
+            renderFeeTable(data, targetMonth);
+            // 月情報と一緒に保存
+            localStorage.setItem(CACHE_KEY_FEE, JSON.stringify({
+                month: targetMonth,
+                data: data
+            }));
+        }
+    }
+
+    // 月謝テーブルの描画
+    function renderFeeTable(data, month) {
+        const tbody = document.querySelector("#feeTable tbody");
+        tbody.innerHTML = "";
+
+        const paidList = data.paidList || []; 
+        // 名簿データ取得
+        const memberList = (weeklyMembers && weeklyMembers.length > 0) ? weeklyMembers : memberData;
+
+        // 集計用カウンタ
+        let paidCount = 0;
+        let totalTarget = 0;
+
+        memberList.forEach(m => {
+            // ▼▼▼ 追加: H列(isExempt)に〇がある人は表示しない ▼▼▼
+            if (m.isExempt) return; 
+            // ▲▲▲ 追加ここまで ▲▲▲
+
+            totalTarget++;
+            const isPaid = paidList.includes(m.name);
+            if(isPaid) paidCount++;
+
+            const tr = document.createElement("tr");
+            const statusBtnClass = isPaid ? "payment-status-btn paid" : "payment-status-btn unpaid";
+            const statusText = isPaid ? "済" : "未";
+            const rowStyle = isPaid ? "background-color: #f9f9f9;" : "";
+
+            tr.style.cssText = rowStyle;
+            tr.innerHTML = `
+                <td style="font-weight:bold;">${m.name} <span style="font-size:0.8em; font-weight:normal; color:#888;">(${m.grade})</span></td>
+                <td style="text-align:center;">
+                    <button class="${statusBtnClass}" onclick="toggleFeeStatus('${m.name}', '${month}', ${!isPaid})">
+                        ${statusText}
+                    </button>
+                </td>
+                <td style="text-align:center;"></td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        // 人数表示更新
+        const countLabel = document.getElementById("feeCountLabel");
+        if(countLabel) countLabel.innerText = `支払い済み: ${paidCount} / ${totalTarget}名`;
+    }
+
+    // 月謝の支払い状態切り替え
+    async function toggleFeeStatus(name, month, isPay) {
+        // 即座に見た目を変える（UX向上）
+        showLoading(true);
+        const res = await callGas('updateFeeStatus', { name, month, isPay });
+        showLoading(false);
+        
+        if (res) {
+            // 成功したら再読み込みして確定させる
+            loadFeeData(true); 
+        } else {
+            alert("更新に失敗しました");
+        }
+    }
+
+
+    // ▼▼▼ 追加: ガット張り管理のロジック ▼▼▼
+
+    // ガット用名簿セット
+    function updateGutMemberSelect() {
+        const select = document.getElementById("gutNameSelect");
+        if (select.options.length > 1) return; // 既にセット済みなら何もしない
+        select.innerHTML = '<option value="">選択してください</option>';
+        
+        const list = weeklyMembers.length > 0 ? weeklyMembers : memberData;
+        list.forEach(m => {
+             const op = document.createElement("option");
+             op.value = m.name; 
+             op.text = `${m.name} (${m.grade})`;
+             select.appendChild(op);
+        });
+        
+        // 日付の初期値を今日に
+        document.getElementById("gutDate").value = formatDate(new Date());
+    }
+
+    // ガット張りリスト読み込み
+    async function loadGutList(isBackground = false) {
+        const notice = document.getElementById("cache-notice");
+
+        // 1. キャッシュがあれば先に表示
+        const cache = localStorage.getItem(CACHE_KEY_GUT);
+        if (cache && !isBackground) {
+            renderGutTable(JSON.parse(cache));
+            isBackground = true; // 裏読み込みモードへ
+            if(notice) {
+                notice.style.display = "inline-block";
+                notice.innerText = "最新情報を確認中...";
+            }
+        }
+
+        // 2. ローディング表示
+        if (!isBackground) showLoading(true);
+
+        // 3. 最新データ取得
+        const data = await callGas('getGutList');
+        
+        if (!isBackground) showLoading(false);
+        
+        // 4. 表示更新＆キャッシュ保存
+        if (data) {
+            if(notice && isBackground) {
+                notice.innerText = "最新の状態です";
+                setTimeout(() => { notice.style.display = "none"; }, 2000);
+            }
+            
+            renderGutTable(data);
+            localStorage.setItem(CACHE_KEY_GUT, JSON.stringify(data));
+        }
+    }
+
+    // ガット履歴テーブル描画
+    function renderGutTable(data) {
+        const tbody = document.querySelector("#gutTable tbody");
+        if(!tbody) return;
+        tbody.innerHTML = "";
+
+        // 日付の新しい順
+        data.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        data.forEach(r => {
+            const tr = document.createElement("tr");
+            const date = formatDate(r.date);
+            const price = isNaN(r.price) ? "¥-" : `¥${r.price.toLocaleString()}`;
+            
+            // 種類データがないため、単価から推測して表示（1800で割り切れるならガット込、そうでなければ持込）
+            // またはシンプルに本数を表示
+            let detailText = `${r.count}本 / ${r.tension}lbs`;
+            // 参考情報として単価を表示したい場合（任意）
+            // const unitType = (r.price / r.count) >= 1800 ? "込" : "持";
+            // detailText += ` (${unitType})`;
+
+            // 支払い状況判定
+            const isPaid = (r.status === "支払い済み");
+            const statusClass = isPaid ? "payment-status-btn paid" : "payment-status-btn unpaid";
+            const statusLabel = isPaid ? "済" : "未";
+            const bgStyle = isPaid ? "background-color:#f9f9f9;" : "";
+
+            tr.style.cssText = bgStyle;
+            tr.innerHTML = `
+                <td>${date}</td>
+                <td style="font-weight:bold;">${escapeHtml(r.name)}</td>
+                <td>
+                    <div style="font-size:0.95em; font-weight:bold; color:#555;">${detailText}</div>
+                </td>
+                <td>
+                   <div style="font-weight:bold; color:#1976D2; margin-bottom:5px;">${price}</div>
+                   <button class="${statusClass}" onclick="toggleGutStatus(${r.row}, ${!isPaid})" style="font-size:0.8em; padding:4px 10px;">
+                        ${statusLabel}
+                   </button>
+                </td>
+                <td class="delete-col">
+                    <button onclick="deleteGut(${r.row})" style="background:#dc3545; font-size:11px; padding:6px;">削除</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // 表示切り替え（ガット込み vs 持ち込み）
+    async function toggleGutStatus(row, makePaid) {
+        showLoading(true);
+        const newStatus = makePaid ? "支払い済み" : "未払い";
+        const res = await callGas('updateGutStatus', { row: row, status: newStatus });
+        showLoading(false);
+        if(res) {
+            loadGutList(true); 
+        } else {
+            alert("更新に失敗しました");
+        }
+    }
+
+    // ガット登録送信
+    async function submitGut() {
+        const name = document.getElementById("gutNameSelect").value;
+        const date = document.getElementById("gutDate").value;
+        const count = document.getElementById("gutCount").value;
+        const tension = document.getElementById("gutTension").value;
+        
+        // ラジオボタンの値取得
+        let option = "included";
+        const radios = document.getElementsByName("gutOption");
+        for(const r of radios) { if(r.checked) option = r.value; }
+
+        if (!name || !date || !tension) return alert("氏名・日付・テンションを入力してください");
+
+        showLoading(true);
+        const res = await callGas('saveGut', {
+            name, date, count, tension, type: option
+        });
+        showLoading(false);
+
+        if (res) {
+            alert(res);
+            // 入力リセット
+            document.getElementById("gutTension").value = "";
+            loadGutList(); // リスト更新
+        }
+    }
+
+    // ガット履歴削除
+    async function deleteGut(row) {
+        if(!confirm("削除しますか？")) return;
+        showLoading(true);
+        const res = await callGas('deleteGut', { row });
+        showLoading(false);
+        if(res) {
+            alert(res);
+            loadGutList();
+        }
+    }
 
 </script>
 

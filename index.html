@@ -141,22 +141,115 @@
 
     /* スマホ表示最適化 */
     @media (max-width: 600px) {
-        table:not(#listTable) { min-width: 0 !important; width: 100%; }
+        /* テーブルの基本設定リセット */
+        table { min-width: 0 !important; width: 100%; }
+        .table-container { overflow-x: visible; }
+
+        /* ▼▼▼ 道具運搬一覧（#listTable）のカード化デザイン ▼▼▼ */
         
-        /* 道具運搬一覧は強制的に幅を持たせ、文字を折り返さない */
-        #listTable { 
-            min-width: 600px !important; 
+        /* ヘッダー（日付・体育館などの見出し）を隠す */
+        #listTable thead { display: none; }
+
+        /* 行（tr）を1つのカードにする */
+        #listTable tbody tr {
+            display: block;
+            width: 100%;
+            margin-bottom: 20px;
+            background: #fff;
+            border: 2px solid #17a2b8; /* 道具運搬カラー */
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            box-sizing: border-box;
+            position: relative;
         }
-        #listTable th, #listTable td {
-            white-space: nowrap; /* 文字の折り返しを禁止（常に1行） */
-            padding: 10px 5px;   /* 余白を少し調整 */
+
+        /* セル（td）をブロック要素にして縦積みにする */
+        #listTable tbody td {
+            display: block;
+            width: 100%;
+            text-align: left;
+            border: none;
+            padding: 4px 0;
+            box-sizing: border-box;
         }
+
+        /* 1列目：日付 */
+        #listTable tbody td:nth-child(1) {
+            font-weight: bold;
+            color: #17a2b8;
+            font-size: 0.9em;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 5px;
+            padding-bottom: 5px;
+        }
+
+        /* 2列目：体育館 */
+        #listTable tbody td:nth-child(2) {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+        }
+        #listTable tbody td:nth-child(2)::before { content: "🏟️ "; }
+
+        /* 3列目：担当者 */
+        #listTable tbody td:nth-child(3) {
+            font-size: 1em;
+            color: #555;
+            margin-bottom: 5px;
+        }
+        #listTable tbody td:nth-child(3)::before { content: "👤 "; color:#999; }
+
+        /* 4列目：持参物（ここを見やすく調整） */
+        #listTable tbody td:nth-child(4) {
+            background: #f0f9fa; /* 薄い水色背景 */
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            color: #333;
+            line-height: 1.5;
+            white-space: normal; /* 折り返しを許可 */
+            margin-top: 5px;
+        }
+        #listTable tbody td:nth-child(4)::before {
+            content: "👜 持参物";
+            display: block;
+            font-size: 0.8em;
+            color: #17a2b8;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+
+        /* 5,6列目：ボタン（右下に配置） */
+        #listTable tbody td.delete-col {
+            display: inline-block;
+            width: auto;
+            margin-top: 10px;
+        }
+        #listTable tbody td.delete-col button {
+            padding: 8px 16px;
+            font-size: 13px;
+            margin: 0 5px 0 0;
+        }
+        /* 行末のレイアウト調整（ボタンを右寄せ） */
+        #listTable tbody tr {
+            display: flex;
+            flex-direction: column;
+        }
+        #listTable tbody td:nth-child(5),
+        #listTable tbody td:nth-child(6) {
+            align-self: flex-end; /* 右寄せ */
+            display: inline-block;
+            width: auto;
+            margin-left: 5px;
+            position: absolute;
+            bottom: 15px;
+        }
+        #listTable tbody td:nth-child(5) { right: 80px; } /* 編集ボタンの位置 */
+        #listTable tbody td:nth-child(6) { right: 15px; } /* 削除ボタンの位置 */
         
-        /* コンテナは横スクロールできるようにする */
-        .table-container { 
-            overflow-x: auto !important; 
-            -webkit-overflow-scrolling: touch; /* スクロールを滑らかに */
-        }
+        /* ボタンの重なりを防ぐための余白確保 */
+        #listTable tbody tr { padding-bottom: 50px; }
 
         #tournamentTable thead { display: none; }
         #tournamentTable tbody tr {

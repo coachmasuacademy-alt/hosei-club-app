@@ -141,8 +141,23 @@
 
     /* スマホ表示最適化 */
     @media (max-width: 600px) {
-        table { min-width: 0 !important; width: 100%; }
-        .table-container { overflow-x: visible; }
+        table:not(#listTable) { min-width: 0 !important; width: 100%; }
+        
+        /* 道具運搬一覧は強制的に幅を持たせ、文字を折り返さない */
+        #listTable { 
+            min-width: 600px !important; 
+        }
+        #listTable th, #listTable td {
+            white-space: nowrap; /* 文字の折り返しを禁止（常に1行） */
+            padding: 10px 5px;   /* 余白を少し調整 */
+        }
+        
+        /* コンテナは横スクロールできるようにする */
+        .table-container { 
+            overflow-x: auto !important; 
+            -webkit-overflow-scrolling: touch; /* スクロールを滑らかに */
+        }
+
         #tournamentTable thead { display: none; }
         #tournamentTable tbody tr {
             display: block; width: 100%; box-sizing: border-box; margin-bottom: 20px;

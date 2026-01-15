@@ -2439,7 +2439,7 @@
         }
 
         // ▼▼▼ GASのURL（スクリプト先頭に移動） ▼▼▼
-        const SHEET_URL = "https://script.google.com/macros/s/AKfycbyx--02g7KN0Z32nCdfCWN5CFE3NKQVjWWlBYDxgxDWqykxKHK5Q-BKhLCsfetgYlM/exec";
+        const SHEET_URL = "https://script.google.com/macros/s/AKfycbzZtObXlroqQOHCFwTm5mVtGlc-HgOM9Fw31LRjqcVEBYLle1A7ynmF7kD_xuBy1Fio/exec";
 
         // ▼▼▼ Firebaseの設定 ▼▼▼
         const firebaseConfig = {
@@ -4293,15 +4293,16 @@
                 const rowStyle = isPaid ? "background-color: #f9f9f9;" : "";
 
                 tr.style.cssText = rowStyle;
-                tr.innerHTML = `
-                <td style="font-weight:bold;">${m.name} <span style="font-size:0.8em; font-weight:normal; color:#888;">(${m.grade})</span></td>
-                <td style="text-align:center;">
-                    <button class="${statusBtnClass}" onclick="toggleFeeStatus('${m.name}', '${month}', ${!isPaid})">
-                        ${statusText}
-                    </button>
-                </td>
-                <td style="text-align:center;"></td>
-            `;
+                
+tr.innerHTML = `
+    <td style="font-weight:bold;">${m.name} <span style="font-size:0.8em; font-weight:normal; color:#888;">(${m.grade})</span></td>
+    <td style="text-align:center;">
+        <button class="${statusBtnClass}" onclick="toggleFeeStatus(this, '${m.name}', '${month}', ${!isPaid})">
+            ${statusText}
+        </button>
+    </td>
+    <td style="text-align:center;"></td>
+`;
                 tbody.appendChild(tr);
             });
 
@@ -4311,19 +4312,54 @@
         }
 
         // 月謝の支払い状態切り替え
-        async function toggleFeeStatus(name, month, isPay) {
-            // 即座に見た目を変える（UX向上）
-            showLoading(true);
-            const res = await callGas('updateFeeStatus', { name, month, isPay });
-            showLoading(false);
+        async function toggleFeeStatus(btnElement, name, month, isPay) {
+    // 1. 連打防止（ボタンを一時的に無効化）
+    btnElement.disabled = true;
+    
+    // 2. 元の状態を記憶（通信失敗時の復元用）
+    const originalClass = btnElement.className;
+    const originalText = btnElement.innerText;
+    const originalOnClick = btnElement.getAttribute("onclick");
+    const trElement = btnElement.closest('tr');
 
-            if (res) {
-                // 成功したら再読み込みして確定させる
-                loadFeeData(true);
-            } else {
-                alert("更新に失敗しました");
-            }
-        }
+    // 3. 【先行更新】画面の見た目を即座に変える（サクサク動くように見せる）
+    if (isPay) {
+        // 未→済
+        btnElement.className = "payment-status-btn paid";
+        btnElement.innerText = "済";
+        if (trElement) trElement.style.backgroundColor = "#f9f9f9";
+        // 次回クリック用設定（済→未へ）
+        btnElement.setAttribute("onclick", `toggleFeeStatus(this, '${name}', '${month}', false)`);
+    } else {
+        // 済→未
+        btnElement.className = "payment-status-btn unpaid";
+        btnElement.innerText = "未";
+        if (trElement) trElement.style.backgroundColor = "";
+        // 次回クリック用設定（未→済へ）
+        btnElement.setAttribute("onclick", `toggleFeeStatus(this, '${name}', '${month}', true)`);
+    }
+
+    try {
+        // 4. サーバーにデータを送る（★ここが修正ポイントです）
+        // isPay を isPaid という名前の箱に入れて送ります
+        const res = await callGas('updateFeeStatus', { name, month, isPaid: isPay });
+
+        // 成功した場合は何もしない（画面はすでに更新済みなので）
+        // console.log(res); // 確認したい場合のみコメントアウトを外す
+
+    } catch (e) {
+        // 5. 失敗時：エラーを表示して、見た目を元に戻す
+        alert("通信エラーが発生しました:\n" + e.message);
+        
+        btnElement.className = originalClass;
+        btnElement.innerText = originalText;
+        if (trElement) trElement.style.backgroundColor = (originalClass.includes('paid')) ? "#f9f9f9" : "";
+        btnElement.setAttribute("onclick", originalOnClick);
+    } finally {
+        // 6. ロック解除
+        btnElement.disabled = false;
+    }
+}
 
 
         // ▼▼▼ 追加: ガット張り管理のロジック ▼▼▼
@@ -4507,5 +4543,4 @@
     </div>
 
 </body>
-
 </html>

@@ -3075,7 +3075,13 @@
                 try {
                     const pList = JSON.parse(r.participants || "[]");
                     if (pList.length > 0) {
-                        const names = pList.map(p => p.name).join("、");
+                       const names = pList.map(p => {
+    if (!p.paid) {
+        // 未払い(paidがfalse)の場合はオレンジ色の太字にする
+        return `<span style="color:#FF5722; font-weight:bold;">${p.name}</span>`;
+    }
+    return p.name;
+}).join("、");
                         participantsStr = `<span style="font-weight:bold;">${pList.length}名</span><br>${names}`;
 
                         // 全員支払済の場合の表示
@@ -4517,6 +4523,56 @@ tr.innerHTML = `
                 loadGutList();
             }
         }
+
+// ▼▼▼ 追加箇所：大会編集モーダルを開く関数 ▼▼▼
+function openEditTournament(row) {
+    // キャッシュから該当する行のデータを取得
+    const target = tournamentListCache.find(r => r.row == row);
+    if (!target) return alert("データが見つかりません。再読み込みしてください。");
+
+    // モーダルの入力欄に現在の値をセット
+    document.getElementById("edit_t_row").value = target.row;
+    document.getElementById("edit_t_name").value = target.name;
+    // 日付input用にフォーマット変換
+    document.getElementById("edit_t_deadline").value = formatDate(target.deadline);
+    document.getElementById("edit_t_person").value = target.person;
+    document.getElementById("edit_t_status").value = target.status;
+    document.getElementById("edit_t_restriction").value = target.restriction || "all";
+    document.getElementById("edit_t_fee").value = target.fee || "";
+
+    // モーダルを表示
+    document.getElementById("tournamentEditModal").style.display = "flex";
+}
+
+// ▼▼▼ 追加箇所：編集内容を保存する関数 ▼▼▼
+async function submitEditTournament() {
+    const row = document.getElementById("edit_t_row").value;
+    const name = document.getElementById("edit_t_name").value;
+    const deadline = document.getElementById("edit_t_deadline").value;
+    const person = document.getElementById("edit_t_person").value;
+    const status = document.getElementById("edit_t_status").value;
+    const restriction = document.getElementById("edit_t_restriction").value;
+    const fee = document.getElementById("edit_t_fee").value;
+
+    if (!name || !deadline || !person) return alert("必須項目を入力してください");
+
+    showLoading(true);
+
+    // GAS側の 'updateTournament' 関数を呼び出す
+    // ※GAS側に updateTournament 関数が定義されている必要があります
+    const res = await callGas('updateTournament', {
+        row, name, deadline, person, status, restriction, fee
+    });
+
+    showLoading(false);
+
+    if (res) {
+        alert(res);
+        // モーダルを閉じてリストを再読み込み
+        document.getElementById("tournamentEditModal").style.display = "none";
+        loadTournamentList();
+    }
+}
 
     </script>
 

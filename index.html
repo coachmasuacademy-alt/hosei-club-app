@@ -1637,8 +1637,21 @@
     <div class="content-wrapper">
 
         <div id="attendanceSection" class="card-section">
-            <h2>出欠確認</h2>
-            <p style="font-size:0.9em; color:#666; margin-bottom:20px;">氏名をタップして、今後の出欠を入力してください。</p>
+    <h2>出欠確認</h2>
+    <div id="gymNoticeArea" style="background:#FFF9C4; border:2px solid #FBC02D; border-radius:12px; padding:15px; margin-bottom:20px; position:relative; display:none;">
+        <div style="font-weight:bold; color:#856404; margin-bottom:5px; display:flex; justify-content:space-between;">
+            <span>📢 体育館使用上の連絡事項</span>
+            <div id="gymNoticeAdminBtns" style="display:none;">
+                <button onclick="editGymNotice()" style="width:auto; margin:0; padding:2px 8px; font-size:11px; background:#1976D2;">編集</button>
+                <button onclick="deleteGymNotice()" style="width:auto; margin:0; padding:2px 8px; font-size:11px; background:#dc3545;">削除</button>
+            </div>
+        </div>
+        <div id="gymNoticeContent" style="white-space:pre-wrap; font-size:0.95em; color:#333;"></div>
+    </div>
+    <div id="gymNoticeEmptyBtn" style="text-align:center; margin-bottom:20px; display:none;">
+        <button onclick="editGymNotice()" style="width:auto; padding:8px 16px; font-size:0.8em; background:#666; border-radius:20px; border:1px dashed #fff;">＋ 連絡事項を入力する</button>
+    </div>
+    <p style="font-size:0.9em; color:#666; margin-bottom:20px;">氏名をタップして、今後の出欠を入力してください。</p>
 
             <div style="background:#fff; padding:15px; border-radius:12px; margin-bottom:20px; border:1px solid #eee;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -2439,7 +2452,7 @@
         }
 
         // ▼▼▼ GASのURL（スクリプト先頭に移動） ▼▼▼
-        const SHEET_URL = "https://script.google.com/macros/s/AKfycbzZtObXlroqQOHCFwTm5mVtGlc-HgOM9Fw31LRjqcVEBYLle1A7ynmF7kD_xuBy1Fio/exec";
+        const SHEET_URL = "https://script.google.com/macros/s/AKfycbwl-KuOyEBrE7G3b47dHtDtFhwmCAub9Be2i0eN_9wJhcyrTxDag-coaB-HkDounuEs/exec";
 
         // ▼▼▼ Firebaseの設定 ▼▼▼
         const firebaseConfig = {
@@ -2478,6 +2491,8 @@
         let currentIndMember = null;
         let isShowingAll = false;
         let shuttleUpdateCount = 0;
+let gymNoticeCache = ""; // 連絡事項の保持用
+
         // ★ここに追加・移動★
         let shuttleLogsCache = [];
         let currentCalDate = new Date();
@@ -2493,42 +2508,89 @@
 
         // 基本関数
         async function callGas(action, params = {}) {
-            if (!SHEET_URL.startsWith("http")) { alert("SHEET_URLエラー"); return; }
-            const payload = { action: action, ...params };
-            try {
-                const response = await fetch(SHEET_URL, { method: "POST", body: JSON.stringify(payload) });
-                return await response.json();
-            } catch (error) { console.error("GAS Error:", error); return null; }
+    if (!SHEET_URL.startsWith("http")) { alert("SHEET_URLエラー"); return null; }
+    
+    const payload = { action: action, ...params };
+    
+    try {
+        const response = await fetch(SHEET_URL, { 
+            method: "POST", 
+            body: JSON.stringify(payload) 
+        });
+        const json = await response.json();
+        
+        // 成功したらそのアクション専用のキャッシュに保存（任意）
+        if (json) {
+            // 例: getMemberList の結果を保存しておくなど
+            // localStorage.setItem('cache_' + action, JSON.stringify(json));
         }
+        return json;
+    } catch (error) { 
+        console.error("GAS Error (" + action + "):", error); 
+        return null; 
+    }
+}
         function safeSetStorage(key, value) { try { localStorage.setItem(key, value); } catch (e) { console.warn("Quota Exceeded", e); } }
         function showLoading(show) { document.getElementById("loading").style.display = show ? "flex" : "none"; }
 
         // 初期化（高速化対応版）
         document.addEventListener("DOMContentLoaded", async () => {
-            checkAppLogin();
+    checkAppLogin();
 
-            // 1. まずUIの初期表示（出欠タブ）
-            switchCategory('attendance', document.querySelector('.nav-item.active'));
+    // --- ① キャッシュから即座に表示 ---
+    const cache = localStorage.getItem('attendanceCache');
+    if (cache) {
+        try {
+            const cachedData = JSON.parse(cache);
+            weeklyEvents = cachedData.events || [];
+            weeklyMembers = cachedData.members || [];
+            weeklyStatus = cachedData.currentStatus || {};
+            weeklyMemo = cachedData.currentMemo || {};
+            
+            renderMemberButtons(); // 名簿ボタン表示
+            renderSummary();       // 集計表示
+            console.log("初期表示：キャッシュを使用しました");
+        } catch (e) { console.error("Cache Error", e); }
+    }
 
-            // 2. 最初の画面に必要なデータ（名簿・スケジュール・出欠データ）だけを待機して読み込む
-            await Promise.all([loadMemberList(), loadSchedule(), loadWeeklyMatrix()]);
+    // --- ② 初期表示タブの確定 ---
+    switchCategory('attendance', document.querySelector('.nav-item.active'));
 
-            // 3. その他のタブ（課題・月謝・ガット・アリーナ・シャトル）は「裏側」で読み込む
-            fetchArenaData();
-            loadShuttleData();
+    // --- ③ 裏側で最新データを取得して差し替え ---
+    const fetchLatestData = async () => {
+        try {
+            const response = await fetch(SHEET_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'getWeeklyMatrix' })
+            });
+            const data = await response.json();
+            
+            if (data) {
+                weeklyEvents = data.events || [];
+                weeklyMembers = data.members || [];
+                weeklyStatus = data.currentStatus || {};
+                weeklyMemo = data.currentMemo || {};
 
-            // 新機能の裏読み込み（引数 true = ローディング画面を出さずにデータだけ取る）
-            // ※関数側で true に対応していないとエラーになるので、前の手順で関数を更新している必要があります
-            if (typeof loadTasks === 'function') loadTasks(true);
-            if (typeof loadGutList === 'function') loadGutList(true);
+                // キャッシュを更新して再描画
+                localStorage.setItem('attendanceCache', JSON.stringify(data));
+                renderMemberButtons();
+                renderSummary();
+                console.log("同期完了：最新データを反映しました");
+            }
+        } catch (e) { console.error("Fetch Error", e); }
+    };
 
-            // 月謝の初期値セット＆裏読み込み
-            const thisMonth = formatMonth(new Date());
-            const feeSelect = document.getElementById("feeMonthSelect");
-            if (feeSelect) feeSelect.value = thisMonth;
+    fetchLatestData();
+loadGymNotice();;
 
-            if (typeof loadFeeData === 'function') loadFeeData(true);
-        });
+    // --- ④ その他の重い処理はさらに後回し ---
+    setTimeout(() => {
+    loadSchedule();
+    loadMemberList(); // ← これを追加
+    fetchArenaData();
+    loadShuttleData()
+}, 1500);
+});
 
         // カテゴリ切り替え
         function switchCategory(category, btnElement) {
@@ -4574,6 +4636,64 @@ async function submitEditTournament() {
     }
 }
 
+// 連絡事項の読み込み
+async function loadGymNotice() {
+    const res = await callGas('getGymNotice');
+    if (res !== null) {
+        gymNoticeCache = res || "";
+        renderGymNotice();
+    }
+}
+
+function renderGymNotice() {
+    const area = document.getElementById("gymNoticeArea");
+    const content = document.getElementById("gymNoticeContent");
+    const emptyBtn = document.getElementById("gymNoticeEmptyBtn");
+    const adminBtns = document.getElementById("gymNoticeAdminBtns");
+
+    // 管理者（升さん）かどうかは、課題管理ログイン済みかどうかで簡易的に判定します
+    const isAdmin = localStorage.getItem("isTaskLoggedIn") === "true";
+    adminBtns.style.display = isAdmin ? "block" : "none";
+
+    if (gymNoticeCache.trim() !== "") {
+        content.innerText = gymNoticeCache;
+        area.style.display = "block";
+        emptyBtn.style.display = "none";
+    } else {
+        area.style.display = "none";
+        emptyBtn.style.display = isAdmin ? "block" : "none";
+    }
+}
+
+function editGymNotice() {
+    document.getElementById("gymNoticeInput").value = gymNoticeCache;
+    document.getElementById("gymNoticeModal").style.display = "flex";
+}
+
+async function saveGymNotice() {
+    const text = document.getElementById("gymNoticeInput").value;
+    showLoading(true);
+    const res = await callGas('saveGymNotice', { content: text });
+    showLoading(false);
+    
+    if (res) {
+        gymNoticeCache = text;
+        renderGymNotice();
+        document.getElementById("gymNoticeModal").style.display = "none";
+    }
+}
+
+async function deleteGymNotice() {
+    if (!confirm("連絡事項を削除しますか？")) return;
+    showLoading(true);
+    const res = await callGas('saveGymNotice', { content: "" });
+    showLoading(false);
+    if (res) {
+        gymNoticeCache = "";
+        renderGymNotice();
+    }
+}
+
     </script>
 
     <div id="appLoginModal" class="login-overlay">
@@ -4597,6 +4717,17 @@ async function submitEditTournament() {
             <button class="login-btn" onclick="verifyTaskLogin()" style="background:#1976D2;">確認</button>
         </div>
     </div>
+
+<div id="gymNoticeModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:6000; justify-content:center; align-items:center;">
+    <div style="background:white; width:90%; max-width:400px; border-radius:16px; padding:20px; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+        <h3 style="margin-top:0;">連絡事項の編集</h3>
+        <textarea id="gymNoticeInput" style="height:150px; margin-bottom:15px;" placeholder="例：本日は中扉から入ってください。清掃用具は元の位置へ。"></textarea>
+        <div style="display:flex; gap:10px;">
+            <button onclick="saveGymNotice()" style="flex:1;">保存する</button>
+            <button onclick="document.getElementById('gymNoticeModal').style.display='none'" style="flex:1; background:#ccc; color:#333;">キャンセル</button>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>

@@ -2452,7 +2452,7 @@
         }
 
         // ▼▼▼ GASのURL（スクリプト先頭に移動） ▼▼▼
-        const SHEET_URL = "https://script.google.com/macros/s/AKfycbwl-KuOyEBrE7G3b47dHtDtFhwmCAub9Be2i0eN_9wJhcyrTxDag-coaB-HkDounuEs/exec";
+        const SHEET_URL = "https://script.google.com/macros/s/AKfycbwVaBXOFx7VCnVtIUb8nBLmOFuF05y9EsPtlKgOx6eNsGUKcTfkHu8KmK_wmqpXsWLz/exec";
 
         // ▼▼▼ Firebaseの設定 ▼▼▼
         const firebaseConfig = {
@@ -4638,9 +4638,9 @@ async function submitEditTournament() {
 
 // 連絡事項の読み込み
 async function loadGymNotice() {
-    const res = await callGas('getGymNotice');
-    if (res !== null) {
-        gymNoticeCache = res || "";
+    const res = await callGas('getGymNotice'); // GAS側で配列として返すようにします
+    if (res && Array.isArray(res)) {
+        gymNoticeCache = res;
         renderGymNotice();
     }
 }
@@ -4648,52 +4648,73 @@ async function loadGymNotice() {
 function renderGymNotice() {
     const area = document.getElementById("gymNoticeArea");
     const content = document.getElementById("gymNoticeContent");
-    const emptyBtn = document.getElementById("gymNoticeEmptyBtn");
-    const adminBtns = document.getElementById("gymNoticeAdminBtns");
-
-    // 管理者（升さん）かどうかは、課題管理ログイン済みかどうかで簡易的に判定します
     const isAdmin = localStorage.getItem("isTaskLoggedIn") === "true";
-    adminBtns.style.display = isAdmin ? "block" : "none";
+    
+    content.innerHTML = ""; // 一旦クリア
 
-    if (gymNoticeCache.trim() !== "") {
-        content.innerText = gymNoticeCache;
+    if (gymNoticeCache.length > 0) {
+        gymNoticeCache.forEach((item, index) => {
+            const div = document.createElement("div");
+            div.style.cssText = "border-bottom: 1px dashed #FBC02D; padding: 8px 0; display: flex; justify-content: space-between; align-items: flex-start;";
+            if (index === gymNoticeCache.length - 1) div.style.borderBottom = "none";
+
+            div.innerHTML = `
+                <div style="flex: 1;">
+                    <span style="font-size: 0.9em;">• ${escapeHtml(item)}</span>
+                </div>
+                ${isAdmin ? `<button onclick="deleteGymNoticeItem(${index})" style="width:auto; margin:0 0 0 10px; padding:2px 6px; font-size:10px; background:#dc3545; border-radius:4px;">削除</button>` : ""}
+            `;
+            content.appendChild(div);
+        });
         area.style.display = "block";
-        emptyBtn.style.display = "none";
     } else {
         area.style.display = "none";
-        emptyBtn.style.display = isAdmin ? "block" : "none";
     }
+
+    // 管理者用の「追加」ボタン表示
+    document.getElementById("gymNoticeEmptyBtn").style.display = isAdmin ? "block" : "none";
+    // 既存の古い編集ボタン等は不要になるので非表示（または削除）
+    const oldAdminBtns = document.getElementById("gymNoticeAdminBtns");
+    if(oldAdminBtns) oldAdminBtns.style.display = "none";
 }
 
 function editGymNotice() {
-    document.getElementById("gymNoticeInput").value = gymNoticeCache;
+    document.getElementById("gymNoticeInput").value = ""; // 常に空で開く（新規追加用）
     document.getElementById("gymNoticeModal").style.display = "flex";
 }
 
 async function saveGymNotice() {
-    const text = document.getElementById("gymNoticeInput").value;
+    const text = document.getElementById("gymNoticeInput").value.trim();
+    if (!text) return;
+
     showLoading(true);
-    const res = await callGas('saveGymNotice', { content: text });
+    // 現在のキャッシュに新しい項目を追加して送る
+    const newList = [...gymNoticeCache, text];
+    const res = await callGas('saveGymNotice', { content: JSON.stringify(newList) });
     showLoading(false);
     
     if (res) {
-        gymNoticeCache = text;
+        gymNoticeCache = newList;
         renderGymNotice();
         document.getElementById("gymNoticeModal").style.display = "none";
     }
 }
 
-async function deleteGymNotice() {
-    if (!confirm("連絡事項を削除しますか？")) return;
+async function deleteGymNoticeItem(index) {
+    if (!confirm("この項目を削除しますか？")) return;
+    
+    const newList = [...gymNoticeCache];
+    newList.splice(index, 1); // 指定した番号を削除
+
     showLoading(true);
-    const res = await callGas('saveGymNotice', { content: "" });
+    const res = await callGas('saveGymNotice', { content: JSON.stringify(newList) });
     showLoading(false);
+    
     if (res) {
-        gymNoticeCache = "";
+        gymNoticeCache = newList;
         renderGymNotice();
     }
 }
-
     </script>
 
     <div id="appLoginModal" class="login-overlay">

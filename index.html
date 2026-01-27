@@ -1644,7 +1644,111 @@
     font-size: 0.85em;
     color: #666;
 }
-    </style>
+
+/* --- 課題管理 カードデザインの改善 --- */
+.task-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    padding: 16px;
+    margin-bottom: 20px;
+    border-left: 6px solid #1976D2; /* 青色のアクセント線 */
+    text-align: left;
+}
+
+.task-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 8px;
+}
+
+.task-student-name {
+    font-weight: bold;
+    font-size: 1.1em;
+    color: #333;
+}
+
+.task-date {
+    font-size: 0.85em;
+    color: #888;
+}
+
+.task-main-content {
+    font-size: 1.05em;
+    line-height: 1.6;
+    color: #333;
+    margin-bottom: 12px;
+    white-space: pre-wrap;
+    font-weight: bold;
+}
+
+.task-type-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75em;
+    background: #e3f2fd;
+    color: #1976D2;
+    margin-bottom: 8px;
+}
+
+/* 考察表示の更なる改善 */
+.reflection-display {
+    margin-top: 12px;
+    padding: 12px;
+    background: #f1f8e9; /* 薄い緑 */
+    border-radius: 8px;
+    border: 1px solid #dcedc8;
+    font-size: 0.95em;
+    color: #2e7d32;
+    cursor: pointer;
+}
+
+.reflection-display::before {
+    content: '✅ 考察・振り返り';
+    display: block;
+    font-weight: bold;
+    font-size: 0.85em;
+    margin-bottom: 6px;
+    color: #388e3c;
+}
+
+.reflection-text {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.5;
+}
+
+.reflection-text.expanded {
+    -webkit-line-clamp: unset;
+}
+
+.task-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px dashed #eee;
+}
+
+.btn-small {
+    width: auto !important;
+    margin: 0 !important;
+    padding: 8px 14px !important;
+    font-size: 0.85em !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+    font-weight: bold;
+}
+
+</style>
 </head>
 
 <body>
@@ -2498,7 +2602,7 @@
         }
 
         // ▼▼▼ GASのURL（スクリプト先頭に移動） ▼▼▼
-        const SHEET_URL = "https://script.google.com/macros/s/AKfycby6VPsisKAhgiIoRttKU8_xCTMh93G4b962xsWpU3FXtE3c2b8y1hQfzhCiikPPjtqX/exec";
+        const SHEET_URL = "https://script.google.com/macros/s/AKfycbyVxIegJ0yR1n4ZbRGsxx9Doi2knHmuO3iOUcdqDSQEWPcg06iggP8KMGINHAo_XcXS/exec";
 
         // ▼▼▼ Firebaseの設定 ▼▼▼
         const firebaseConfig = {
@@ -4142,53 +4246,95 @@ if (category === "coaching") loadCoachingVideos();
 
         // 分析データの描画
         function renderAnalysis() {
-            const titleEl = document.getElementById("analysisTitle");
-            if (currentAnalysisMode === 'elem_s') titleEl.innerText = "🏸 小学生・シングルスの課題";
-            else if (currentAnalysisMode === 'elem_d') titleEl.innerText = "🏸 小学生・ダブルスの課題";
-            else if (currentAnalysisMode === 'mid_s') titleEl.innerText = "🏸 中学生・シングルスの課題";
-            else if (currentAnalysisMode === 'mid_d') titleEl.innerText = "🏸 中学生・ダブルスの課題";
+    const titleEl = document.getElementById("analysisTitle");
+    if (currentAnalysisMode === 'elem_s') titleEl.innerText = "🏸 小学生・シングルスの課題";
+    else if (currentAnalysisMode === 'elem_d') titleEl.innerText = "🏸 小学生・ダブルスの課題";
+    else if (currentAnalysisMode === 'mid_s') titleEl.innerText = "🏸 中学生・シングルスの課題";
+    else if (currentAnalysisMode === 'mid_d') titleEl.innerText = "🏸 中学生・ダブルスの課題";
 
-            if (!allTasksCache || allTasksCache.length === 0) {
-                document.querySelector("#taskTable tbody").innerHTML = `<tr><td colspan="4" style="text-align:center;">データなし</td></tr>`;
-                return;
-            }
+    const container = document.querySelector("#taskTable tbody");
+    container.innerHTML = "";
 
-            const targetTasks = allTasksCache.filter(task => {
-                const member = weeklyMembers.find(m => m.name === task.name);
-                if (!member) return false;
-                let schoolType = member.isElemFed ? "elem" : (member.isFed ? "mid" : "unknown");
-                const taskType = task.type || "シングルス";
-                if (currentAnalysisMode === 'elem_s') return schoolType === 'elem' && taskType === 'シングルス';
-                if (currentAnalysisMode === 'elem_d') return schoolType === 'elem' && taskType === 'ダブルス';
-                if (currentAnalysisMode === 'mid_s') return schoolType === 'mid' && taskType === 'シングルス';
-                if (currentAnalysisMode === 'mid_d') return schoolType === 'mid' && taskType === 'ダブルス';
-                return false;
-            });
+    if (!allTasksCache || allTasksCache.length === 0) {
+        container.innerHTML = `<tr><td style="text-align:center; padding:20px; color:#999;">データがありません</td></tr>`;
+        return;
+    }
 
-            const tbody = document.querySelector("#taskTable tbody");
-            tbody.innerHTML = "";
+    const targetTasks = allTasksCache.filter(task => {
+        const member = weeklyMembers.find(m => m.name === task.name);
+        if (!member) return false;
+        let schoolType = member.isElemFed ? "elem" : (member.isFed ? "mid" : "unknown");
+        const taskType = task.type || "シングルス";
+        if (currentAnalysisMode === 'elem_s') return schoolType === 'elem' && taskType === 'シングルス';
+        if (currentAnalysisMode === 'elem_d') return schoolType === 'elem' && taskType === 'ダブルス';
+        if (currentAnalysisMode === 'mid_s') return schoolType === 'mid' && taskType === 'シングルス';
+        if (currentAnalysisMode === 'mid_d') return schoolType === 'mid' && taskType === 'ダブルス';
+        return false;
+    });
 
-            if (targetTasks.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#999; padding:20px;">このカテゴリの課題はありません</td></tr>`;
-                document.getElementById("keywordRanking").innerHTML = "";
-                return;
-            }
+    if (targetTasks.length === 0) {
+        container.innerHTML = `<tr><td style="text-align:center; color:#999; padding:20px;">このカテゴリの課題はありません</td></tr>`;
+        document.getElementById("keywordRanking").innerHTML = "";
+        return;
+    }
 
-            targetTasks.slice().reverse().forEach(r => {
-                const tr = document.createElement("tr");
-                const safeContent = escapeHtml(r.content);
-                const safeType = r.type || "シングルス";
-                const contentForFunc = safeContent.replace(/\r?\n/g, '\\n').replace(/'/g, "\\'");
-                const encodedTask = encodeURIComponent(r.content);
-                const reflectionHtml = r.reflection
-                    ? `<div style="margin-top:8px; padding-top:8px; border-top:1px dashed #ccc; font-size:0.95em; color:#2E7D32;"><span style="font-weight:bold; font-size:0.8em; background:#E8F5E9; padding:2px 6px; border-radius:4px; margin-right:5px;">✅ 考察</span>${escapeHtml(r.reflection).replace(/\r?\n/g, '<br>')}</div>`
-                    : `<div style="margin-top:8px;"><button onclick="openReflectionModal(${r.row}, '${contentForFunc}')" style="width:100%; padding:6px; font-size:0.85em; background:#fff; border:1px solid #28a745; color:#28a745; border-radius:6px; box-shadow:none;">＋ 考察・振り返りを入力</button></div>`;
-
-                tr.innerHTML = `<td data-label="氏名">${escapeHtml(r.name)}</td><td data-label="課題と考察"><div style="font-weight:bold; color:#333;">${safeContent}</div>${reflectionHtml}</td><td data-label="日時" style="font-size:0.8em; color:#999;">${formatDate(r.date)}</td><td data-label="操作" class="delete-col" style="white-space:nowrap;"><button onclick="window.open('${TRAINING_APP_URL}?task=${encodedTask}&role=admin', '_blank')" style="width:auto; padding:8px 10px; font-size:11px; background:linear-gradient(135deg, #2b5876 0%, #4e4376 100%); color:white; border:none; box-shadow:0 2px 5px rgba(0,0,0,0.2); margin-right:4px; margin-bottom:6px; display:inline-block; text-align:left; line-height:1.4;"><span style="font-weight:bold; font-size:1.1em; display:block;">🚀 Smart Coach</span></button><div style="margin-top:2px;"><button onclick="openEditTask(${r.row}, '${safeType}', '${contentForFunc}')" style="width:auto; padding:5px 10px; font-size:11px; background:#17a2b8; margin-right:4px;">編集</button><button onclick="deleteTask(${r.row})" style="width:auto; padding:5px 10px; font-size:11px; background:#dc3545;">削除</button></div></td>`;
-                tbody.appendChild(tr);
-            });
-            analyzeKeywords(targetTasks);
+    targetTasks.slice().reverse().forEach(r => {
+        const tr = document.createElement("tr");
+        const td = document.createElement("td");
+        td.style.padding = "0";
+        td.style.border = "none";
+        td.style.background = "transparent";
+        
+        const safeContent = escapeHtml(r.content);
+        const contentForFunc = safeContent.replace(/\r?\n/g, '\\n').replace(/'/g, "\\'");
+        const encodedTask = encodeURIComponent(r.content);
+        
+        // 考察セクションの作成
+        let reflectionPart = "";
+        if (r.reflection) {
+            reflectionPart = `
+                <div class="reflection-display" onclick="this.querySelector('.reflection-text').classList.toggle('expanded')">
+                    <div class="reflection-text">${escapeHtml(r.reflection).replace(/\r?\n/g, '<br>')}</div>
+                    <div class="reflection-footer">
+                        <button class="btn-small" style="border:1px solid #17a2b8; color:#17a2b8; background:#fff;" 
+                            onclick="event.stopPropagation(); openReflectionModal(${r.row}, '${contentForFunc}', '${r.reflection.replace(/\r?\n/g, '\\n').replace(/'/g, "\\'")}')">編集</button>
+                        <button class="btn-small" style="border:1px solid #dc3545; color:#dc3545; background:#fff;" 
+                            onclick="event.stopPropagation(); deleteReflection(${r.row})">削除</button>
+                    </div>
+                </div>`;
+        } else {
+            reflectionPart = `
+                <div style="margin-top:8px;">
+                    <button class="btn-small" style="width:100% !important; background:#fff; border:1px solid #28a745; color:#28a745;" 
+                        onclick="openReflectionModal(${r.row}, '${contentForFunc}', '')">＋ 考察・振り返りを入力</button>
+                </div>`;
         }
+
+        // カード全体を組み立て（1つのセルの中にカードを入れる）
+        td.innerHTML = `
+            <div class="task-card">
+                <div class="task-header">
+                    <span class="task-student-name">${escapeHtml(r.name)}</span>
+                    <span class="task-date">📅 ${formatDate(r.date)}</span>
+                </div>
+                <div class="task-type-badge">${r.type || "シングルス"}</div>
+                <div class="task-main-content">${safeContent}</div>
+                ${reflectionPart}
+                <div class="task-actions">
+                    <button class="btn-small" style="background:linear-gradient(135deg, #2b5876 0%, #4e4376 100%); color:white;" 
+                        onclick="window.open('${TRAINING_APP_URL}?task=${encodedTask}&role=admin', '_blank')">🚀 Smart Coach</button>
+                    <button class="btn-small" style="background:#17a2b8; color:white;" 
+                        onclick="openEditTask(${r.row}, '${r.type || "シングルス"}', '${contentForFunc}')">編集</button>
+                    <button class="btn-small" style="background:#dc3545; color:white;" 
+                        onclick="deleteTask(${r.row})">削除</button>
+                </div>
+            </div>
+        `;
+        tr.appendChild(td);
+        container.appendChild(tr);
+    });
+    analyzeKeywords(targetTasks);
+}
 
         // キーワード分析
         function analyzeKeywords(data) {
@@ -4867,6 +5013,70 @@ async function loadCoachingVideos() {
     }
 }
 
+function openReflectionModal(row, taskContent, existingReflection) {
+    document.getElementById("reflectTaskRow").value = row;
+    document.getElementById("reflectTaskPreview").innerText = taskContent;
+    // 既存の内容があればそれを表示、なければ空にする
+    document.getElementById("reflectContent").value = existingReflection || "";
+    document.getElementById("reflectionModal").style.display = "flex";
+}
+
+/**
+ * 考察を削除する
+ */
+async function deleteReflection(row) {
+    if (!confirm("保存済みの考察を削除してもよろしいですか？")) return;
+    
+    showLoading(true);
+    // 内容を空にして送信することで実質的な削除とする
+    const res = await callGas('saveReflection', { 
+        row: row, 
+        reflection: "" 
+    });
+    showLoading(false);
+    
+    if (res) {
+        alert("削除しました。");
+        await loadTasks(); 
+    }
+}
+
+/**
+ * 考察・振り返りを保存する
+ */
+async function saveReflection() {
+    const row = document.getElementById("reflectTaskRow").value;
+    const content = document.getElementById("reflectContent").value.trim();
+    
+    if (!content) {
+        alert("考察内容を入力してください。");
+        return;
+    }
+    
+    showLoading(true);
+    try {
+        // GAS側の 'saveReflection' アクションを呼び出す
+        // ※GAS側にもこのアクションを受け取る処理が必要です
+        const res = await callGas('saveReflection', { 
+            row: row, 
+            reflection: content 
+        });
+        
+        if (res) {
+            alert("考察を保存しました。");
+            document.getElementById("reflectionModal").style.display = "none";
+            // データを再読み込みして表示を更新
+            await loadTasks(); 
+        } else {
+            alert("保存に失敗しました。");
+        }
+    } catch (e) {
+        console.error(e);
+        alert("エラーが発生しました: " + e.message);
+    } finally {
+        showLoading(false);
+    }
+}
     </script>
 
     <div id="appLoginModal" class="login-overlay">

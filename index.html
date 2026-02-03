@@ -1941,107 +1941,109 @@
                 </div>
         </div>
         <div id="taskSection" class="card-section" style="display:none;">
-            <h2>課題の収集と分析</h2>
-            <p style="font-size:0.9em; color:#666;">連盟登録者（小学生・中学生）のみ入力可能です。</p>
+    <h2>課題の収集と分析</h2>
+    <p style="font-size:0.9em; color:#666;">連盟登録者（小学生・中学生）のみ入力可能です。</p>
 
-            <div style="background:#f9f9f9; padding:15px; border-radius:12px; border:1px solid #eee;">
-                <label style="font-weight:bold; color:#555;">氏名</label>
-                <select id="taskName" style="margin-bottom:15px;">
-                    <option value="">名前を選択してください</option>
-                </select>
+    <div style="background:#f9f9f9; padding:15px; border-radius:12px; border:1px solid #eee;">
+        <label style="font-weight:bold; color:#555;">対象月</label>
+        <input type="month" id="taskTargetMonth" style="margin-bottom:15px; background:#fff;">
+        <label style="font-weight:bold; color:#555;">氏名</label>
+        <select id="taskName" style="margin-bottom:15px;">
+            <option value="">名前を選択してください</option>
+        </select>
 
-                <label style="font-weight:bold; color:#555;">取り組む種目</label>
+        <label style="font-weight:bold; color:#555;">取り組む種目</label>
+        <div class="checkbox-container">
+            <label class="checkbox-label">
+                <input type="radio" name="taskType" value="シングルス" checked>
+                シングルス
+            </label>
+            <label class="checkbox-label">
+                <input type="radio" name="taskType" value="ダブルス">
+                ダブルス
+            </label>
+        </div>
+        <label style="font-weight:bold; color:#555;">現在の課題（具体的に）</label>
+        <textarea id="taskContent" rows="3" placeholder="例：スマッシュが浮いてしまう。前衛でのプッシュが遅れる。"></textarea>
 
-                <div class="checkbox-container">
-                    <label class="checkbox-label">
-                        <input type="radio" name="taskType" value="シングルス" checked>
-                        シングルス
-                    </label>
+        <button type="button" onclick="submitTask()">課題を登録する</button>
+    </div>
 
-                    <label class="checkbox-label">
-                        <input type="radio" name="taskType" value="ダブルス">
-                        ダブルス
-                    </label>
-                </div>
-                <label style="font-weight:bold; color:#555;">現在の課題（具体的に）</label>
-                <textarea id="taskContent" rows="3" placeholder="例：スマッシュが浮いてしまう。前衛でのプッシュが遅れる。"></textarea>
+    <hr style="margin: 30px 0; border:none; border-top:1px dashed #ccc;">
 
-                <button type="button" onclick="submitTask()">課題を登録する</button>
-            </div>
+    <div style="display:flex; background:#fff; border-radius:30px; border:1px solid #ddd; padding:4px; margin: 20px 0; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
+        <button onclick="switchViewMode('category')" id="btnViewCategory"
+            style="flex:1; margin:0; border-radius:25px; box-shadow:none; background:#FF9966; color:white; font-size:0.9em;">📊
+            全体・カテゴリ分析</button>
+        <button onclick="switchViewMode('personal')" id="btnViewPersonal"
+            style="flex:1; margin:0; border-radius:25px; box-shadow:none; background:transparent; color:#666; font-size:0.9em;">👤
+            個人・変遷履歴</button>
+    </div>
 
-            <hr style="margin: 30px 0; border:none; border-top:1px dashed #ccc;">
+    <div id="personalHistoryArea" style="display:none; animation: fadeIn 0.3s ease;">
+        <h4 style="margin:0 0 10px 0; color:#333;">選手の成長記録</h4>
+        <select id="timelineMemberSelect" onchange="renderPersonalHistory()"
+            style="margin-bottom:10px; border:2px solid #FF9966;">
+            <option value="">履歴を見たい選手を選択</option>
+        </select>
+        <div id="timelineContainer"></div>
+    </div>
+
+    <div id="categoryAnalysisArea">
+        <h3>📊 カテゴリ別 分析・集計</h3>
+
+        <div style="background:#fff3e0; padding:10px; border-radius:8px; margin-bottom:15px; border:1px solid #ffe0b2; text-align:center;">
+            <label style="font-size:0.8em; color:#e65100; display:block; margin-bottom:5px;">📅 分析対象月を選択</label>
+            <input type="month" id="analysisFilterMonth" onchange="renderAnalysis()" style="font-weight:bold; color:#e65100; border:1px solid #FF9966;">
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:15px;">
+            <button onclick="switchAnalysisTab('elem_s')" id="tab_elem_s" class="analysis-tab active"
+                style="width:auto; padding:6px 10px; font-size:0.8em; margin:0;">小・シングル</button>
+            <button onclick="switchAnalysisTab('elem_d')" id="tab_elem_d" class="analysis-tab"
+                style="width:auto; padding:6px 10px; font-size:0.8em; margin:0; background:#eee; color:#666;">小・ダブル</button>
+            <button onclick="switchAnalysisTab('mid_s')" id="tab_mid_s" class="analysis-tab"
+                style="width:auto; padding:6px 10px; font-size:0.8em; margin:0; background:#eee; color:#666;">中・シングル</button>
+            <button onclick="switchAnalysisTab('mid_d')" id="tab_mid_d" class="analysis-tab"
+                style="width:auto; padding:6px 10px; font-size:0.8em; margin:0; background:#eee; color:#666;">中・ダブル</button>
+        </div>
+
+        <div id="analysisResultArea">
+            <h4 id="analysisTitle" style="margin:0 0 10px 0; color:#FF9966;">小学生 シングルスの課題傾向</h4>
+
+            <div id="keywordRanking"
+                style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px; min-height:50px;"></div>
 
             <div
-                style="display:flex; background:#fff; border-radius:30px; border:1px solid #ddd; padding:4px; margin: 20px 0; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
-                <button onclick="switchViewMode('category')" id="btnViewCategory"
-                    style="flex:1; margin:0; border-radius:25px; box-shadow:none; background:#FF9966; color:white; font-size:0.9em;">📊
-                    全体・カテゴリ分析</button>
-                <button onclick="switchViewMode('personal')" id="btnViewPersonal"
-                    style="flex:1; margin:0; border-radius:25px; box-shadow:none; background:transparent; color:#666; font-size:0.9em;">👤
-                    個人・変遷履歴</button>
+                style="background:#E3F2FD; padding:15px; border-radius:12px; border:1px solid #BBDEFB; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <h4 style="margin:0 0 5px 0; color:#1565C0;">🤖 AIチーム練習プランナー</h4>
+                    <div style="font-size:0.85em; color:#555;">集計された課題傾向から、練習メニュー案を作成します。</div>
+                </div>
+                <button onclick="generateTeamPlanPrompt()"
+                    style="width:auto; padding:10px 16px; background:#1976D2; border:none; box-shadow:0 2px 5px rgba(0,0,0,0.2); font-size:0.9em;">
+                    🚀 Smart Coach
+                </button>
             </div>
 
-            <div id="personalHistoryArea" style="display:none; animation: fadeIn 0.3s ease;">
-                <h4 style="margin:0 0 10px 0; color:#333;">選手の成長記録</h4>
-                <select id="timelineMemberSelect" onchange="renderPersonalHistory()"
-                    style="margin-bottom:10px; border:2px solid #FF9966;">
-                    <option value="">履歴を見たい選手を選択</option>
-                </select>
-                <div id="timelineContainer"></div>
-            </div>
-            <div id="categoryAnalysisArea">
-                <h3>📊 カテゴリ別 分析・集計</h3>
-
-                <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:15px;">
-                    <button onclick="switchAnalysisTab('elem_s')" id="tab_elem_s" class="analysis-tab active"
-                        style="width:auto; padding:6px 10px; font-size:0.8em; margin:0;">小・シングル</button>
-                    <button onclick="switchAnalysisTab('elem_d')" id="tab_elem_d" class="analysis-tab"
-                        style="width:auto; padding:6px 10px; font-size:0.8em; margin:0; background:#eee; color:#666;">小・ダブル</button>
-                    <button onclick="switchAnalysisTab('mid_s')" id="tab_mid_s" class="analysis-tab"
-                        style="width:auto; padding:6px 10px; font-size:0.8em; margin:0; background:#eee; color:#666;">中・シングル</button>
-                    <button onclick="switchAnalysisTab('mid_d')" id="tab_mid_d" class="analysis-tab"
-                        style="width:auto; padding:6px 10px; font-size:0.8em; margin:0; background:#eee; color:#666;">中・ダブル</button>
-                </div>
-
-                <div id="analysisResultArea">
-                    <h4 id="analysisTitle" style="margin:0 0 10px 0; color:#FF9966;">小学生 シングルスの課題傾向</h4>
-
-                    <div id="keywordRanking"
-                        style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px; min-height:50px;"></div>
-
-                    <div
-                        style="background:#E3F2FD; padding:15px; border-radius:12px; border:1px solid #BBDEFB; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">
-                        <div>
-                            <h4 style="margin:0 0 5px 0; color:#1565C0;">🤖 AIチーム練習プランナー</h4>
-                            <div style="font-size:0.85em; color:#555;">集計された課題傾向から、練習メニュー案を作成します。</div>
-                        </div>
-                        <button onclick="generateTeamPlanPrompt()"
-                            style="width:auto; padding:10px 16px; background:#1976D2; border:none; box-shadow:0 2px 5px rgba(0,0,0,0.2); font-size:0.9em;">
-                            🚀 Smart CoachでAIメニュー作成
-                        </button>
-                    </div>
-
-                    <div class="table-container">
-                        <table id="taskTable">
-                            <thead>
-                                <tr>
-                                    <th>氏名</th>
-                                    <th>課題</th>
-                                    <th>日時</th>
-                                    <th class="delete-col">操作</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div style="text-align:right; margin-top:10px;">
-                    <button type="button" onclick="loadTasks()"
-                        style="width:auto; padding:6px 12px; font-size:0.8em; background:#666; box-shadow:none; margin:0;">データを更新</button>
-                </div>
+            <div class="table-container">
+                <table id="taskTable">
+                    <thead>
+                        <tr>
+                            <th>氏名</th>
+                            <th>課題</th>
+                            <th></th> </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
             </div>
         </div>
+
+        <div style="text-align:right; margin-top:10px;">
+            <button type="button" onclick="loadTasks()"
+                style="width:auto; padding:6px 12px; font-size:0.8em; background:#666; box-shadow:none; margin:0;">データを更新</button>
+        </div>
+    </div>
+</div>
 
         <div id="shuttleSection" class="card-section"
             style="display:none; background:transparent; box-shadow:none; padding:0;">
@@ -4300,31 +4302,86 @@ if (category === "coaching") loadCoachingVideos();
         }
 
         // 個人の変遷を描画
-        function renderPersonalHistory() {
+       function renderPersonalHistory() {
             const name = document.getElementById("timelineMemberSelect").value;
             const container = document.getElementById("timelineContainer");
             container.innerHTML = "";
             if (!name) return;
 
+            // 選択した個人のタスクを抽出
             const myTasks = allTasksCache.filter(t => t.name === name);
             if (myTasks.length === 0) {
                 container.innerHTML = "<p style='color:#999; text-align:center;'>課題データがありません。</p>";
                 return;
             }
-            myTasks.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            // 日付順（新しい順）に並べ替え
+            myTasks.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            // 月ごとにデータをグループ化する
+            const grouped = {};
+            const months = []; // 表示順序を維持するための配列
+
+            myTasks.forEach(task => {
+                const d = new Date(task.date);
+                const monthKey = `${d.getFullYear()}年 ${(d.getMonth() + 1)}月`;
+                
+                if (!grouped[monthKey]) {
+                    grouped[monthKey] = [];
+                    months.push(monthKey);
+                }
+                grouped[monthKey].push(task);
+            });
 
             let html = '<div class="timeline-container">';
-            myTasks.forEach(task => {
-                const dateStr = formatDate(task.date);
-                const dateObj = new Date(task.date);
-                const labelStr = `${dateObj.getFullYear()}年 ${(dateObj.getMonth() + 1)}月`;
-                const reflectionContent = task.reflection
-                    ? `<div class="tl-reflect-section"><span class="tl-label bg-reflect">考察・結果</span><div style="font-size:0.95em; color:#333;">${escapeHtml(task.reflection).replace(/\r?\n/g, '<br>')}</div></div>`
-                    : `<div class="tl-reflect-section" style="background:#f9f9f9; color:#999; font-size:0.8em;">(考察はまだ入力されていません)</div>`;
+            
+            // 月ごとにループして表示
+            months.forEach(monthKey => {
+                const tasksInMonth = grouped[monthKey];
+                
+                // タイムラインのドット部分（月）
+                html += `<div class="timeline-item">`;
+                html += `<div class="timeline-date-label" style="font-size:1.1em; border-bottom:2px solid #FF9966; display:inline-block; padding-bottom:2px; margin-bottom:15px;">
+                            ${monthKey} 
+                            <span style="font-size:0.7em; color:#888; font-weight:normal;">(${tasksInMonth.length}件)</span>
+                         </div>`;
+                
+                // その月に含まれる課題を全てカードとして表示
+                tasksInMonth.forEach(task => {
+                    const dateStr = formatDate(task.date).substring(5); // MM-DDのみ抽出
+                    
+                    // 振り返りがある場合の表示
+                    const reflectionContent = task.reflection
+                        ? `<div class="tl-reflect-section">
+                                <span class="tl-label bg-reflect">✅ 振り返り・考察</span>
+                                <div style="font-size:0.95em; color:#333; margin-top:5px; line-height:1.6;">
+                                    ${escapeHtml(task.reflection).replace(/\r?\n/g, '<br>')}
+                                </div>
+                           </div>`
+                        : `<div class="tl-reflect-section" style="background:#f9f9f9; color:#999; font-size:0.8em; margin-top:5px;">
+                                (振り返りは未入力です)
+                           </div>`;
 
-                html += `<div class="timeline-item"><div class="timeline-date-label">${labelStr} <span style="font-size:0.8em; font-weight:normal; color:#999;">(${dateStr})</span></div><div class="timeline-content-box"><div class="tl-task-section"><span class="tl-label bg-task">課題 (${task.type})</span><div style="font-size:1.05em; font-weight:bold; color:#333; line-height:1.5;">${escapeHtml(task.content).replace(/\r?\n/g, '<br>')}</div></div>${reflectionContent}</div></div>`;
+                    // 課題カードのHTML
+                    html += `
+                    <div class="timeline-content-box" style="margin-bottom:20px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; border-bottom:1px dashed #eee; padding-bottom:5px;">
+                            <span class="tl-label bg-task">${task.type}</span>
+                            <span style="font-size:0.8em; color:#999;">📅 ${dateStr} 登録</span>
+                        </div>
+                        <div style="font-size:1.05em; font-weight:bold; color:#333; line-height:1.6; margin-bottom:10px;">
+                            ${escapeHtml(task.content).replace(/\r?\n/g, '<br>')}
+                        </div>
+                        ${reflectionContent}
+                    </div>`;
+                });
+
+                html += `</div>`; // timeline-item end
             });
-            html += '</div><div style="text-align:center; color:#FF9966; font-weight:bold; margin-top:20px;">⬇ 現在へ続く ⬇</div>';
+
+            html += '<div style="text-align:center; color:#FF9966; font-weight:bold; margin-top:20px;">⬇ 過去の記録 ⬇</div>';
+            html += '</div>';
+            
             container.innerHTML = html;
         }
 
@@ -4348,10 +4405,15 @@ if (category === "coaching") loadCoachingVideos();
         // 分析データの描画
         function renderAnalysis() {
     const titleEl = document.getElementById("analysisTitle");
-    if (currentAnalysisMode === 'elem_s') titleEl.innerText = "🏸 小学生・シングルスの課題";
-    else if (currentAnalysisMode === 'elem_d') titleEl.innerText = "🏸 小学生・ダブルスの課題";
-    else if (currentAnalysisMode === 'mid_s') titleEl.innerText = "🏸 中学生・シングルスの課題";
-    else if (currentAnalysisMode === 'mid_d') titleEl.innerText = "🏸 中学生・ダブルスの課題";
+    const filterMonth = document.getElementById("analysisFilterMonth").value; // フィルタ月取得
+
+    let catText = "";
+    if (currentAnalysisMode === 'elem_s') catText = "小学生・シングルス";
+    else if (currentAnalysisMode === 'elem_d') catText = "小学生・ダブルス";
+    else if (currentAnalysisMode === 'mid_s') catText = "中学生・シングルス";
+    else if (currentAnalysisMode === 'mid_d') catText = "中学生・ダブルス";
+
+    titleEl.innerText = `🏸 ${catText}の課題 (${filterMonth ? filterMonth : '全期間'})`;
 
     const container = document.querySelector("#taskTable tbody");
     container.innerHTML = "";
@@ -4361,11 +4423,20 @@ if (category === "coaching") loadCoachingVideos();
         return;
     }
 
+    // ▼▼▼ フィルタリング処理 ▼▼▼
     const targetTasks = allTasksCache.filter(task => {
+        // 1. 月でフィルタリング
+        if (filterMonth) {
+            // task.date (例: 2026-02-01) の先頭7文字 (2026-02) が一致するか
+            if (!task.date.startsWith(filterMonth)) return false;
+        }
+
+        // 2. 名簿・カテゴリでフィルタリング
         const member = weeklyMembers.find(m => m.name === task.name);
         if (!member) return false;
         let schoolType = member.isElemFed ? "elem" : (member.isFed ? "mid" : "unknown");
         const taskType = task.type || "シングルス";
+
         if (currentAnalysisMode === 'elem_s') return schoolType === 'elem' && taskType === 'シングルス';
         if (currentAnalysisMode === 'elem_d') return schoolType === 'elem' && taskType === 'ダブルス';
         if (currentAnalysisMode === 'mid_s') return schoolType === 'mid' && taskType === 'シングルス';
@@ -4374,14 +4445,15 @@ if (category === "coaching") loadCoachingVideos();
     });
 
     if (targetTasks.length === 0) {
-        container.innerHTML = `<tr><td style="text-align:center; color:#999; padding:20px;">このカテゴリの課題はありません</td></tr>`;
-        document.getElementById("keywordRanking").innerHTML = "";
+        container.innerHTML = `<tr><td style="text-align:center; color:#999; padding:20px;">この月のデータはありません</td></tr>`;
+        document.getElementById("keywordRanking").innerHTML = ""; // ランキングもクリア
         return;
     }
 
     targetTasks.slice().reverse().forEach(r => {
         const tr = document.createElement("tr");
         const td = document.createElement("td");
+        td.colSpan = 3; // レイアウト調整
         td.style.padding = "0";
         td.style.border = "none";
         td.style.background = "transparent";
@@ -4390,7 +4462,6 @@ if (category === "coaching") loadCoachingVideos();
         const contentForFunc = safeContent.replace(/\r?\n/g, '\\n').replace(/'/g, "\\'");
         const encodedTask = encodeURIComponent(r.content);
         
-        // 考察セクションの作成
         let reflectionPart = "";
         if (r.reflection) {
             reflectionPart = `
@@ -4411,7 +4482,6 @@ if (category === "coaching") loadCoachingVideos();
                 </div>`;
         }
 
-        // カード全体を組み立て（1つのセルの中にカードを入れる）
         td.innerHTML = `
             <div class="task-card">
                 <div class="task-header">
@@ -4434,6 +4504,8 @@ if (category === "coaching") loadCoachingVideos();
         tr.appendChild(td);
         container.appendChild(tr);
     });
+
+    // ▼▼▼ キーワード分析も、フィルタリング済みのデータで行う ▼▼▼
     analyzeKeywords(targetTasks);
 }
 
@@ -4487,35 +4559,62 @@ if (category === "coaching") loadCoachingVideos();
 
         // 課題を登録
         async function submitTask() {
-            const name = document.getElementById("taskName").value;
-            const content = document.getElementById("taskContent").value;
-            const typeRadios = document.getElementsByName("taskType");
-            let typeVal = "";
-            for (let r of typeRadios) { if (r.checked) typeVal = r.value; }
-            if (!name) return alert("名前を選択してください");
-            if (!content) return alert("課題を入力してください");
-            showLoading(true);
-            const res = await callGas('saveTask', { name, content, type: typeVal });
-            if (res) { alert("登録しました"); document.getElementById("taskContent").value = ""; loadTasks(); }
-            showLoading(false);
-        }
+    const month = document.getElementById("taskTargetMonth").value; // 月を取得
+    const name = document.getElementById("taskName").value;
+    const content = document.getElementById("taskContent").value;
+    const typeRadios = document.getElementsByName("taskType");
+    let typeVal = "";
+    for (let r of typeRadios) { if (r.checked) typeVal = r.value; }
+
+    if (!month) return alert("対象月を選択してください");
+    if (!name) return alert("名前を選択してください");
+    if (!content) return alert("課題を入力してください");
+
+    showLoading(true);
+    
+    // GAS側で日付として認識させるため、選択した月の「1日」としてデータを送信
+    // 例: "2026-02" -> "2026-02-01"
+    const dateToSend = month + "-01";
+
+    // saveTaskに date パラメータを追加して送信
+    const res = await callGas('saveTask', { 
+        date: dateToSend, // ★日付を強制指定
+        name: name, 
+        content: content, 
+        type: typeVal 
+    });
+
+    if (res) { 
+        alert("登録しました"); 
+        document.getElementById("taskContent").value = ""; 
+        loadTasks(); 
+    }
+    showLoading(false);
+}
 
         // 課題データを取得
         async function loadTasks() {
-            updateTaskMemberSelect();
-            showLoading(true);
-            const data = await callGas('getTaskList');
-            showLoading(false);
-            if (data) { allTasksCache = data; renderAnalysis(); }
-        }
+    updateTaskMemberSelect();
+    
+    // 今月をデフォルト値としてセット（未設定の場合）
+    const today = new Date();
+    const currentMonthStr = formatMonth(today);
+    
+    const regInput = document.getElementById("taskTargetMonth");
+    if (!regInput.value) regInput.value = currentMonthStr;
 
-        function openEditTask(row, type, content) {
-            document.getElementById("editTaskRow").value = row;
-            document.getElementById("editTaskContent").value = content;
-            const radios = document.getElementsByName("editTaskType");
-            for (const r of radios) { r.checked = (r.value === type); }
-            document.getElementById("taskEditModal").style.display = "flex";
-        }
+    const filterInput = document.getElementById("analysisFilterMonth");
+    if (!filterInput.value) filterInput.value = currentMonthStr;
+
+    showLoading(true);
+    const data = await callGas('getTaskList');
+    showLoading(false);
+    
+    if (data) { 
+        allTasksCache = data; 
+        renderAnalysis(); // 読み込み後に分析画面更新
+    }
+}
 
         async function saveTaskEdit() {
             const row = document.getElementById("editTaskRow").value;

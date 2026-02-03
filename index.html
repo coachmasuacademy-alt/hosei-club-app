@@ -1748,6 +1748,94 @@
     font-weight: bold;
 }
 
+/* PC・タブレット等の基本スタイル */
+#logTable th {
+    background-color: #fff5e0; /* 薄いオレンジ背景 */
+    color: #d35400;
+}
+
+/* スマホ表示最適化（カード化） */
+@media (max-width: 600px) {
+    #logTable thead {
+        display: none;
+    }
+
+    #logTable tbody tr {
+        display: block;
+        width: 100%;
+        margin-bottom: 20px;
+        background: #fff;
+        border: 2px solid #FF9966; /* オレンジ枠 */
+        border-radius: 12px;
+        padding: 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        box-sizing: border-box;
+    }
+
+    #logTable tbody td {
+        display: block;
+        width: 100%;
+        border: none;
+        padding: 5px 0;
+        text-align: left;
+    }
+
+    /* No */
+    #logTable tbody td:nth-child(1) {
+        display: inline-block;
+        font-size: 0.8em;
+        color: #999;
+        margin-bottom: 5px;
+    }
+    #logTable tbody td:nth-child(1)::before {
+        content: "No.";
+    }
+
+    /* 練習日 */
+    #logTable tbody td:nth-child(2) {
+        font-size: 1.1em;
+        font-weight: bold;
+        color: #333;
+        border-bottom: 1px solid #eee;
+        margin-bottom: 8px;
+        padding-bottom: 5px;
+    }
+    #logTable tbody td:nth-child(2)::before {
+        content: "📅 ";
+    }
+
+    /* 担当者 */
+    #logTable tbody td:nth-child(3) {
+        display: inline-block;
+        margin-bottom: 5px;
+    }
+    #logTable tbody td:nth-child(3)::before {
+        content: "👤 担当: ";
+        color: #666;
+    }
+
+    /* 写真 */
+    #logTable tbody td:nth-child(4) {
+        text-align: center;
+        margin: 10px 0;
+        background: #fafafa;
+        padding: 10px;
+        border-radius: 8px;
+    }
+
+    #logTable tbody td:nth-child(4) img {
+        max-height: 200px;
+        max-width: 100%;
+        border-radius: 6px;
+    }
+
+    /* ボタン（横並びに配置） */
+    #logTable tbody td.delete-col {
+        display: inline-block;
+        width: auto;
+        margin-right: 5px;
+    }
+}
 </style>
 </head>
 
@@ -1775,6 +1863,7 @@
         <div class="nav-item" onclick="switchCategory('shuttle', this)">🏸 シャトル</div>
         <div class="nav-item" onclick="switchCategory('carry', this)">🚙 道具運搬</div>
         <div class="nav-item" onclick="switchCategory('skyArena', this)">🏟️ スカイアリーナ座間</div>
+<div class="nav-item" onclick="switchCategory('log', this)">📷 上星小担当者</div>
         <div class="nav-item" onclick="switchCategory('tournament', this)">🏆 大会申込</div>
         <div class="nav-item" onclick="switchCategory('fee', this)">💴 月謝</div>
         <div class="nav-item" onclick="switchCategory('gut', this)">🏸 ガット</div>
@@ -2215,34 +2304,45 @@
             </div>
         </div>
 
-        <div id="otherSection" class="card-section" style="display:none;">
-            <h2>その他連絡事項</h2>
-            <label>タイトル</label>
-            <input type="text" id="otherTitle">
-            <label>内容</label>
-            <textarea id="otherContent" rows="3"></textarea>
-            <label>担当者</label>
-            <input type="text" id="otherPerson">
-            <label>状況</label>
-            <input type="text" id="otherStatus" placeholder="例：確認中、完了など">
-            <button type="button" onclick="saveOtherData()">登録する</button>
-            <div style="margin-top:30px;">
-                <h2>その他一覧</h2>
-                <div class="table-container">
-                    <table id="otherList">
-                        <thead>
-                            <tr>
-                                <th>タイトル</th>
-                                <th>内容</th>
-                                <th>担当者</th>
-                                <th>状況</th>
-                                <th class="delete-col">編集</th>
-                                <th class="delete-col">削除</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
+<div id="logSection" class="card-section" style="display:none;">
+            <h2>📷 練習日誌 (上星小学校)</h2>
+            <p style="font-size:0.9em; color:#666;">上星小学校での練習記録を写真で残します。</p>
+
+            <div style="background:#fff; padding:20px; border-radius:12px; border:1px solid #FF9966; box-shadow:0 4px 10px rgba(0,0,0,0.05);">
+                <label>練習日 (上星小学校のみ)</label>
+                <select id="logDateSelect" style="font-weight:bold; background:#fff5e0;">
+                    <option value="">日程を読み込み中...</option>
+                </select>
+
+                <label>担当者</label>
+                <input type="text" id="logPerson" placeholder="名前を入力">
+
+                <label>日誌写真 (必須)</label>
+                <input type="file" id="logPhoto" accept="image/*" style="padding:10px; border:1px dashed #ccc; width:100%; box-sizing:border-box;">
+                
+                <button onclick="saveLog()" style="background:linear-gradient(135deg, #FF9966 0%, #FF5E62 100%); margin-top:20px;">写真をアップロードして保存</button>
+            </div>
+
+            <hr style="margin:30px 0; border:none; border-top:1px dashed #ccc;">
+
+            <h3>📂 日誌一覧</h3>
+            <button onclick="loadLogList()" style="width:auto; padding:6px 12px; font-size:0.8em; margin-bottom:15px; background:#666;">更新</button>
+            
+            <div class="table-container">
+                <table id="logTable">
+                    <thead>
+                        <tr>
+                            <th style="width:10%;">No</th>
+                            <th style="width:25%;">練習日</th>
+                            <th style="width:25%;">担当者</th>
+                            <th style="width:20%;">写真</th>
+                            <th class="delete-col" style="width:10%;">編集</th>
+                            <th class="delete-col" style="width:10%;">削除</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
             </div>
         </div>
 
@@ -2602,7 +2702,7 @@
         }
 
         // ▼▼▼ GASのURL（スクリプト先頭に移動） ▼▼▼
-        const SHEET_URL = "https://script.google.com/macros/s/AKfycbyVxIegJ0yR1n4ZbRGsxx9Doi2knHmuO3iOUcdqDSQEWPcg06iggP8KMGINHAo_XcXS/exec";
+        const SHEET_URL = "https://script.google.com/macros/s/AKfycbwbhnQQvc6nlC5tWe_ia5JLV9Hf3YXB3bi8WTc4NTGhKNiX-lCV1zbYGM-DqdaKf86p/exec";
 
         // ▼▼▼ Firebaseの設定 ▼▼▼
         const firebaseConfig = {
@@ -2751,7 +2851,7 @@ loadGymNotice();;
                 if (!checkTaskLogin(btnElement)) return;
             }
 
-            const sections = ["attendanceSection", "coachingSection", "shuttleSection", "carrySection", "tournamentSection", "otherSection", "skyArenaSection", "memberSection", "taskSection", "feeSection", "gutSection"];
+            const sections = ["attendanceSection", "coachingSection", "shuttleSection", "carrySection", "tournamentSection", "otherSection", "skyArenaSection", "memberSection", "taskSection", "feeSection", "gutSection", "logSection"];
             sections.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.style.display = "none";
@@ -2760,6 +2860,7 @@ loadGymNotice();;
             const target = document.getElementById(category + "Section");
             if (target) target.style.display = "block";
 
+if (category === "log") loadLogSection();
             if (category === "carry") loadList();
             if (category === "tournament") loadTournamentList();
             if (category === "other") loadOtherList();
@@ -5077,6 +5178,184 @@ async function saveReflection() {
         showLoading(false);
     }
 }
+
+async function loadLogSection() {
+            // カレンダー取得（既存のキャッシュ/関数を利用）
+            const scheduleData = await getOrFetchSchedule();
+            
+            const select = document.getElementById("logDateSelect");
+            select.innerHTML = '<option value="">日程を選択してください</option>';
+
+            // 「上星」が含まれるものだけフィルタリング
+            const kamihoEvents = scheduleData.filter(e => e.gym.includes("上星"));
+
+            if (kamihoEvents.length === 0) {
+                const op = document.createElement("option");
+                op.text = "上星小の予定が見つかりません";
+                select.appendChild(op);
+            } else {
+                kamihoEvents.forEach(e => {
+                    const op = document.createElement("option");
+                    op.value = e.date;
+                    op.text = `${formatDate(e.date)} ${e.gym}`;
+                    select.appendChild(op);
+                });
+            }
+
+            // 一覧の読み込み
+            loadLogList();
+        }
+
+        // スケジュール取得のヘルパー（既存のloadScheduleを再利用・拡張）
+        async function getOrFetchSchedule() {
+            const cache = localStorage.getItem(CACHE_KEY_SCHEDULE);
+            if (cache) return JSON.parse(cache);
+            // キャッシュがない場合は取得
+            const data = await callGas('getScheduleList');
+            if (data) {
+                safeSetStorage(CACHE_KEY_SCHEDULE, JSON.stringify(data));
+                return data;
+            }
+            return [];
+        }
+
+        // 日誌保存
+        async function saveLog() {
+            if (!storage) return alert("Firebaseが無効です");
+            
+            const date = document.getElementById("logDateSelect").value;
+            const person = document.getElementById("logPerson").value;
+            const file = document.getElementById("logPhoto").files[0];
+
+            if (!date || !person) return alert("日程と担当者を入力してください");
+            if (!file) return alert("写真を選択してください");
+
+            showLoading(true);
+
+            try {
+                // 画像圧縮 & アップロード
+                const blob = await compressImage(file, 800, 0.7); // 少し高画質に
+                const storageRef = storage.ref();
+                const fileRef = storageRef.child('practice_logs/' + Date.now() + '_' + file.name);
+                await fileRef.put(blob);
+                const url = await fileRef.getDownloadURL();
+
+                // GASへ保存
+                const res = await callGas('savePracticeLog', { date, person, url });
+                if (res) {
+                    alert(res);
+                    // 入力リセット
+                    document.getElementById("logPerson").value = "";
+                    document.getElementById("logPhoto").value = "";
+                    loadLogList();
+                }
+            } catch (e) {
+                console.error(e);
+                alert("エラー: " + e.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // 日誌一覧取得
+       async function loadLogList() {
+            const tbody = document.querySelector("#logTable tbody");
+            tbody.innerHTML = "<tr><td colspan='6' style='text-align:center; padding:20px;'>読み込み中...</td></tr>";
+
+            const data = await callGas('getPracticeLogList');
+            tbody.innerHTML = "";
+
+            if (!data || data.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='6' style='text-align:center; padding:20px; color:#999;'>日誌はまだありません</td></tr>";
+                return;
+            }
+
+            // 日付の新しい順
+            data.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            data.forEach((log, index) => {
+                const tr = document.createElement("tr");
+                
+                // 日付整形
+                const dateStr = formatDate(log.date);
+                const dayStr = getDayOfWeekStr(log.date);
+
+                // 画像表示用HTML
+                let imgHtml = "<span style='color:#ccc; font-size:0.8em;'>No Photo</span>";
+                if (log.url && log.url.startsWith("http")) {
+                    imgHtml = `<img src="${log.url}" style="max-width:80px; max-height:60px; object-fit:cover; cursor:pointer; border-radius:4px;" onclick="showPhotoModal('${log.url}')">`;
+                }
+
+                tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${dateStr} <span style="font-size:0.8em; color:#666;">${dayStr}</span></td>
+                    <td>${escapeHtml(log.person)}</td>
+                    <td>${imgHtml}</td>
+                    <td class="delete-col">
+                        <button type="button" onclick="openEditLog('${log.id}', '${escapeHtml(log.person)}')" style="background:#17a2b8; padding:6px 12px; font-size:0.8em; width:auto; margin:0;">編集</button>
+                    </td>
+                    <td class="delete-col">
+                        <button type="button" onclick="deleteLog('${log.id}')" style="background:#dc3545; padding:6px 12px; font-size:0.8em; width:auto; margin:0;">削除</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 編集モーダルを開く
+        function openEditLog(id, person) {
+            document.getElementById("editLogId").value = id;
+            document.getElementById("editLogPerson").value = person;
+            document.getElementById("editLogPhoto").value = ""; // リセット
+            document.getElementById("logEditModal").style.display = "flex";
+        }
+
+        // 更新処理
+        async function updateLog() {
+            const id = document.getElementById("editLogId").value;
+            const person = document.getElementById("editLogPerson").value;
+            const file = document.getElementById("editLogPhoto").files[0];
+
+            if(!person) return alert("担当者を入力してください");
+
+            showLoading(true);
+            try {
+                let url = "";
+                // 写真が変更された場合のみアップロード
+                if(file) {
+                    const blob = await compressImage(file, 800, 0.7);
+                    const storageRef = storage.ref();
+                    const fileRef = storageRef.child('practice_logs/' + Date.now() + '_' + file.name);
+                    await fileRef.put(blob);
+                    url = await fileRef.getDownloadURL();
+                }
+
+                const res = await callGas('updatePracticeLog', { id, person, url });
+                if(res) {
+                    alert(res);
+                    document.getElementById("logEditModal").style.display = "none";
+                    loadLogList();
+                }
+            } catch(e) {
+                console.error(e);
+                alert("エラー: " + e.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // 削除処理
+        async function deleteLog(id) {
+            if(!confirm("本当にこの日誌を削除しますか？")) return;
+            showLoading(true);
+            const res = await callGas('deletePracticeLog', { id });
+            showLoading(false);
+            if(res) {
+                alert(res);
+                loadLogList();
+            }
+        }
+
     </script>
 
     <div id="appLoginModal" class="login-overlay">
@@ -5111,6 +5390,25 @@ async function saveReflection() {
         </div>
     </div>
 </div>
+
+<div id="logEditModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:5000; justify-content:center; align-items:center;">
+        <div style="background:white; width:90%; max-width:400px; border-radius:12px; padding:20px; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+            <h3 style="margin-top:0;">日誌の編集</h3>
+            <input type="hidden" id="editLogId">
+            
+            <label>担当者</label>
+            <input type="text" id="editLogPerson">
+            
+            <label>写真の変更 (任意)</label>
+            <input type="file" id="editLogPhoto" accept="image/*" style="font-size:0.8em;">
+            <p style="font-size:0.8em; color:#999; margin-top:5px;">※変更しない場合は選択しないでください</p>
+
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button onclick="updateLog()" style="flex:1;">更新</button>
+                <button onclick="document.getElementById('logEditModal').style.display='none'" style="flex:1; background:#ccc; color:#333;">キャンセル</button>
+            </div>
+        </div>
+    </div>
 
 </body>
 </html>

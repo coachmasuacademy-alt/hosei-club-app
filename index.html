@@ -1602,241 +1602,257 @@
             color: #333;
         }
 
-/* コーチング動画カードのスタイル */
-.video-card {
-    background: white;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-    border: 1px solid #eee;
-}
-.video-iframe-wrapper {
-    position: relative;
-    width: 100%;
-    padding-top: 56.25%; /* 16:9 Aspect Ratio */
-}
-.video-iframe-wrapper iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-}
-.video-info {
-    padding: 15px;
-}
-.video-cat-badge {
-    font-size: 0.7em;
-    background: #FF9966;
-    color: white;
-    padding: 2px 8px;
-    border-radius: 4px;
-    margin-bottom: 5px;
-    display: inline-block;
-}
-.video-title {
-    font-weight: bold;
-    font-size: 1em;
-    margin-bottom: 8px;
-    display: block;
-}
-.video-desc {
-    font-size: 0.85em;
-    color: #666;
-}
+        /* コーチング動画カードのスタイル */
+        .video-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            border: 1px solid #eee;
+        }
 
-/* --- 課題管理 カードデザインの改善 --- */
-.task-card {
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    padding: 16px;
-    margin-bottom: 20px;
-    border-left: 6px solid #1976D2; /* 青色のアクセント線 */
-    text-align: left;
-}
+        .video-iframe-wrapper {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%;
+            /* 16:9 Aspect Ratio */
+        }
 
-.task-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-    border-bottom: 1px solid #f0f0f0;
-    padding-bottom: 8px;
-}
+        .video-iframe-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
 
-.task-student-name {
-    font-weight: bold;
-    font-size: 1.1em;
-    color: #333;
-}
+        .video-info {
+            padding: 15px;
+        }
 
-.task-date {
-    font-size: 0.85em;
-    color: #888;
-}
+        .video-cat-badge {
+            font-size: 0.7em;
+            background: #FF9966;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            display: inline-block;
+        }
 
-.task-main-content {
-    font-size: 1.05em;
-    line-height: 1.6;
-    color: #333;
-    margin-bottom: 12px;
-    white-space: pre-wrap;
-    font-weight: bold;
-}
+        .video-title {
+            font-weight: bold;
+            font-size: 1em;
+            margin-bottom: 8px;
+            display: block;
+        }
 
-.task-type-badge {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 0.75em;
-    background: #e3f2fd;
-    color: #1976D2;
-    margin-bottom: 8px;
-}
+        .video-desc {
+            font-size: 0.85em;
+            color: #666;
+        }
 
-/* 考察表示の更なる改善 */
-.reflection-display {
-    margin-top: 12px;
-    padding: 12px;
-    background: #f1f8e9; /* 薄い緑 */
-    border-radius: 8px;
-    border: 1px solid #dcedc8;
-    font-size: 0.95em;
-    color: #2e7d32;
-    cursor: pointer;
-}
+        /* --- 課題管理 カードデザインの改善 --- */
+        .task-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 16px;
+            margin-bottom: 20px;
+            border-left: 6px solid #1976D2;
+            /* 青色のアクセント線 */
+            text-align: left;
+        }
 
-.reflection-display::before {
-    content: '✅ 考察・振り返り';
-    display: block;
-    font-weight: bold;
-    font-size: 0.85em;
-    margin-bottom: 6px;
-    color: #388e3c;
-}
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 8px;
+        }
 
-.reflection-text {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    line-height: 1.5;
-}
+        .task-student-name {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #333;
+        }
 
-.reflection-text.expanded {
-    -webkit-line-clamp: unset;
-}
+        .task-date {
+            font-size: 0.85em;
+            color: #888;
+        }
 
-.task-actions {
-    display: flex;
-    justify-content: flex-end;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 15px;
-    padding-top: 10px;
-    border-top: 1px dashed #eee;
-}
+        .task-main-content {
+            font-size: 1.05em;
+            line-height: 1.6;
+            color: #333;
+            margin-bottom: 12px;
+            white-space: pre-wrap;
+            font-weight: bold;
+        }
 
-.btn-small {
-    width: auto !important;
-    margin: 0 !important;
-    padding: 8px 14px !important;
-    font-size: 0.85em !important;
-    border-radius: 8px !important;
-    box-shadow: none !important;
-    font-weight: bold;
-}
+        .task-type-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            background: #e3f2fd;
+            color: #1976D2;
+            margin-bottom: 8px;
+        }
 
-/* PC・タブレット等の基本スタイル */
-#logTable th {
-    background-color: #fff5e0; /* 薄いオレンジ背景 */
-    color: #d35400;
-}
+        /* 考察表示の更なる改善 */
+        .reflection-display {
+            margin-top: 12px;
+            padding: 12px;
+            background: #f1f8e9;
+            /* 薄い緑 */
+            border-radius: 8px;
+            border: 1px solid #dcedc8;
+            font-size: 0.95em;
+            color: #2e7d32;
+            cursor: pointer;
+        }
 
-/* スマホ表示最適化（カード化） */
-@media (max-width: 600px) {
-    #logTable thead {
-        display: none;
-    }
+        .reflection-display::before {
+            content: '✅ 考察・振り返り';
+            display: block;
+            font-weight: bold;
+            font-size: 0.85em;
+            margin-bottom: 6px;
+            color: #388e3c;
+        }
 
-    #logTable tbody tr {
-        display: block;
-        width: 100%;
-        margin-bottom: 20px;
-        background: #fff;
-        border: 2px solid #FF9966; /* オレンジ枠 */
-        border-radius: 12px;
-        padding: 15px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-        box-sizing: border-box;
-    }
+        .reflection-text {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.5;
+        }
 
-    #logTable tbody td {
-        display: block;
-        width: 100%;
-        border: none;
-        padding: 5px 0;
-        text-align: left;
-    }
+        .reflection-text.expanded {
+            -webkit-line-clamp: unset;
+            line-clamp: unset;
+        }
 
-    /* No */
-    #logTable tbody td:nth-child(1) {
-        display: inline-block;
-        font-size: 0.8em;
-        color: #999;
-        margin-bottom: 5px;
-    }
-    #logTable tbody td:nth-child(1)::before {
-        content: "No.";
-    }
+        .task-actions {
+            display: flex;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px dashed #eee;
+        }
 
-    /* 練習日 */
-    #logTable tbody td:nth-child(2) {
-        font-size: 1.1em;
-        font-weight: bold;
-        color: #333;
-        border-bottom: 1px solid #eee;
-        margin-bottom: 8px;
-        padding-bottom: 5px;
-    }
-    #logTable tbody td:nth-child(2)::before {
-        content: "📅 ";
-    }
+        .btn-small {
+            width: auto !important;
+            margin: 0 !important;
+            padding: 8px 14px !important;
+            font-size: 0.85em !important;
+            border-radius: 8px !important;
+            box-shadow: none !important;
+            font-weight: bold;
+        }
 
-    /* 担当者 */
-    #logTable tbody td:nth-child(3) {
-        display: inline-block;
-        margin-bottom: 5px;
-    }
-    #logTable tbody td:nth-child(3)::before {
-        content: "👤 担当: ";
-        color: #666;
-    }
+        /* PC・タブレット等の基本スタイル */
+        #logTable th {
+            background-color: #fff5e0;
+            /* 薄いオレンジ背景 */
+            color: #d35400;
+        }
 
-    /* 写真 */
-    #logTable tbody td:nth-child(4) {
-        text-align: center;
-        margin: 10px 0;
-        background: #fafafa;
-        padding: 10px;
-        border-radius: 8px;
-    }
+        /* スマホ表示最適化（カード化） */
+        @media (max-width: 600px) {
+            #logTable thead {
+                display: none;
+            }
 
-    #logTable tbody td:nth-child(4) img {
-        max-height: 200px;
-        max-width: 100%;
-        border-radius: 6px;
-    }
+            #logTable tbody tr {
+                display: block;
+                width: 100%;
+                margin-bottom: 20px;
+                background: #fff;
+                border: 2px solid #FF9966;
+                /* オレンジ枠 */
+                border-radius: 12px;
+                padding: 15px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+                box-sizing: border-box;
+            }
 
-    /* ボタン（横並びに配置） */
-    #logTable tbody td.delete-col {
-        display: inline-block;
-        width: auto;
-        margin-right: 5px;
-    }
-}
-</style>
+            #logTable tbody td {
+                display: block;
+                width: 100%;
+                border: none;
+                padding: 5px 0;
+                text-align: left;
+            }
+
+            /* No */
+            #logTable tbody td:nth-child(1) {
+                display: inline-block;
+                font-size: 0.8em;
+                color: #999;
+                margin-bottom: 5px;
+            }
+
+            #logTable tbody td:nth-child(1)::before {
+                content: "No.";
+            }
+
+            /* 練習日 */
+            #logTable tbody td:nth-child(2) {
+                font-size: 1.1em;
+                font-weight: bold;
+                color: #333;
+                border-bottom: 1px solid #eee;
+                margin-bottom: 8px;
+                padding-bottom: 5px;
+            }
+
+            #logTable tbody td:nth-child(2)::before {
+                content: "📅 ";
+            }
+
+            /* 担当者 */
+            #logTable tbody td:nth-child(3) {
+                display: inline-block;
+                margin-bottom: 5px;
+            }
+
+            #logTable tbody td:nth-child(3)::before {
+                content: "👤 担当: ";
+                color: #666;
+            }
+
+            /* 写真 */
+            #logTable tbody td:nth-child(4) {
+                text-align: center;
+                margin: 10px 0;
+                background: #fafafa;
+                padding: 10px;
+                border-radius: 8px;
+            }
+
+            #logTable tbody td:nth-child(4) img {
+                max-height: 200px;
+                max-width: 100%;
+                border-radius: 6px;
+            }
+
+            /* ボタン（横並びに配置） */
+            #logTable tbody td.delete-col {
+                display: inline-block;
+                width: auto;
+                margin-right: 5px;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -1858,12 +1874,12 @@
 
     <div class="nav-container">
         <div class="nav-item active" onclick="switchCategory('attendance', this)">📅 出欠確認</div>
-<div class="nav-item" onclick="switchCategory('coaching', this)">💡 コーチング理論</div>
+        <div class="nav-item" onclick="switchCategory('coaching', this)">💡 コーチング理論</div>
         <div class="nav-item" onclick="switchCategory('task', this)">📊 課題分析</div>
         <div class="nav-item" onclick="switchCategory('shuttle', this)">🏸 シャトル</div>
         <div class="nav-item" onclick="switchCategory('carry', this)">🚙 道具運搬</div>
         <div class="nav-item" onclick="switchCategory('skyArena', this)">🏟️ スカイアリーナ座間</div>
-<div class="nav-item" onclick="switchCategory('log', this)">📷 上星小担当者</div>
+        <div class="nav-item" onclick="switchCategory('log', this)">📷 上星小担当者</div>
         <div class="nav-item" onclick="switchCategory('tournament', this)">🏆 大会申込</div>
         <div class="nav-item" onclick="switchCategory('fee', this)">💴 月謝</div>
         <div class="nav-item" onclick="switchCategory('gut', this)">🏸 ガット</div>
@@ -1874,17 +1890,21 @@
     <div class="content-wrapper">
 
         <div id="attendanceSection" class="card-section">
-    <h2>出欠確認</h2>
-    <div id="gymNoticeArea" style="background:#FFF9C4; border:2px solid #FBC02D; border-radius:12px; padding:15px; margin-bottom:20px; position:relative; display:none;">
-        <div style="font-weight:bold; color:#856404; margin-bottom:5px; display:flex; justify-content:space-between;">
-            <span>📢 体育館使用上の連絡事項</span>
+            <h2>出欠確認</h2>
+            <div id="gymNoticeArea"
+                style="background:#FFF9C4; border:2px solid #FBC02D; border-radius:12px; padding:15px; margin-bottom:20px; position:relative; display:none;">
+                <div
+                    style="font-weight:bold; color:#856404; margin-bottom:5px; display:flex; justify-content:space-between;">
+                    <span>📢 連絡事項</span>
+                </div>
+                <div id="gymNoticeContent" style="white-space:pre-wrap; font-size:0.95em; color:#333;"></div>
             </div>
-        <div id="gymNoticeContent" style="white-space:pre-wrap; font-size:0.95em; color:#333;"></div>
-    </div>
-    <div id="gymNoticeEmptyBtn" style="text-align:center; margin-bottom:20px; display:none;">
-        <button onclick="editGymNotice()" style="width:auto; padding:8px 16px; font-size:0.8em; background:#666; border-radius:20px; border:1px dashed #fff;">＋ 連絡事項を入力する</button>
-    </div>
-    <p style="font-size:0.9em; color:#666; margin-bottom:20px;">氏名をタップして、今後の出欠を入力してください。</p>
+            <div id="gymNoticeEmptyBtn" style="text-align:center; margin-bottom:20px; display:none;">
+                <button onclick="editGymNotice()"
+                    style="width:auto; padding:8px 16px; font-size:0.8em; background:#666; border-radius:20px; border:1px dashed #fff;">＋
+                    連絡事項を入力する</button>
+            </div>
+            <p style="font-size:0.9em; color:#666; margin-bottom:20px;">氏名をタップして、今後の出欠を入力してください。</p>
 
             <div style="background:#fff; padding:15px; border-radius:12px; margin-bottom:20px; border:1px solid #eee;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -1933,117 +1953,126 @@
                 <tbody id="matrixBody"></tbody>
             </table>
         </div>
-<div id="coachingSection" class="card-section" style="display:none;">
+        <div id="coachingSection" class="card-section" style="display:none;">
             <h2>コーチング理論</h2>
             <p style="font-size:0.9em; color:#666;">YouTube動画を見て、効果的なコーチングを学びましょう。</p>
-            
-            <div id="videoListContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 20px; min-height: 300px;">
-                </div>
+
+            <div id="videoListContainer"
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 20px; min-height: 300px;">
+            </div>
         </div>
         <div id="taskSection" class="card-section" style="display:none;">
-    <h2>課題の収集と分析</h2>
-    <p style="font-size:0.9em; color:#666;">連盟登録者（小学生・中学生）のみ入力可能です。</p>
+            <h2>課題の収集と分析</h2>
+            <p style="font-size:0.9em; color:#666;">連盟登録者（小学生・中学生）のみ入力可能です。</p>
 
-    <div style="background:#f9f9f9; padding:15px; border-radius:12px; border:1px solid #eee;">
-        <label style="font-weight:bold; color:#555;">対象月</label>
-        <input type="month" id="taskTargetMonth" style="margin-bottom:15px; background:#fff;">
-        <label style="font-weight:bold; color:#555;">氏名</label>
-        <select id="taskName" style="margin-bottom:15px;">
-            <option value="">名前を選択してください</option>
-        </select>
+            <div style="background:#f9f9f9; padding:15px; border-radius:12px; border:1px solid #eee;">
+                <label style="font-weight:bold; color:#555;">対象月</label>
+                <input type="month" id="taskTargetMonth" style="margin-bottom:15px; background:#fff;">
+                <label style="font-weight:bold; color:#555;">氏名</label>
+                <select id="taskName" style="margin-bottom:15px;">
+                    <option value="">名前を選択してください</option>
+                </select>
 
-        <label style="font-weight:bold; color:#555;">取り組む種目</label>
-        <div class="checkbox-container">
-            <label class="checkbox-label">
-                <input type="radio" name="taskType" value="シングルス" checked>
-                シングルス
-            </label>
-            <label class="checkbox-label">
-                <input type="radio" name="taskType" value="ダブルス">
-                ダブルス
-            </label>
-        </div>
-        <label style="font-weight:bold; color:#555;">現在の課題（具体的に）</label>
-        <textarea id="taskContent" rows="3" placeholder="例：スマッシュが浮いてしまう。前衛でのプッシュが遅れる。"></textarea>
+                <label style="font-weight:bold; color:#555;">取り組む種目</label>
+                <div class="checkbox-container">
+                    <label class="checkbox-label">
+                        <input type="radio" name="taskType" value="シングルス" checked>
+                        シングルス
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="radio" name="taskType" value="ダブルス">
+                        ダブルス
+                    </label>
+                </div>
+                <label style="font-weight:bold; color:#555;">現在の課題（具体的に）</label>
+                <textarea id="taskContent" rows="3" placeholder="例：スマッシュが浮いてしまう。前衛でのプッシュが遅れる。"></textarea>
 
-        <button type="button" onclick="submitTask()">課題を登録する</button>
-    </div>
+                <button type="button" onclick="submitTask()">課題を登録する</button>
+            </div>
 
-    <hr style="margin: 30px 0; border:none; border-top:1px dashed #ccc;">
-
-    <div style="display:flex; background:#fff; border-radius:30px; border:1px solid #ddd; padding:4px; margin: 20px 0; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
-        <button onclick="switchViewMode('category')" id="btnViewCategory"
-            style="flex:1; margin:0; border-radius:25px; box-shadow:none; background:#FF9966; color:white; font-size:0.9em;">📊
-            全体・カテゴリ分析</button>
-        <button onclick="switchViewMode('personal')" id="btnViewPersonal"
-            style="flex:1; margin:0; border-radius:25px; box-shadow:none; background:transparent; color:#666; font-size:0.9em;">👤
-            個人・変遷履歴</button>
-    </div>
-
-    <div id="personalHistoryArea" style="display:none; animation: fadeIn 0.3s ease;">
-        <h4 style="margin:0 0 10px 0; color:#333;">選手の成長記録</h4>
-        <select id="timelineMemberSelect" onchange="renderPersonalHistory()"
-            style="margin-bottom:10px; border:2px solid #FF9966;">
-            <option value="">履歴を見たい選手を選択</option>
-        </select>
-        <div id="timelineContainer"></div>
-    </div>
-
-    <div id="categoryAnalysisArea">
-        <h3>📊 カテゴリ別 分析・集計</h3>
-
-        <div style="background:#fff3e0; padding:10px; border-radius:8px; margin-bottom:15px; border:1px solid #ffe0b2; text-align:center;">
-            <label style="font-size:0.8em; color:#e65100; display:block; margin-bottom:5px;">📅 分析対象月を選択</label>
-            <input type="month" id="analysisFilterMonth" onchange="renderAnalysis()" style="font-weight:bold; color:#e65100; border:1px solid #FF9966;">
-        </div>
-        <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:15px;">
-            <button onclick="switchAnalysisTab('elem_s')" id="tab_elem_s" class="analysis-tab active"
-                style="width:auto; padding:6px 10px; font-size:0.8em; margin:0;">小・シングル</button>
-            <button onclick="switchAnalysisTab('elem_d')" id="tab_elem_d" class="analysis-tab"
-                style="width:auto; padding:6px 10px; font-size:0.8em; margin:0; background:#eee; color:#666;">小・ダブル</button>
-            <button onclick="switchAnalysisTab('mid_s')" id="tab_mid_s" class="analysis-tab"
-                style="width:auto; padding:6px 10px; font-size:0.8em; margin:0; background:#eee; color:#666;">中・シングル</button>
-            <button onclick="switchAnalysisTab('mid_d')" id="tab_mid_d" class="analysis-tab"
-                style="width:auto; padding:6px 10px; font-size:0.8em; margin:0; background:#eee; color:#666;">中・ダブル</button>
-        </div>
-
-        <div id="analysisResultArea">
-            <h4 id="analysisTitle" style="margin:0 0 10px 0; color:#FF9966;">小学生 シングルスの課題傾向</h4>
-
-            <div id="keywordRanking"
-                style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px; min-height:50px;"></div>
+            <hr style="margin: 30px 0; border:none; border-top:1px dashed #ccc;">
 
             <div
-                style="background:#E3F2FD; padding:15px; border-radius:12px; border:1px solid #BBDEFB; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                    <h4 style="margin:0 0 5px 0; color:#1565C0;">🤖 AIチーム練習プランナー</h4>
-                    <div style="font-size:0.85em; color:#555;">集計された課題傾向から、練習メニュー案を作成します。</div>
+                style="display:flex; background:#fff; border-radius:30px; border:1px solid #ddd; padding:4px; margin: 20px 0; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
+                <button onclick="switchViewMode('category')" id="btnViewCategory"
+                    style="flex:1; margin:0; border-radius:25px; box-shadow:none; background:#FF9966; color:white; font-size:0.9em;">📊
+                    全体・カテゴリ分析</button>
+                <button onclick="switchViewMode('personal')" id="btnViewPersonal"
+                    style="flex:1; margin:0; border-radius:25px; box-shadow:none; background:transparent; color:#666; font-size:0.9em;">👤
+                    個人・変遷履歴</button>
+            </div>
+
+            <div id="personalHistoryArea" style="display:none; animation: fadeIn 0.3s ease;">
+                <h4 style="margin:0 0 10px 0; color:#333;">選手の成長記録</h4>
+                <select id="timelineMemberSelect" onchange="renderPersonalHistory()"
+                    style="margin-bottom:10px; border:2px solid #FF9966;">
+                    <option value="">履歴を見たい選手を選択</option>
+                </select>
+                <div id="timelineContainer"></div>
+            </div>
+
+            <div id="categoryAnalysisArea">
+                <h3>📊 カテゴリ別 分析・集計</h3>
+
+                <div
+                    style="background:#fff3e0; padding:10px; border-radius:8px; margin-bottom:15px; border:1px solid #ffe0b2; text-align:center;">
+                    <label style="font-size:0.8em; color:#e65100; display:block; margin-bottom:5px;">📅 分析対象月を選択</label>
+                    <input type="month" id="analysisFilterMonth" onchange="renderAnalysis()"
+                        style="font-weight:bold; color:#e65100; border:1px solid #FF9966;">
                 </div>
-                <button onclick="generateTeamPlanPrompt()"
-                    style="width:auto; padding:10px 16px; background:#1976D2; border:none; box-shadow:0 2px 5px rgba(0,0,0,0.2); font-size:0.9em;">
-                    🚀 Smart Coach
-                </button>
-            </div>
+                <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:15px;">
+                    <button onclick="switchAnalysisTab('elem_s')" id="tab_elem_s" class="analysis-tab active"
+                        style="width:auto; padding:6px 10px; font-size:0.8em; margin:0;">小・シングル</button>
+                    <button onclick="switchAnalysisTab('elem_d')" id="tab_elem_d" class="analysis-tab"
+                        style="width:auto; padding:6px 10px; font-size:0.8em; margin:0; background:#eee; color:#666;">小・ダブル</button>
+                    <button onclick="switchAnalysisTab('mid_s')" id="tab_mid_s" class="analysis-tab"
+                        style="width:auto; padding:6px 10px; font-size:0.8em; margin:0; background:#eee; color:#666;">中・シングル</button>
+                    <button onclick="switchAnalysisTab('mid_d')" id="tab_mid_d" class="analysis-tab"
+                        style="width:auto; padding:6px 10px; font-size:0.8em; margin:0; background:#eee; color:#666;">中・ダブル</button>
+                </div>
 
-            <div class="table-container">
-                <table id="taskTable">
-                    <thead>
-                        <tr>
-                            <th>氏名</th>
-                            <th>課題</th>
-                            <th></th> </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
+                <div id="analysisResultArea">
+                    <h4 id="analysisTitle" style="margin:0 0 10px 0; color:#FF9966;">小学生 シングルスの課題傾向</h4>
+
+                    <div id="keywordRanking"
+                        style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px; min-height:50px;"></div>
+
+                    <div
+                        style="background:#E3F2FD; padding:15px; border-radius:12px; border:1px solid #BBDEFB; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <h4 style="margin:0 0 5px 0; color:#1565C0;">🤖 AIチーム練習プランナー</h4>
+                            <div style="font-size:0.85em; color:#555;">集計された課題傾向から、練習メニュー案を作成します。</div>
+                        </div>
+                        <button onclick="generateTeamPlanPrompt()"
+                            style="width:auto; padding:10px 16px; background:#1976D2; border:none; box-shadow:0 2px 5px rgba(0,0,0,0.2); font-size:0.9em;">
+                            🚀 Smart Coach
+                        </button>
+<button onclick="exportTasksForNotebookLM()"
+        style="width:auto; padding:10px 16px; background:#6f42c1; border:none; box-shadow:0 2px 5px rgba(0,0,0,0.2); font-size:0.9em;">
+        📋 NotebookLM用抽出
+    </button>
+                    </div>
+
+                    <div class="table-container">
+                        <table id="taskTable">
+                            <thead>
+                                <tr>
+                                    <th>氏名</th>
+                                    <th>課題</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div style="text-align:right; margin-top:10px;">
+                    <button type="button" onclick="loadTasks()"
+                        style="width:auto; padding:6px 12px; font-size:0.8em; background:#666; box-shadow:none; margin:0;">データを更新</button>
+                </div>
             </div>
         </div>
-
-        <div style="text-align:right; margin-top:10px;">
-            <button type="button" onclick="loadTasks()"
-                style="width:auto; padding:6px 12px; font-size:0.8em; background:#666; box-shadow:none; margin:0;">データを更新</button>
-        </div>
-    </div>
-</div>
 
         <div id="shuttleSection" class="card-section"
             style="display:none; background:transparent; box-shadow:none; padding:0;">
@@ -2306,11 +2335,12 @@
             </div>
         </div>
 
-<div id="logSection" class="card-section" style="display:none;">
+        <div id="logSection" class="card-section" style="display:none;">
             <h2>📷 練習日誌 (上星小学校)</h2>
             <p style="font-size:0.9em; color:#666;">上星小学校での練習記録を写真で残します。</p>
 
-            <div style="background:#fff; padding:20px; border-radius:12px; border:1px solid #FF9966; box-shadow:0 4px 10px rgba(0,0,0,0.05);">
+            <div
+                style="background:#fff; padding:20px; border-radius:12px; border:1px solid #FF9966; box-shadow:0 4px 10px rgba(0,0,0,0.05);">
                 <label>練習日 (上星小学校のみ)</label>
                 <select id="logDateSelect" style="font-weight:bold; background:#fff5e0;">
                     <option value="">日程を読み込み中...</option>
@@ -2320,16 +2350,19 @@
                 <input type="text" id="logPerson" placeholder="名前を入力">
 
                 <label>日誌写真 (必須)</label>
-                <input type="file" id="logPhoto" accept="image/*" style="padding:10px; border:1px dashed #ccc; width:100%; box-sizing:border-box;">
-                
-                <button onclick="saveLog()" style="background:linear-gradient(135deg, #FF9966 0%, #FF5E62 100%); margin-top:20px;">写真をアップロードして保存</button>
+                <input type="file" id="logPhoto" accept="image/*"
+                    style="padding:10px; border:1px dashed #ccc; width:100%; box-sizing:border-box;">
+
+                <button onclick="saveLog()"
+                    style="background:linear-gradient(135deg, #FF9966 0%, #FF5E62 100%); margin-top:20px;">写真をアップロードして保存</button>
             </div>
 
             <hr style="margin:30px 0; border:none; border-top:1px dashed #ccc;">
 
             <h3>📂 日誌一覧</h3>
-            <button onclick="loadLogList()" style="width:auto; padding:6px 12px; font-size:0.8em; margin-bottom:15px; background:#666;">更新</button>
-            
+            <button onclick="loadLogList()"
+                style="width:auto; padding:6px 12px; font-size:0.8em; margin-bottom:15px; background:#666;">更新</button>
+
             <div class="table-container">
                 <table id="logTable">
                     <thead>
@@ -2345,122 +2378,121 @@
                     <tbody></tbody>
                 </table>
             </div>
-            </div>
+        </div>
+    </div>
+
+    <div id="feeSection" class="card-section" style="display:none;">
+        <h2>💴 月謝管理 (4,000円/月)</h2>
+        <div
+            style="background:#fff; padding:15px; border-radius:12px; border:1px solid #FF9966; margin-bottom:20px; text-align:center;">
+            <label>対象月を選択</label>
+            <input type="month" id="feeMonthSelect"
+                style="font-size:1.2em; font-weight:bold; text-align:center; color:#333;" onchange="loadFeeData()">
         </div>
 
-        <div id="feeSection" class="card-section" style="display:none;">
-            <h2>💴 月謝管理 (4,000円/月)</h2>
-            <div
-                style="background:#fff; padding:15px; border-radius:12px; border:1px solid #FF9966; margin-bottom:20px; text-align:center;">
-                <label>対象月を選択</label>
-                <input type="month" id="feeMonthSelect"
-                    style="font-size:1.2em; font-weight:bold; text-align:center; color:#333;" onchange="loadFeeData()">
-            </div>
-
-            <div style="margin-bottom:10px; font-size:0.9em; color:#666; text-align:right;">
-                <span id="feeCountLabel">支払い済み: 0名</span>
-            </div>
-
-            <div class="table-container">
-                <table id="feeTable">
-                    <thead>
-                        <tr>
-                            <th style="width:65%;">氏名</th>
-                            <th style="width:35%;">状況</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
+        <div style="margin-bottom:10px; font-size:0.9em; color:#666; text-align:right;">
+            <span id="feeCountLabel">支払い済み: 0名</span>
         </div>
 
-        <div id="gutSection" class="card-section" style="display:none;">
-            <h2>🏸 ガット張り管理</h2>
+        <div class="table-container">
+            <table id="feeTable">
+                <thead>
+                    <tr>
+                        <th style="width:65%;">氏名</th>
+                        <th style="width:35%;">状況</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
 
-            <div
-                style="background:#f9f9f9; padding:20px; border-radius:12px; border:1px solid #ddd; margin-bottom:30px;">
-                <h3 style="margin-top:0;">新規登録</h3>
-                <label>氏名</label>
-                <select id="gutNameSelect">
-                    <option value="">選択してください</option>
-                </select>
+    <div id="gutSection" class="card-section" style="display:none;">
+        <h2>🏸 ガット張り管理</h2>
 
-                <label>受付日</label>
-                <input type="date" id="gutDate">
+        <div style="background:#f9f9f9; padding:20px; border-radius:12px; border:1px solid #ddd; margin-bottom:30px;">
+            <h3 style="margin-top:0;">新規登録</h3>
+            <label>氏名</label>
+            <select id="gutNameSelect">
+                <option value="">選択してください</option>
+            </select>
 
-                <label>コース選択</label>
-                <div class="checkbox-container" style="margin-bottom:10px;">
-                    <label class="checkbox-label">
-                        <input type="radio" name="gutOption" value="included" checked onchange="toggleGutInfo()">
-                        ガット込み (¥1,800)
-                    </label>
-                    <label class="checkbox-label">
-                        <input type="radio" name="gutOption" value="carry_in" onchange="toggleGutInfo()">
-                        持ち込み (¥1,000)
-                    </label>
+            <label>受付日</label>
+            <input type="date" id="gutDate">
+
+            <label>コース選択</label>
+            <div class="checkbox-container" style="margin-bottom:10px;">
+                <label class="checkbox-label">
+                    <input type="radio" name="gutOption" value="included" checked onchange="toggleGutInfo()">
+                    ガット込み (¥1,800)
+                </label>
+                <label class="checkbox-label">
+                    <input type="radio" name="gutOption" value="carry_in" onchange="toggleGutInfo()">
+                    持ち込み (¥1,000)
+                </label>
+            </div>
+
+            <div id="gutInfoBox" style="margin-bottom:15px; display:block;">
+                <div
+                    style="background:#fff; border:1px solid #ffe0b2; border-left:5px solid #FF9966; border-radius:6px; padding:12px 15px; font-size:0.9em; display:flex; align-items:center; gap:10px; box-shadow: 0 2px 4px rgba(0,0,0,0.03);">
+                    <span style="font-weight:bold; color:#FF9966; white-space:nowrap;">ℹ️ 標準仕様</span>
+                    <span style="color:#ddd;">|</span>
+                    <span style="color:#333;">
+                        <span style="font-weight:bold;">BG66 アルティマックス</span>
+                        <span style="font-size:0.85em; color:#666; margin-left:2px;">(メタリックホワイト)</span>
+                    </span>
                 </div>
-
-                <div id="gutInfoBox" style="margin-bottom:15px; display:block;">
-                    <div
-                        style="background:#fff; border:1px solid #ffe0b2; border-left:5px solid #FF9966; border-radius:6px; padding:12px 15px; font-size:0.9em; display:flex; align-items:center; gap:10px; box-shadow: 0 2px 4px rgba(0,0,0,0.03);">
-                        <span style="font-weight:bold; color:#FF9966; white-space:nowrap;">ℹ️ 標準仕様</span>
-                        <span style="color:#ddd;">|</span>
-                        <span style="color:#333;">
-                            <span style="font-weight:bold;">BG66 アルティマックス</span>
-                            <span style="font-size:0.85em; color:#666; margin-left:2px;">(メタリックホワイト)</span>
-                        </span>
-                    </div>
-                </div>
-
-                <div style="display:flex; gap:10px;">
-                    <div style="flex:1;">
-                        <label>本数</label>
-                        <input type="number" id="gutCount" value="1" min="1">
-                    </div>
-                    <div style="flex:1;">
-                        <label>テンション</label>
-                        <input type="number" id="gutTension" placeholder="24" step="0.5">
-                    </div>
-                </div>
-
-                <button onclick="submitGut()">登録する</button>
             </div>
 
-            <h3>📜 履歴・支払い状況</h3>
-            <button onclick="loadGutList()"
-                style="width:auto; padding:6px 12px; font-size:0.8em; margin-bottom:10px; background:#666; box-shadow:none;">更新</button>
-
-            <div class="table-container">
-                <table id="gutTable">
-                    <thead>
-                        <tr>
-                            <th>日付</th>
-                            <th>氏名</th>
-                            <th>内容</th>
-                            <th>金額/状況</th>
-                            <th class="delete-col">削除</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
+            <div style="display:flex; gap:10px;">
+                <div style="flex:1;">
+                    <label>本数</label>
+                    <input type="number" id="gutCount" value="1" min="1">
+                </div>
+                <div style="flex:1;">
+                    <label>テンション</label>
+                    <input type="number" id="gutTension" placeholder="24" step="0.5">
+                </div>
             </div>
+
+            <button onclick="submitGut()">登録する</button>
         </div>
 
-        <div id="memberSection" class="card-section" style="display:none;">
-            <h2>クラブ名簿</h2>
-            <div class="table-container">
-                <table id="memberTable">
-                    <thead>
-                        <tr>
-                            <th>番号</th>
-                            <th>氏名</th>
-                            <th>学年</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
+        <h3>📜 履歴・支払い状況</h3>
+        <button onclick="loadGutList()"
+            style="width:auto; padding:6px 12px; font-size:0.8em; margin-bottom:10px; background:#666; box-shadow:none;">更新</button>
+
+        <div class="table-container">
+            <table id="gutTable">
+                <thead>
+                    <tr>
+                        <th>日付</th>
+                        <th>氏名</th>
+                        <th>内容</th>
+                        <th>金額/状況</th>
+                        <th class="delete-col">削除</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
         </div>
+    </div>
+
+    <div id="memberSection" class="card-section" style="display:none;">
+        <h2>クラブ名簿</h2>
+        <div class="table-container">
+            <table id="memberTable">
+                <thead>
+                    <tr>
+                        <th>番号</th>
+                        <th>氏名</th>
+                        <th>学年</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
     </div>
 
     <div id="individualModal">
@@ -2743,7 +2775,7 @@
         let currentIndMember = null;
         let isShowingAll = false;
         let shuttleUpdateCount = 0;
-let gymNoticeCache = ""; // 連絡事項の保持用
+        let gymNoticeCache = ""; // 連絡事項の保持用
 
         // ★ここに追加・移動★
         let shuttleLogsCache = [];
@@ -2760,89 +2792,89 @@ let gymNoticeCache = ""; // 連絡事項の保持用
 
         // 基本関数
         async function callGas(action, params = {}) {
-    if (!SHEET_URL.startsWith("http")) { alert("SHEET_URLエラー"); return null; }
-    
-    const payload = { action: action, ...params };
-    
-    try {
-        const response = await fetch(SHEET_URL, { 
-            method: "POST", 
-            body: JSON.stringify(payload) 
-        });
-        const json = await response.json();
-        
-        // 成功したらそのアクション専用のキャッシュに保存（任意）
-        if (json) {
-            // 例: getMemberList の結果を保存しておくなど
-            // localStorage.setItem('cache_' + action, JSON.stringify(json));
+            if (!SHEET_URL.startsWith("http")) { alert("SHEET_URLエラー"); return null; }
+
+            const payload = { action: action, ...params };
+
+            try {
+                const response = await fetch(SHEET_URL, {
+                    method: "POST",
+                    body: JSON.stringify(payload)
+                });
+                const json = await response.json();
+
+                // 成功したらそのアクション専用のキャッシュに保存（任意）
+                if (json) {
+                    // 例: getMemberList の結果を保存しておくなど
+                    // localStorage.setItem('cache_' + action, JSON.stringify(json));
+                }
+                return json;
+            } catch (error) {
+                console.error("GAS Error (" + action + "):", error);
+                return null;
+            }
         }
-        return json;
-    } catch (error) { 
-        console.error("GAS Error (" + action + "):", error); 
-        return null; 
-    }
-}
         function safeSetStorage(key, value) { try { localStorage.setItem(key, value); } catch (e) { console.warn("Quota Exceeded", e); } }
         function showLoading(show) { document.getElementById("loading").style.display = show ? "flex" : "none"; }
 
         // 初期化（高速化対応版）
         document.addEventListener("DOMContentLoaded", async () => {
-    checkAppLogin();
+            checkAppLogin();
 
-    // --- ① キャッシュから即座に表示 ---
-    const cache = localStorage.getItem('attendanceCache');
-    if (cache) {
-        try {
-            const cachedData = JSON.parse(cache);
-            weeklyEvents = cachedData.events || [];
-            weeklyMembers = cachedData.members || [];
-            weeklyStatus = cachedData.currentStatus || {};
-            weeklyMemo = cachedData.currentMemo || {};
-            
-            renderMemberButtons(); // 名簿ボタン表示
-            renderSummary();       // 集計表示
-            console.log("初期表示：キャッシュを使用しました");
-        } catch (e) { console.error("Cache Error", e); }
-    }
+            // --- ① キャッシュから即座に表示 ---
+            const cache = localStorage.getItem('attendanceCache');
+            if (cache) {
+                try {
+                    const cachedData = JSON.parse(cache);
+                    weeklyEvents = cachedData.events || [];
+                    weeklyMembers = cachedData.members || [];
+                    weeklyStatus = cachedData.currentStatus || {};
+                    weeklyMemo = cachedData.currentMemo || {};
 
-    // --- ② 初期表示タブの確定 ---
-    switchCategory('attendance', document.querySelector('.nav-item.active'));
-
-    // --- ③ 裏側で最新データを取得して差し替え ---
-    const fetchLatestData = async () => {
-        try {
-            const response = await fetch(SHEET_URL, {
-                method: 'POST',
-                body: JSON.stringify({ action: 'getWeeklyMatrix' })
-            });
-            const data = await response.json();
-            
-            if (data) {
-                weeklyEvents = data.events || [];
-                weeklyMembers = data.members || [];
-                weeklyStatus = data.currentStatus || {};
-                weeklyMemo = data.currentMemo || {};
-
-                // キャッシュを更新して再描画
-                localStorage.setItem('attendanceCache', JSON.stringify(data));
-                renderMemberButtons();
-                renderSummary();
-                console.log("同期完了：最新データを反映しました");
+                    renderMemberButtons(); // 名簿ボタン表示
+                    renderSummary();       // 集計表示
+                    console.log("初期表示：キャッシュを使用しました");
+                } catch (e) { console.error("Cache Error", e); }
             }
-        } catch (e) { console.error("Fetch Error", e); }
-    };
 
-    fetchLatestData();
-loadGymNotice();;
+            // --- ② 初期表示タブの確定 ---
+            switchCategory('attendance', document.querySelector('.nav-item.active'));
 
-    // --- ④ その他の重い処理はさらに後回し ---
-    setTimeout(() => {
-    loadSchedule();
-    loadMemberList(); // ← これを追加
-    fetchArenaData();
-    loadShuttleData()
-}, 1500);
-});
+            // --- ③ 裏側で最新データを取得して差し替え ---
+            const fetchLatestData = async () => {
+                try {
+                    const response = await fetch(SHEET_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ action: 'getWeeklyMatrix' })
+                    });
+                    const data = await response.json();
+
+                    if (data) {
+                        weeklyEvents = data.events || [];
+                        weeklyMembers = data.members || [];
+                        weeklyStatus = data.currentStatus || {};
+                        weeklyMemo = data.currentMemo || {};
+
+                        // キャッシュを更新して再描画
+                        localStorage.setItem('attendanceCache', JSON.stringify(data));
+                        renderMemberButtons();
+                        renderSummary();
+                        console.log("同期完了：最新データを反映しました");
+                    }
+                } catch (e) { console.error("Fetch Error", e); }
+            };
+
+            fetchLatestData();
+            loadGymNotice();;
+
+            // --- ④ その他の重い処理はさらに後回し ---
+            setTimeout(() => {
+                loadSchedule();
+                loadMemberList(); // ← これを追加
+                fetchArenaData();
+                loadShuttleData()
+            }, 1500);
+        });
 
         // カテゴリ切り替え
         function switchCategory(category, btnElement) {
@@ -2862,12 +2894,12 @@ loadGymNotice();;
             const target = document.getElementById(category + "Section");
             if (target) target.style.display = "block";
 
-if (category === "log") loadLogSection();
+            if (category === "log") loadLogSection();
             if (category === "carry") loadList();
             if (category === "tournament") loadTournamentList();
             if (category === "other") loadOtherList();
             if (category === "shuttle") loadShuttleData();
-if (category === "coaching") loadCoachingVideos();
+            if (category === "coaching") loadCoachingVideos();
 
             if (category === "task") {
                 if (typeof updateTaskMemberSelect === 'function') updateTaskMemberSelect();
@@ -3391,13 +3423,13 @@ if (category === "coaching") loadCoachingVideos();
                 try {
                     const pList = JSON.parse(r.participants || "[]");
                     if (pList.length > 0) {
-                       const names = pList.map(p => {
-    if (!p.paid) {
-        // 未払い(paidがfalse)の場合はオレンジ色の太字にする
-        return `<span style="color:#FF5722; font-weight:bold;">${p.name}</span>`;
-    }
-    return p.name;
-}).join("、");
+                        const names = pList.map(p => {
+                            if (!p.paid) {
+                                // 未払い(paidがfalse)の場合はオレンジ色の太字にする
+                                return `<span style="color:#FF5722; font-weight:bold;">${p.name}</span>`;
+                            }
+                            return p.name;
+                        }).join("、");
                         participantsStr = `<span style="font-weight:bold;">${pList.length}名</span><br>${names}`;
 
                         // 全員支払済の場合の表示
@@ -4302,7 +4334,7 @@ if (category === "coaching") loadCoachingVideos();
         }
 
         // 個人の変遷を描画
-       function renderPersonalHistory() {
+        function renderPersonalHistory() {
             const name = document.getElementById("timelineMemberSelect").value;
             const container = document.getElementById("timelineContainer");
             container.innerHTML = "";
@@ -4325,7 +4357,7 @@ if (category === "coaching") loadCoachingVideos();
             myTasks.forEach(task => {
                 const d = new Date(task.date);
                 const monthKey = `${d.getFullYear()}年 ${(d.getMonth() + 1)}月`;
-                
+
                 if (!grouped[monthKey]) {
                     grouped[monthKey] = [];
                     months.push(monthKey);
@@ -4334,22 +4366,22 @@ if (category === "coaching") loadCoachingVideos();
             });
 
             let html = '<div class="timeline-container">';
-            
+
             // 月ごとにループして表示
             months.forEach(monthKey => {
                 const tasksInMonth = grouped[monthKey];
-                
+
                 // タイムラインのドット部分（月）
                 html += `<div class="timeline-item">`;
                 html += `<div class="timeline-date-label" style="font-size:1.1em; border-bottom:2px solid #FF9966; display:inline-block; padding-bottom:2px; margin-bottom:15px;">
                             ${monthKey} 
                             <span style="font-size:0.7em; color:#888; font-weight:normal;">(${tasksInMonth.length}件)</span>
                          </div>`;
-                
+
                 // その月に含まれる課題を全てカードとして表示
                 tasksInMonth.forEach(task => {
                     const dateStr = formatDate(task.date).substring(5); // MM-DDのみ抽出
-                    
+
                     // 振り返りがある場合の表示
                     const reflectionContent = task.reflection
                         ? `<div class="tl-reflect-section">
@@ -4381,7 +4413,7 @@ if (category === "coaching") loadCoachingVideos();
 
             html += '<div style="text-align:center; color:#FF9966; font-weight:bold; margin-top:20px;">⬇ 過去の記録 ⬇</div>';
             html += '</div>';
-            
+
             container.innerHTML = html;
         }
 
@@ -4404,67 +4436,67 @@ if (category === "coaching") loadCoachingVideos();
 
         // 分析データの描画
         function renderAnalysis() {
-    const titleEl = document.getElementById("analysisTitle");
-    const filterMonth = document.getElementById("analysisFilterMonth").value; // フィルタ月取得
+            const titleEl = document.getElementById("analysisTitle");
+            const filterMonth = document.getElementById("analysisFilterMonth").value; // フィルタ月取得
 
-    let catText = "";
-    if (currentAnalysisMode === 'elem_s') catText = "小学生・シングルス";
-    else if (currentAnalysisMode === 'elem_d') catText = "小学生・ダブルス";
-    else if (currentAnalysisMode === 'mid_s') catText = "中学生・シングルス";
-    else if (currentAnalysisMode === 'mid_d') catText = "中学生・ダブルス";
+            let catText = "";
+            if (currentAnalysisMode === 'elem_s') catText = "小学生・シングルス";
+            else if (currentAnalysisMode === 'elem_d') catText = "小学生・ダブルス";
+            else if (currentAnalysisMode === 'mid_s') catText = "中学生・シングルス";
+            else if (currentAnalysisMode === 'mid_d') catText = "中学生・ダブルス";
 
-    titleEl.innerText = `🏸 ${catText}の課題 (${filterMonth ? filterMonth : '全期間'})`;
+            titleEl.innerText = `🏸 ${catText}の課題 (${filterMonth ? filterMonth : '全期間'})`;
 
-    const container = document.querySelector("#taskTable tbody");
-    container.innerHTML = "";
+            const container = document.querySelector("#taskTable tbody");
+            container.innerHTML = "";
 
-    if (!allTasksCache || allTasksCache.length === 0) {
-        container.innerHTML = `<tr><td style="text-align:center; padding:20px; color:#999;">データがありません</td></tr>`;
-        return;
-    }
+            if (!allTasksCache || allTasksCache.length === 0) {
+                container.innerHTML = `<tr><td style="text-align:center; padding:20px; color:#999;">データがありません</td></tr>`;
+                return;
+            }
 
-    // ▼▼▼ フィルタリング処理 ▼▼▼
-    const targetTasks = allTasksCache.filter(task => {
-        // 1. 月でフィルタリング
-        if (filterMonth) {
-            // task.date (例: 2026-02-01) の先頭7文字 (2026-02) が一致するか
-            if (!task.date.startsWith(filterMonth)) return false;
-        }
+            // ▼▼▼ フィルタリング処理 ▼▼▼
+            const targetTasks = allTasksCache.filter(task => {
+                // 1. 月でフィルタリング
+                if (filterMonth) {
+                    // task.date (例: 2026-02-01) の先頭7文字 (2026-02) が一致するか
+                    if (!task.date.startsWith(filterMonth)) return false;
+                }
 
-        // 2. 名簿・カテゴリでフィルタリング
-        const member = weeklyMembers.find(m => m.name === task.name);
-        if (!member) return false;
-        let schoolType = member.isElemFed ? "elem" : (member.isFed ? "mid" : "unknown");
-        const taskType = task.type || "シングルス";
+                // 2. 名簿・カテゴリでフィルタリング
+                const member = weeklyMembers.find(m => m.name === task.name);
+                if (!member) return false;
+                let schoolType = member.isElemFed ? "elem" : (member.isFed ? "mid" : "unknown");
+                const taskType = task.type || "シングルス";
 
-        if (currentAnalysisMode === 'elem_s') return schoolType === 'elem' && taskType === 'シングルス';
-        if (currentAnalysisMode === 'elem_d') return schoolType === 'elem' && taskType === 'ダブルス';
-        if (currentAnalysisMode === 'mid_s') return schoolType === 'mid' && taskType === 'シングルス';
-        if (currentAnalysisMode === 'mid_d') return schoolType === 'mid' && taskType === 'ダブルス';
-        return false;
-    });
+                if (currentAnalysisMode === 'elem_s') return schoolType === 'elem' && taskType === 'シングルス';
+                if (currentAnalysisMode === 'elem_d') return schoolType === 'elem' && taskType === 'ダブルス';
+                if (currentAnalysisMode === 'mid_s') return schoolType === 'mid' && taskType === 'シングルス';
+                if (currentAnalysisMode === 'mid_d') return schoolType === 'mid' && taskType === 'ダブルス';
+                return false;
+            });
 
-    if (targetTasks.length === 0) {
-        container.innerHTML = `<tr><td style="text-align:center; color:#999; padding:20px;">この月のデータはありません</td></tr>`;
-        document.getElementById("keywordRanking").innerHTML = ""; // ランキングもクリア
-        return;
-    }
+            if (targetTasks.length === 0) {
+                container.innerHTML = `<tr><td style="text-align:center; color:#999; padding:20px;">この月のデータはありません</td></tr>`;
+                document.getElementById("keywordRanking").innerHTML = ""; // ランキングもクリア
+                return;
+            }
 
-    targetTasks.slice().reverse().forEach(r => {
-        const tr = document.createElement("tr");
-        const td = document.createElement("td");
-        td.colSpan = 3; // レイアウト調整
-        td.style.padding = "0";
-        td.style.border = "none";
-        td.style.background = "transparent";
-        
-        const safeContent = escapeHtml(r.content);
-        const contentForFunc = safeContent.replace(/\r?\n/g, '\\n').replace(/'/g, "\\'");
-        const encodedTask = encodeURIComponent(r.content);
-        
-        let reflectionPart = "";
-        if (r.reflection) {
-            reflectionPart = `
+            targetTasks.slice().reverse().forEach(r => {
+                const tr = document.createElement("tr");
+                const td = document.createElement("td");
+                td.colSpan = 3; // レイアウト調整
+                td.style.padding = "0";
+                td.style.border = "none";
+                td.style.background = "transparent";
+
+                const safeContent = escapeHtml(r.content);
+                const contentForFunc = safeContent.replace(/\r?\n/g, '\\n').replace(/'/g, "\\'");
+                const encodedTask = encodeURIComponent(r.content);
+
+                let reflectionPart = "";
+                if (r.reflection) {
+                    reflectionPart = `
                 <div class="reflection-display" onclick="this.querySelector('.reflection-text').classList.toggle('expanded')">
                     <div class="reflection-text">${escapeHtml(r.reflection).replace(/\r?\n/g, '<br>')}</div>
                     <div class="reflection-footer">
@@ -4474,15 +4506,15 @@ if (category === "coaching") loadCoachingVideos();
                             onclick="event.stopPropagation(); deleteReflection(${r.row})">削除</button>
                     </div>
                 </div>`;
-        } else {
-            reflectionPart = `
+                } else {
+                    reflectionPart = `
                 <div style="margin-top:8px;">
                     <button class="btn-small" style="width:100% !important; background:#fff; border:1px solid #28a745; color:#28a745;" 
                         onclick="openReflectionModal(${r.row}, '${contentForFunc}', '')">＋ 考察・振り返りを入力</button>
                 </div>`;
-        }
+                }
 
-        td.innerHTML = `
+                td.innerHTML = `
             <div class="task-card">
                 <div class="task-header">
                     <span class="task-student-name">${escapeHtml(r.name)}</span>
@@ -4501,13 +4533,13 @@ if (category === "coaching") loadCoachingVideos();
                 </div>
             </div>
         `;
-        tr.appendChild(td);
-        container.appendChild(tr);
-    });
+                tr.appendChild(td);
+                container.appendChild(tr);
+            });
 
-    // ▼▼▼ キーワード分析も、フィルタリング済みのデータで行う ▼▼▼
-    analyzeKeywords(targetTasks);
-}
+            // ▼▼▼ キーワード分析も、フィルタリング済みのデータで行う ▼▼▼
+            analyzeKeywords(targetTasks);
+        }
 
         // キーワード分析
         function analyzeKeywords(data) {
@@ -4559,62 +4591,62 @@ if (category === "coaching") loadCoachingVideos();
 
         // 課題を登録
         async function submitTask() {
-    const month = document.getElementById("taskTargetMonth").value; // 月を取得
-    const name = document.getElementById("taskName").value;
-    const content = document.getElementById("taskContent").value;
-    const typeRadios = document.getElementsByName("taskType");
-    let typeVal = "";
-    for (let r of typeRadios) { if (r.checked) typeVal = r.value; }
+            const month = document.getElementById("taskTargetMonth").value; // 月を取得
+            const name = document.getElementById("taskName").value;
+            const content = document.getElementById("taskContent").value;
+            const typeRadios = document.getElementsByName("taskType");
+            let typeVal = "";
+            for (let r of typeRadios) { if (r.checked) typeVal = r.value; }
 
-    if (!month) return alert("対象月を選択してください");
-    if (!name) return alert("名前を選択してください");
-    if (!content) return alert("課題を入力してください");
+            if (!month) return alert("対象月を選択してください");
+            if (!name) return alert("名前を選択してください");
+            if (!content) return alert("課題を入力してください");
 
-    showLoading(true);
-    
-    // GAS側で日付として認識させるため、選択した月の「1日」としてデータを送信
-    // 例: "2026-02" -> "2026-02-01"
-    const dateToSend = month + "-01";
+            showLoading(true);
 
-    // saveTaskに date パラメータを追加して送信
-    const res = await callGas('saveTask', { 
-        date: dateToSend, // ★日付を強制指定
-        name: name, 
-        content: content, 
-        type: typeVal 
-    });
+            // GAS側で日付として認識させるため、選択した月の「1日」としてデータを送信
+            // 例: "2026-02" -> "2026-02-01"
+            const dateToSend = month + "-01";
 
-    if (res) { 
-        alert("登録しました"); 
-        document.getElementById("taskContent").value = ""; 
-        loadTasks(); 
-    }
-    showLoading(false);
-}
+            // saveTaskに date パラメータを追加して送信
+            const res = await callGas('saveTask', {
+                date: dateToSend, // ★日付を強制指定
+                name: name,
+                content: content,
+                type: typeVal
+            });
+
+            if (res) {
+                alert("登録しました");
+                document.getElementById("taskContent").value = "";
+                loadTasks();
+            }
+            showLoading(false);
+        }
 
         // 課題データを取得
         async function loadTasks() {
-    updateTaskMemberSelect();
-    
-    // 今月をデフォルト値としてセット（未設定の場合）
-    const today = new Date();
-    const currentMonthStr = formatMonth(today);
-    
-    const regInput = document.getElementById("taskTargetMonth");
-    if (!regInput.value) regInput.value = currentMonthStr;
+            updateTaskMemberSelect();
 
-    const filterInput = document.getElementById("analysisFilterMonth");
-    if (!filterInput.value) filterInput.value = currentMonthStr;
+            // 今月をデフォルト値としてセット（未設定の場合）
+            const today = new Date();
+            const currentMonthStr = formatMonth(today);
 
-    showLoading(true);
-    const data = await callGas('getTaskList');
-    showLoading(false);
-    
-    if (data) { 
-        allTasksCache = data; 
-        renderAnalysis(); // 読み込み後に分析画面更新
-    }
-}
+            const regInput = document.getElementById("taskTargetMonth");
+            if (!regInput.value) regInput.value = currentMonthStr;
+
+            const filterInput = document.getElementById("analysisFilterMonth");
+            if (!filterInput.value) filterInput.value = currentMonthStr;
+
+            showLoading(true);
+            const data = await callGas('getTaskList');
+            showLoading(false);
+
+            if (data) {
+                allTasksCache = data;
+                renderAnalysis(); // 読み込み後に分析画面更新
+            }
+        }
 
         async function saveTaskEdit() {
             const row = document.getElementById("editTaskRow").value;
@@ -4754,8 +4786,8 @@ if (category === "coaching") loadCoachingVideos();
                 const rowStyle = isPaid ? "background-color: #f9f9f9;" : "";
 
                 tr.style.cssText = rowStyle;
-                
-tr.innerHTML = `
+
+                tr.innerHTML = `
     <td style="font-weight:bold;">${m.name} <span style="font-size:0.8em; font-weight:normal; color:#888;">(${m.grade})</span></td>
     <td style="text-align:center;">
         <button class="${statusBtnClass}" onclick="toggleFeeStatus(this, '${m.name}', '${month}', ${!isPaid})">
@@ -4774,53 +4806,53 @@ tr.innerHTML = `
 
         // 月謝の支払い状態切り替え
         async function toggleFeeStatus(btnElement, name, month, isPay) {
-    // 1. 連打防止（ボタンを一時的に無効化）
-    btnElement.disabled = true;
-    
-    // 2. 元の状態を記憶（通信失敗時の復元用）
-    const originalClass = btnElement.className;
-    const originalText = btnElement.innerText;
-    const originalOnClick = btnElement.getAttribute("onclick");
-    const trElement = btnElement.closest('tr');
+            // 1. 連打防止（ボタンを一時的に無効化）
+            btnElement.disabled = true;
 
-    // 3. 【先行更新】画面の見た目を即座に変える（サクサク動くように見せる）
-    if (isPay) {
-        // 未→済
-        btnElement.className = "payment-status-btn paid";
-        btnElement.innerText = "済";
-        if (trElement) trElement.style.backgroundColor = "#f9f9f9";
-        // 次回クリック用設定（済→未へ）
-        btnElement.setAttribute("onclick", `toggleFeeStatus(this, '${name}', '${month}', false)`);
-    } else {
-        // 済→未
-        btnElement.className = "payment-status-btn unpaid";
-        btnElement.innerText = "未";
-        if (trElement) trElement.style.backgroundColor = "";
-        // 次回クリック用設定（未→済へ）
-        btnElement.setAttribute("onclick", `toggleFeeStatus(this, '${name}', '${month}', true)`);
-    }
+            // 2. 元の状態を記憶（通信失敗時の復元用）
+            const originalClass = btnElement.className;
+            const originalText = btnElement.innerText;
+            const originalOnClick = btnElement.getAttribute("onclick");
+            const trElement = btnElement.closest('tr');
 
-    try {
-        // 4. サーバーにデータを送る（★ここが修正ポイントです）
-        // isPay を isPaid という名前の箱に入れて送ります
-        const res = await callGas('updateFeeStatus', { name, month, isPaid: isPay });
+            // 3. 【先行更新】画面の見た目を即座に変える（サクサク動くように見せる）
+            if (isPay) {
+                // 未→済
+                btnElement.className = "payment-status-btn paid";
+                btnElement.innerText = "済";
+                if (trElement) trElement.style.backgroundColor = "#f9f9f9";
+                // 次回クリック用設定（済→未へ）
+                btnElement.setAttribute("onclick", `toggleFeeStatus(this, '${name}', '${month}', false)`);
+            } else {
+                // 済→未
+                btnElement.className = "payment-status-btn unpaid";
+                btnElement.innerText = "未";
+                if (trElement) trElement.style.backgroundColor = "";
+                // 次回クリック用設定（未→済へ）
+                btnElement.setAttribute("onclick", `toggleFeeStatus(this, '${name}', '${month}', true)`);
+            }
 
-        // 成功した場合は何もしない（画面はすでに更新済みなので）
-        // console.log(res); // 確認したい場合のみコメントアウトを外す
+            try {
+                // 4. サーバーにデータを送る（★ここが修正ポイントです）
+                // isPay を isPaid という名前の箱に入れて送ります
+                const res = await callGas('updateFeeStatus', { name, month, isPaid: isPay });
 
-    } catch (e) {
-        // 5. 失敗時：エラーを表示して、見た目を元に戻す
-        alert("通信エラーが発生しました:\n" + e.message);
-        
-        btnElement.className = originalClass;
-        btnElement.innerText = originalText;
-        if (trElement) trElement.style.backgroundColor = (originalClass.includes('paid')) ? "#f9f9f9" : "";
-        btnElement.setAttribute("onclick", originalOnClick);
-    } finally {
-        // 6. ロック解除
-        btnElement.disabled = false;
-    }
-}
+                // 成功した場合は何もしない（画面はすでに更新済みなので）
+                // console.log(res); // 確認したい場合のみコメントアウトを外す
+
+            } catch (e) {
+                // 5. 失敗時：エラーを表示して、見た目を元に戻す
+                alert("通信エラーが発生しました:\n" + e.message);
+
+                btnElement.className = originalClass;
+                btnElement.innerText = originalText;
+                if (trElement) trElement.style.backgroundColor = (originalClass.includes('paid')) ? "#f9f9f9" : "";
+                btnElement.setAttribute("onclick", originalOnClick);
+            } finally {
+                // 6. ロック解除
+                btnElement.disabled = false;
+            }
+        }
 
 
         // ▼▼▼ 追加: ガット張り管理のロジック ▼▼▼
@@ -4979,227 +5011,232 @@ tr.innerHTML = `
             }
         }
 
-// ▼▼▼ 追加箇所：大会編集モーダルを開く関数 ▼▼▼
-function openEditTournament(row) {
-    // キャッシュから該当する行のデータを取得
-    const target = tournamentListCache.find(r => r.row == row);
-    if (!target) return alert("データが見つかりません。再読み込みしてください。");
+        // ▼▼▼ 追加箇所：大会編集モーダルを開く関数 ▼▼▼
+        function openEditTournament(row) {
+            // キャッシュから該当する行のデータを取得
+            const target = tournamentListCache.find(r => r.row == row);
+            if (!target) return alert("データが見つかりません。再読み込みしてください。");
 
-    // モーダルの入力欄に現在の値をセット
-    document.getElementById("edit_t_row").value = target.row;
-    document.getElementById("edit_t_name").value = target.name;
-    // 日付input用にフォーマット変換
-    document.getElementById("edit_t_deadline").value = formatDate(target.deadline);
-    document.getElementById("edit_t_person").value = target.person;
-    document.getElementById("edit_t_status").value = target.status;
-    document.getElementById("edit_t_restriction").value = target.restriction || "all";
-    document.getElementById("edit_t_fee").value = target.fee || "";
+            // モーダルの入力欄に現在の値をセット
+            document.getElementById("edit_t_row").value = target.row;
+            document.getElementById("edit_t_name").value = target.name;
+            // 日付input用にフォーマット変換
+            document.getElementById("edit_t_deadline").value = formatDate(target.deadline);
+            document.getElementById("edit_t_person").value = target.person;
+            document.getElementById("edit_t_status").value = target.status;
+            document.getElementById("edit_t_restriction").value = target.restriction || "all";
+            document.getElementById("edit_t_fee").value = target.fee || "";
 
-    // モーダルを表示
-    document.getElementById("tournamentEditModal").style.display = "flex";
-}
+            // モーダルを表示
+            document.getElementById("tournamentEditModal").style.display = "flex";
+        }
 
-// ▼▼▼ 追加箇所：編集内容を保存する関数 ▼▼▼
-async function submitEditTournament() {
-    const row = document.getElementById("edit_t_row").value;
-    const name = document.getElementById("edit_t_name").value;
-    const deadline = document.getElementById("edit_t_deadline").value;
-    const person = document.getElementById("edit_t_person").value;
-    const status = document.getElementById("edit_t_status").value;
-    const restriction = document.getElementById("edit_t_restriction").value;
-    const fee = document.getElementById("edit_t_fee").value;
+        // ▼▼▼ 追加箇所：編集内容を保存する関数 ▼▼▼
+        async function submitEditTournament() {
+            const row = document.getElementById("edit_t_row").value;
+            const name = document.getElementById("edit_t_name").value;
+            const deadline = document.getElementById("edit_t_deadline").value;
+            const person = document.getElementById("edit_t_person").value;
+            const status = document.getElementById("edit_t_status").value;
+            const restriction = document.getElementById("edit_t_restriction").value;
+            const fee = document.getElementById("edit_t_fee").value;
 
-    if (!name || !deadline || !person) return alert("必須項目を入力してください");
+            if (!name || !deadline || !person) return alert("必須項目を入力してください");
 
-    showLoading(true);
+            showLoading(true);
 
-    // GAS側の 'updateTournament' 関数を呼び出す
-    // ※GAS側に updateTournament 関数が定義されている必要があります
-    const res = await callGas('updateTournament', {
-        row, name, deadline, person, status, restriction, fee
-    });
+            // GAS側の 'updateTournament' 関数を呼び出す
+            // ※GAS側に updateTournament 関数が定義されている必要があります
+            const res = await callGas('updateTournament', {
+                row, name, deadline, person, status, restriction, fee
+            });
 
-    showLoading(false);
+            showLoading(false);
 
-    if (res) {
-        alert(res);
-        // モーダルを閉じてリストを再読み込み
-        document.getElementById("tournamentEditModal").style.display = "none";
-        loadTournamentList();
-    }
-}
+            if (res) {
+                alert(res);
+                // モーダルを閉じてリストを再読み込み
+                document.getElementById("tournamentEditModal").style.display = "none";
+                loadTournamentList();
+            }
+        }
 
-// 連絡事項の読み込み
-async function loadGymNotice() {
-    const res = await callGas('getGymNotice'); // GAS側で配列として返すようにします
-    if (res && Array.isArray(res)) {
-        gymNoticeCache = res;
-        renderGymNotice();
-    }
-}
+        // 連絡事項の読み込み
+        async function loadGymNotice() {
+            const res = await callGas('getGymNotice'); // GAS側で配列として返すようにします
+            if (res && Array.isArray(res)) {
+                gymNoticeCache = res;
+                renderGymNotice();
+            }
+        }
 
-let editingGymNoticeIndex = -1;
+        let editingGymNoticeIndex = -1;
 
-function renderGymNotice() {
-    const area = document.getElementById("gymNoticeArea");
-    const content = document.getElementById("gymNoticeContent");
-    const emptyBtnContainer = document.getElementById("gymNoticeEmptyBtn");
-    
-    const isAdmin = localStorage.getItem("isTaskLoggedIn") === "true";
-    
-    content.innerHTML = ""; 
+        function renderGymNotice() {
+            const area = document.getElementById("gymNoticeArea");
+            const content = document.getElementById("gymNoticeContent");
+            const emptyBtnContainer = document.getElementById("gymNoticeEmptyBtn");
 
-    if (gymNoticeCache && gymNoticeCache.length > 0) {
-        gymNoticeCache.forEach((item, index) => {
-            const div = document.createElement("div");
-            div.style.cssText = "border-bottom: 1px dashed #FBC02D; padding: 10px 0; display: flex; justify-content: space-between; align-items: center; gap: 10px;";
-            if (index === gymNoticeCache.length - 1) div.style.borderBottom = "none";
+            const isAdmin = localStorage.getItem("isTaskLoggedIn") === "true";
 
-            div.innerHTML = `
-                <div style="flex: 1;">
-                    <span style="font-size: 0.95em; color: #333; line-height: 1.4;">• ${escapeHtml(item)}</span>
-                </div>
-                ${isAdmin ? `
-                <div style="display: flex; gap: 5px;">
-                    <button onclick="editSpecificGymNotice(${index})" style="width:auto; margin:0; padding:4px 10px; font-size:11px; background:#17a2b8; color:white; border-radius:6px; border:none; cursor:pointer;">編集</button>
-                    <button onclick="deleteGymNoticeItem(${index})" style="width:auto; margin:0; padding:4px 10px; font-size:11px; background:#dc3545; color:white; border-radius:6px; border:none; cursor:pointer;">削除</button>
-                </div>` : ""}
-            `;
-            content.appendChild(div);
-        });
-        area.style.display = "block";
-    } else {
-        area.style.display = "none";
-    }
+            content.innerHTML = "";
 
-    if (isAdmin && emptyBtnContainer) {
-        emptyBtnContainer.style.display = "block";
-        emptyBtnContainer.innerHTML = `
+            if (gymNoticeCache && gymNoticeCache.length > 0) {
+                gymNoticeCache.forEach((item, index) => {
+                    const div = document.createElement("div");
+                    div.style.cssText = "border-bottom: 1px dashed #FBC02D; padding: 10px 0; display: flex; justify-content: space-between; align-items: center; gap: 10px;";
+                    if (index === gymNoticeCache.length - 1) div.style.borderBottom = "none";
+
+                    div.innerHTML = `
+<div style="flex:1; text-align:left;">
+<span style="font-size:0.95em; color:#333; line-height:1.4; display:block;">${escapeHtml(item.trim())}</span>
+</div>
+${isAdmin ? `
+<div style="display:flex; gap:5px; align-items:center;">
+    <button onclick="editSpecificGymNotice(${index})" style="width:auto; margin:0; padding:4px 10px; font-size:11px; background:#17a2b8; color:white; border-radius:6px; border:none; cursor:pointer;">編集</button>
+    <button onclick="deleteGymNoticeItem(${index})" style="width:auto; margin:0; padding:4px 10px; font-size:11px; background:#dc3545; color:white; border-radius:6px; border:none; cursor:pointer;">削除</button>
+</div>` : ""}
+`;
+                    content.appendChild(div);
+                });
+                area.style.display = "block";
+            } else {
+                area.style.display = "none";
+            }
+
+            if (isAdmin && emptyBtnContainer) {
+                emptyBtnContainer.style.display = "block";
+                emptyBtnContainer.innerHTML = `
             <button onclick="editGymNotice()" style="width:auto; padding:10px 20px; font-size:0.85em; background:#666; color:white; border-radius:20px; border:1px dashed #fff; box-shadow:0 2px 5px rgba(0,0,0,0.2); cursor:pointer; margin-top:5px;">
                 ＋ 連絡事項を追加する
             </button>`;
-    } else if (emptyBtnContainer) {
-        emptyBtnContainer.style.display = "none";
-    }
-}
+            } else if (emptyBtnContainer) {
+                emptyBtnContainer.style.display = "none";
+            }
+        }
 
-// 新規追加用
-function editGymNotice() {
-    editingGymNoticeIndex = -1; // 新規であることを示す
-    document.getElementById("gymNoticeInput").value = "";
-    document.getElementById("gymNoticeModal").style.display = "flex";
-}
+        // 新規追加用
+        function editGymNotice() {
+            editingGymNoticeIndex = -1; // 新規であることを示す
+            document.getElementById("gymNoticeInput").value = "";
+            document.getElementById("gymNoticeModal").style.display = "flex";
+        }
 
-function editSpecificGymNotice(index) {
-    editingGymNoticeIndex = index; // 編集対象の番号を保存
-    document.getElementById("gymNoticeInput").value = gymNoticeCache[index];
-    document.getElementById("gymNoticeModal").style.display = "flex";
-}
+        function editSpecificGymNotice(index) {
+            editingGymNoticeIndex = index; // 編集対象の番号を保存
+            document.getElementById("gymNoticeInput").value = gymNoticeCache[index];
+            document.getElementById("gymNoticeModal").style.display = "flex";
+        }
 
-async function saveGymNotice() {
-    const text = document.getElementById("gymNoticeInput").value.trim();
-    if (!text) return;
+        async function saveGymNotice() {
+            const text = document.getElementById("gymNoticeInput").value.trim();
+            if (!text) return;
 
-    showLoading(true);
-    let newList = [...gymNoticeCache];
+            showLoading(true);
 
-    if (editingGymNoticeIndex > -1) {
-        // 編集の場合：既存の内容を書き換え
-        newList[editingGymNoticeIndex] = text;
-    } else {
-        // 新規の場合：最後に追加
-        newList.push(text);
-    }
+            // 現在のリストをコピー
+            let newList = [...gymNoticeCache];
 
-    const res = await callGas('saveGymNotice', { content: JSON.stringify(newList) });
-    showLoading(false);
-    
-    if (res) {
-        gymNoticeCache = newList;
-        renderGymNotice();
-        document.getElementById("gymNoticeModal").style.display = "none";
-        editingGymNoticeIndex = -1; // リセット
-    }
-}
-
-function editGymNotice() {
-    document.getElementById("gymNoticeInput").value = ""; // 常に空で開く（新規追加用）
-    document.getElementById("gymNoticeModal").style.display = "flex";
-}
-
-async function saveGymNotice() {
-    const text = document.getElementById("gymNoticeInput").value.trim();
-    if (!text) return;
-
-    showLoading(true);
-    const newList = [...gymNoticeCache, text];
-    const res = await callGas('saveGymNotice', { content: JSON.stringify(newList) });
-    showLoading(false);
-    
-    if (res) {
-        gymNoticeCache = newList; // キャッシュを更新
-        renderGymNotice();       // ★ここでボタンも含めて再描画されます
-        document.getElementById("gymNoticeModal").style.display = "none";
-    }
-}
-
-async function deleteGymNoticeItem(index) {
-    if (!confirm("この項目を削除しますか？")) return;
-    
-    const newList = [...gymNoticeCache];
-    newList.splice(index, 1); // 指定した番号を削除
-
-    showLoading(true);
-    const res = await callGas('saveGymNotice', { content: JSON.stringify(newList) });
-    showLoading(false);
-    
-    if (res) {
-        gymNoticeCache = newList;
-        renderGymNotice();
-    }
-}
-
-async function loadCoachingVideos() {
-    const container = document.getElementById("videoListContainer");
-    container.innerHTML = "<p style='text-align:center;'>動画を読み込み中...</p>";
-    
-    const data = await callGas('getCoachingVideos');
-    container.innerHTML = "";
-    
-    if (!data || data.length === 0) {
-        container.innerHTML = "<p style='color:#999; text-align:center; padding:20px;'>動画が登録されていません。</p>";
-        return;
-    }
-
-    // --- カテゴリーごとにデータをグループ化 ---
-    const grouped = data.reduce((acc, v) => {
-        const cat = v.category || "その他";
-        if (!acc[cat]) acc[cat] = [];
-        acc[cat].push(v);
-        return acc;
-    }, {});
-
-    // --- カテゴリーごとに表示 ---
-    for (const cat in grouped) {
-        // カテゴリーの見出しを追加
-        const catHeader = document.createElement("h3");
-        catHeader.style.cssText = "grid-column: 1 / -1; margin-top: 30px; border-bottom: 2px solid #FF9966; padding-bottom: 5px; color: #333;";
-        catHeader.innerText = `📂 ${cat}`;
-        container.appendChild(catHeader);
-
-        grouped[cat].forEach(v => {
-            let videoId = "";
-            if (v.url.includes("v=")) {
-                videoId = v.url.split("v=")[1].split("&")[0];
-            } else if (v.url.includes("youtu.be/")) {
-                videoId = v.url.split("youtu.be/")[1].split("?")[0];
+            if (editingGymNoticeIndex > -1) {
+                // 【上書き保存】編集中の番号（インデックス）の内容を書き換える
+                newList[editingGymNoticeIndex] = text;
+            } else {
+                // 【新規追加】リストの最後に追加する
+                newList.push(text);
             }
 
-            const embedUrl = `https://www.youtube.com/embed/${videoId}`;
-            
-            const card = document.createElement("div");
-            card.className = "video-card";
-            card.innerHTML = `
+            // GASへ保存（JSON文字列にして送る）
+            const res = await callGas('saveGymNotice', { content: JSON.stringify(newList) });
+            showLoading(false);
+
+            if (res) {
+                gymNoticeCache = newList; // 画面上の表示データも更新
+                renderGymNotice();       // 再描画
+                document.getElementById("gymNoticeModal").style.display = "none";
+
+                // 保存が終わったらインデックスをリセット
+                editingGymNoticeIndex = -1;
+            }
+        }
+
+        function editGymNotice() {
+            document.getElementById("gymNoticeInput").value = ""; // 常に空で開く（新規追加用）
+            document.getElementById("gymNoticeModal").style.display = "flex";
+        }
+
+        async function saveGymNotice() {
+            const text = document.getElementById("gymNoticeInput").value.trim();
+            if (!text) return;
+
+            showLoading(true);
+            const newList = [...gymNoticeCache, text];
+            const res = await callGas('saveGymNotice', { content: JSON.stringify(newList) });
+            showLoading(false);
+
+            if (res) {
+                gymNoticeCache = newList; // キャッシュを更新
+                renderGymNotice();       // ★ここでボタンも含めて再描画されます
+                document.getElementById("gymNoticeModal").style.display = "none";
+            }
+        }
+
+        async function deleteGymNoticeItem(index) {
+            if (!confirm("この項目を削除しますか？")) return;
+
+            const newList = [...gymNoticeCache];
+            newList.splice(index, 1); // 指定した番号を削除
+
+            showLoading(true);
+            const res = await callGas('saveGymNotice', { content: JSON.stringify(newList) });
+            showLoading(false);
+
+            if (res) {
+                gymNoticeCache = newList;
+                renderGymNotice();
+            }
+        }
+
+        async function loadCoachingVideos() {
+            const container = document.getElementById("videoListContainer");
+            container.innerHTML = "<p style='text-align:center;'>動画を読み込み中...</p>";
+
+            const data = await callGas('getCoachingVideos');
+            container.innerHTML = "";
+
+            if (!data || data.length === 0) {
+                container.innerHTML = "<p style='color:#999; text-align:center; padding:20px;'>動画が登録されていません。</p>";
+                return;
+            }
+
+            // --- カテゴリーごとにデータをグループ化 ---
+            const grouped = data.reduce((acc, v) => {
+                const cat = v.category || "その他";
+                if (!acc[cat]) acc[cat] = [];
+                acc[cat].push(v);
+                return acc;
+            }, {});
+
+            // --- カテゴリーごとに表示 ---
+            for (const cat in grouped) {
+                // カテゴリーの見出しを追加
+                const catHeader = document.createElement("h3");
+                catHeader.style.cssText = "grid-column: 1 / -1; margin-top: 30px; border-bottom: 2px solid #FF9966; padding-bottom: 5px; color: #333;";
+                catHeader.innerText = `📂 ${cat}`;
+                container.appendChild(catHeader);
+
+                grouped[cat].forEach(v => {
+                    let videoId = "";
+                    if (v.url.includes("v=")) {
+                        videoId = v.url.split("v=")[1].split("&")[0];
+                    } else if (v.url.includes("youtu.be/")) {
+                        videoId = v.url.split("youtu.be/")[1].split("?")[0];
+                    }
+
+                    const embedUrl = `https://www.youtube.com/embed/${videoId}`;
+
+                    const card = document.createElement("div");
+                    card.className = "video-card";
+                    card.innerHTML = `
                 <div class="video-iframe-wrapper">
                     <iframe src="${embedUrl}" frameborder="0" allowfullscreen></iframe>
                 </div>
@@ -5208,80 +5245,80 @@ async function loadCoachingVideos() {
                     <p class="video-desc">${escapeHtml(v.description)}</p>
                 </div>
             `;
-            container.appendChild(card);
-        });
-    }
-}
-
-function openReflectionModal(row, taskContent, existingReflection) {
-    document.getElementById("reflectTaskRow").value = row;
-    document.getElementById("reflectTaskPreview").innerText = taskContent;
-    // 既存の内容があればそれを表示、なければ空にする
-    document.getElementById("reflectContent").value = existingReflection || "";
-    document.getElementById("reflectionModal").style.display = "flex";
-}
-
-/**
- * 考察を削除する
- */
-async function deleteReflection(row) {
-    if (!confirm("保存済みの考察を削除してもよろしいですか？")) return;
-    
-    showLoading(true);
-    // 内容を空にして送信することで実質的な削除とする
-    const res = await callGas('saveReflection', { 
-        row: row, 
-        reflection: "" 
-    });
-    showLoading(false);
-    
-    if (res) {
-        alert("削除しました。");
-        await loadTasks(); 
-    }
-}
-
-/**
- * 考察・振り返りを保存する
- */
-async function saveReflection() {
-    const row = document.getElementById("reflectTaskRow").value;
-    const content = document.getElementById("reflectContent").value.trim();
-    
-    if (!content) {
-        alert("考察内容を入力してください。");
-        return;
-    }
-    
-    showLoading(true);
-    try {
-        // GAS側の 'saveReflection' アクションを呼び出す
-        // ※GAS側にもこのアクションを受け取る処理が必要です
-        const res = await callGas('saveReflection', { 
-            row: row, 
-            reflection: content 
-        });
-        
-        if (res) {
-            alert("考察を保存しました。");
-            document.getElementById("reflectionModal").style.display = "none";
-            // データを再読み込みして表示を更新
-            await loadTasks(); 
-        } else {
-            alert("保存に失敗しました。");
+                    container.appendChild(card);
+                });
+            }
         }
-    } catch (e) {
-        console.error(e);
-        alert("エラーが発生しました: " + e.message);
-    } finally {
-        showLoading(false);
-    }
-}
 
-async function loadLogSection() {
+        function openReflectionModal(row, taskContent, existingReflection) {
+            document.getElementById("reflectTaskRow").value = row;
+            document.getElementById("reflectTaskPreview").innerText = taskContent;
+            // 既存の内容があればそれを表示、なければ空にする
+            document.getElementById("reflectContent").value = existingReflection || "";
+            document.getElementById("reflectionModal").style.display = "flex";
+        }
+
+        /**
+         * 考察を削除する
+         */
+        async function deleteReflection(row) {
+            if (!confirm("保存済みの考察を削除してもよろしいですか？")) return;
+
+            showLoading(true);
+            // 内容を空にして送信することで実質的な削除とする
+            const res = await callGas('saveReflection', {
+                row: row,
+                reflection: ""
+            });
+            showLoading(false);
+
+            if (res) {
+                alert("削除しました。");
+                await loadTasks();
+            }
+        }
+
+        /**
+         * 考察・振り返りを保存する
+         */
+        async function saveReflection() {
+            const row = document.getElementById("reflectTaskRow").value;
+            const content = document.getElementById("reflectContent").value.trim();
+
+            if (!content) {
+                alert("考察内容を入力してください。");
+                return;
+            }
+
+            showLoading(true);
+            try {
+                // GAS側の 'saveReflection' アクションを呼び出す
+                // ※GAS側にもこのアクションを受け取る処理が必要です
+                const res = await callGas('saveReflection', {
+                    row: row,
+                    reflection: content
+                });
+
+                if (res) {
+                    alert("考察を保存しました。");
+                    document.getElementById("reflectionModal").style.display = "none";
+                    // データを再読み込みして表示を更新
+                    await loadTasks();
+                } else {
+                    alert("保存に失敗しました。");
+                }
+            } catch (e) {
+                console.error(e);
+                alert("エラーが発生しました: " + e.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function loadLogSection() {
             // カレンダー取得（既存のキャッシュ/関数を利用）
             const scheduleData = await getOrFetchSchedule();
-            
+
             const select = document.getElementById("logDateSelect");
             select.innerHTML = '<option value="">日程を選択してください</option>';
 
@@ -5321,7 +5358,7 @@ async function loadLogSection() {
         // 日誌保存
         async function saveLog() {
             if (!storage) return alert("Firebaseが無効です");
-            
+
             const date = document.getElementById("logDateSelect").value;
             const person = document.getElementById("logPerson").value;
             const file = document.getElementById("logPhoto").files[0];
@@ -5357,7 +5394,7 @@ async function loadLogSection() {
         }
 
         // 日誌一覧取得
-       async function loadLogList() {
+        async function loadLogList() {
             const tbody = document.querySelector("#logTable tbody");
             tbody.innerHTML = "<tr><td colspan='6' style='text-align:center; padding:20px;'>読み込み中...</td></tr>";
 
@@ -5374,7 +5411,7 @@ async function loadLogSection() {
 
             data.forEach((log, index) => {
                 const tr = document.createElement("tr");
-                
+
                 // 日付整形
                 const dateStr = formatDate(log.date);
                 const dayStr = getDayOfWeekStr(log.date);
@@ -5415,13 +5452,13 @@ async function loadLogSection() {
             const person = document.getElementById("editLogPerson").value;
             const file = document.getElementById("editLogPhoto").files[0];
 
-            if(!person) return alert("担当者を入力してください");
+            if (!person) return alert("担当者を入力してください");
 
             showLoading(true);
             try {
                 let url = "";
                 // 写真が変更された場合のみアップロード
-                if(file) {
+                if (file) {
                     const blob = await compressImage(file, 800, 0.7);
                     const storageRef = storage.ref();
                     const fileRef = storageRef.child('practice_logs/' + Date.now() + '_' + file.name);
@@ -5430,12 +5467,12 @@ async function loadLogSection() {
                 }
 
                 const res = await callGas('updatePracticeLog', { id, person, url });
-                if(res) {
+                if (res) {
                     alert(res);
                     document.getElementById("logEditModal").style.display = "none";
                     loadLogList();
                 }
-            } catch(e) {
+            } catch (e) {
                 console.error(e);
                 alert("エラー: " + e.message);
             } finally {
@@ -5445,16 +5482,74 @@ async function loadLogSection() {
 
         // 削除処理
         async function deleteLog(id) {
-            if(!confirm("本当にこの日誌を削除しますか？")) return;
+            if (!confirm("本当にこの日誌を削除しますか？")) return;
             showLoading(true);
             const res = await callGas('deletePracticeLog', { id });
             showLoading(false);
-            if(res) {
+            if (res) {
                 alert(res);
                 loadLogList();
             }
         }
 
+function exportTasksForNotebookLM() {
+    const filterMonth = document.getElementById("analysisFilterMonth").value;
+    if (!allTasksCache || allTasksCache.length === 0) return alert("データがありません");
+
+    // 1. 現在表示中のカテゴリ・月のデータをフィルタリング
+    const targetTasks = allTasksCache.filter(task => {
+        // 月フィルタ
+        if (filterMonth && !task.date.startsWith(filterMonth)) return false;
+
+        // カテゴリフィルタ
+        const member = weeklyMembers.find(m => m.name === task.name);
+        if (!member) return false;
+        let schoolType = member.isElemFed ? "elem" : (member.isFed ? "mid" : "unknown");
+        const taskType = task.type || "シングルス";
+
+        if (currentAnalysisMode === 'elem_s') return schoolType === 'elem' && taskType === 'シングルス';
+        if (currentAnalysisMode === 'elem_d') return schoolType === 'elem' && taskType === 'ダブルス';
+        if (currentAnalysisMode === 'mid_s') return schoolType === 'mid' && taskType === 'シングルス';
+        if (currentAnalysisMode === 'mid_d') return schoolType === 'mid' && taskType === 'ダブルス';
+        return false;
+    });
+
+    if (targetTasks.length === 0) return alert("抽出対象のデータがありません");
+
+    // 2. テキスト構成の作成
+    let catText = "";
+    if (currentAnalysisMode === 'elem_s') catText = "小学生・シングルス";
+    else if (currentAnalysisMode === 'elem_d') catText = "小学生・ダブルス";
+    else if (currentAnalysisMode === 'mid_s') catText = "中学生・シングルス";
+    else if (currentAnalysisMode === 'mid_d') catText = "中学生・ダブルス";
+
+    let report = `# バドミントン課題・振り返りレポート\n`;
+    report += `対象月: ${filterMonth || "全期間"}\n`;
+    report += `カテゴリ: ${catText}\n`;
+    report += `作成日: ${new Date().toLocaleDateString()}\n\n`;
+    report += `------------------------------------------\n\n`;
+
+    targetTasks.forEach(t => {
+        report += `■ 選手名: ${t.name}\n`;
+        report += `【現在の課題】\n${t.content}\n`;
+        report += `【考察・振り返り】\n${t.reflection || "（未入力）"}\n`;
+        report += `\n`;
+    });
+
+    // 3. クリップボードへコピー
+    const tempTextArea = document.createElement("textarea");
+    tempTextArea.value = report;
+    document.body.appendChild(tempTextArea);
+    tempTextArea.select();
+    try {
+        document.execCommand('copy');
+        alert(`【${catText}】${targetTasks.length}件のデータをコピーしました。\nNotebookLMに貼り付けてアップロードしてください。`);
+    } catch (err) {
+        console.error('Copy failed', err);
+        alert("コピーに失敗しました。コンソールを確認してください。");
+    }
+    document.body.removeChild(tempTextArea);
+}
     </script>
 
     <div id="appLoginModal" class="login-overlay">
@@ -5479,35 +5574,43 @@ async function loadLogSection() {
         </div>
     </div>
 
-<div id="gymNoticeModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:6000; justify-content:center; align-items:center;">
-    <div style="background:white; width:90%; max-width:400px; border-radius:16px; padding:20px; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
-        <h3 style="margin-top:0;">連絡事項の編集</h3>
-        <textarea id="gymNoticeInput" style="height:150px; margin-bottom:15px;" placeholder="例：本日は中扉から入ってください。清掃用具は元の位置へ。"></textarea>
-        <div style="display:flex; gap:10px;">
-            <button onclick="saveGymNotice()" style="flex:1;">保存する</button>
-            <button onclick="document.getElementById('gymNoticeModal').style.display='none'" style="flex:1; background:#ccc; color:#333;">キャンセル</button>
+    <div id="gymNoticeModal"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:6000; justify-content:center; align-items:center;">
+        <div
+            style="background:white; width:90%; max-width:400px; border-radius:16px; padding:20px; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+            <h3 style="margin-top:0;">連絡事項の編集</h3>
+            <textarea id="gymNoticeInput" style="height:150px; margin-bottom:15px;"
+                placeholder="例：本日は中扉から入ってください。清掃用具は元の位置へ。"></textarea>
+            <div style="display:flex; gap:10px;">
+                <button onclick="saveGymNotice()" style="flex:1;">保存する</button>
+                <button onclick="document.getElementById('gymNoticeModal').style.display='none'"
+                    style="flex:1; background:#ccc; color:#333;">キャンセル</button>
+            </div>
         </div>
     </div>
-</div>
 
-<div id="logEditModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:5000; justify-content:center; align-items:center;">
-        <div style="background:white; width:90%; max-width:400px; border-radius:12px; padding:20px; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+    <div id="logEditModal"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:5000; justify-content:center; align-items:center;">
+        <div
+            style="background:white; width:90%; max-width:400px; border-radius:12px; padding:20px; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
             <h3 style="margin-top:0;">日誌の編集</h3>
             <input type="hidden" id="editLogId">
-            
+
             <label>担当者</label>
             <input type="text" id="editLogPerson">
-            
+
             <label>写真の変更 (任意)</label>
             <input type="file" id="editLogPhoto" accept="image/*" style="font-size:0.8em;">
             <p style="font-size:0.8em; color:#999; margin-top:5px;">※変更しない場合は選択しないでください</p>
 
             <div style="display:flex; gap:10px; margin-top:20px;">
                 <button onclick="updateLog()" style="flex:1;">更新</button>
-                <button onclick="document.getElementById('logEditModal').style.display='none'" style="flex:1; background:#ccc; color:#333;">キャンセル</button>
+                <button onclick="document.getElementById('logEditModal').style.display='none'"
+                    style="flex:1; background:#ccc; color:#333;">キャンセル</button>
             </div>
         </div>
     </div>
 
 </body>
+
 </html>

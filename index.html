@@ -1852,6 +1852,36 @@
                 margin-right: 5px;
             }
         }
+
+/* 連絡事項アイテムのスマホ最適化 */
+.gym-notice-item {
+    display: flex;
+    flex-direction: column; /* 縦に並べる */
+    border-bottom: 1px dashed #FBC02D;
+    padding: 12px 0;
+}
+
+.gym-notice-text {
+    font-size: 1em;
+    color: #333;
+    line-height: 1.6;
+    word-break: break-all; /* 長い英単語などの折り返し */
+    margin-bottom: 8px;    /* 下のボタンとの余白 */
+}
+
+.gym-notice-btns {
+    display: flex;
+    justify-content: flex-end; /* 右寄せ */
+    gap: 10px;
+}
+
+.gym-notice-btns button {
+    width: auto !important; /* ボタン幅を自動に */
+    margin: 0 !important;
+    padding: 6px 15px !important;
+    font-size: 12px !important;
+    border-radius: 6px !important;
+}
     </style>
 </head>
 
@@ -5073,47 +5103,45 @@
         let editingGymNoticeIndex = -1;
 
         function renderGymNotice() {
-            const area = document.getElementById("gymNoticeArea");
-            const content = document.getElementById("gymNoticeContent");
-            const emptyBtnContainer = document.getElementById("gymNoticeEmptyBtn");
+    const area = document.getElementById("gymNoticeArea");
+    const content = document.getElementById("gymNoticeContent");
+    const emptyBtnContainer = document.getElementById("gymNoticeEmptyBtn");
+    const isAdmin = localStorage.getItem("isTaskLoggedIn") === "true";
 
-            const isAdmin = localStorage.getItem("isTaskLoggedIn") === "true";
+    content.innerHTML = "";
 
-            content.innerHTML = "";
+    if (gymNoticeCache && gymNoticeCache.length > 0) {
+        gymNoticeCache.forEach((item, index) => {
+            const div = document.createElement("div");
+            div.className = "gym-notice-item";
+            if (index === gymNoticeCache.length - 1) div.style.borderBottom = "none";
 
-            if (gymNoticeCache && gymNoticeCache.length > 0) {
-                gymNoticeCache.forEach((item, index) => {
-                    const div = document.createElement("div");
-                    div.style.cssText = "border-bottom: 1px dashed #FBC02D; padding: 10px 0; display: flex; justify-content: space-between; align-items: center; gap: 10px;";
-                    if (index === gymNoticeCache.length - 1) div.style.borderBottom = "none";
-
-                    div.innerHTML = `
-<div style="flex:1; text-align:left;">
-<span style="font-size:0.95em; color:#333; line-height:1.4; display:block;">${escapeHtml(item.trim())}</span>
-</div>
+            // 修正ポイント：テンプレートリテラル内の改行やスペースが反映されないよう、
+            // <div>の開始タグと中身をくっつけて記述します。
+            div.innerHTML = `
+<div class="gym-notice-text">${escapeHtml(item.trim())}</div>
 ${isAdmin ? `
-<div style="display:flex; gap:5px; align-items:center;">
-    <button onclick="editSpecificGymNotice(${index})" style="width:auto; margin:0; padding:4px 10px; font-size:11px; background:#17a2b8; color:white; border-radius:6px; border:none; cursor:pointer;">編集</button>
-    <button onclick="deleteGymNoticeItem(${index})" style="width:auto; margin:0; padding:4px 10px; font-size:11px; background:#dc3545; color:white; border-radius:6px; border:none; cursor:pointer;">削除</button>
-</div>` : ""}
-`;
-                    content.appendChild(div);
-                });
-                area.style.display = "block";
-            } else {
-                area.style.display = "none";
-            }
+<div class="gym-notice-btns">
+    <button onclick="editSpecificGymNotice(${index})" style="background:#17a2b8; color:white;">編集</button>
+    <button onclick="deleteGymNoticeItem(${index})" style="background:#dc3545; color:white;">削除</button>
+</div>` : ""}`;
+            content.appendChild(div);
+        });
+        area.style.display = "block";
+    } else {
+        area.style.display = "none";
+    }
 
-            if (isAdmin && emptyBtnContainer) {
-                emptyBtnContainer.style.display = "block";
-                emptyBtnContainer.innerHTML = `
+    if (isAdmin && emptyBtnContainer) {
+        emptyBtnContainer.style.display = "block";
+        emptyBtnContainer.innerHTML = `
             <button onclick="editGymNotice()" style="width:auto; padding:10px 20px; font-size:0.85em; background:#666; color:white; border-radius:20px; border:1px dashed #fff; box-shadow:0 2px 5px rgba(0,0,0,0.2); cursor:pointer; margin-top:5px;">
                 ＋ 連絡事項を追加する
             </button>`;
-            } else if (emptyBtnContainer) {
-                emptyBtnContainer.style.display = "none";
-            }
-        }
+    } else if (emptyBtnContainer) {
+        emptyBtnContainer.style.display = "none";
+    }
+}
 
         // 新規追加用
         function editGymNotice() {
@@ -5129,57 +5157,41 @@ ${isAdmin ? `
         }
 
         async function saveGymNotice() {
-            const text = document.getElementById("gymNoticeInput").value.trim();
-            if (!text) return;
+    const text = document.getElementById("gymNoticeInput").value.trim();
+    if (!text) return;
 
-            showLoading(true);
+    showLoading(true);
 
-            // 現在のリストをコピー
-            let newList = [...gymNoticeCache];
+    // 現在のリストをコピー
+    let newList = [...gymNoticeCache];
 
-            if (editingGymNoticeIndex > -1) {
-                // 【上書き保存】編集中の番号（インデックス）の内容を書き換える
-                newList[editingGymNoticeIndex] = text;
-            } else {
-                // 【新規追加】リストの最後に追加する
-                newList.push(text);
-            }
+    // インデックスが -1 より大きい場合は「上書き」、それ以外は「新規追加」
+    if (editingGymNoticeIndex > -1) {
+        newList[editingGymNoticeIndex] = text; // 指定した番号を書き換え
+    } else {
+        newList.push(text); // 末尾に追加
+    }
 
-            // GASへ保存（JSON文字列にして送る）
-            const res = await callGas('saveGymNotice', { content: JSON.stringify(newList) });
-            showLoading(false);
+    // GASへ保存（JSON形式）
+    const res = await callGas('saveGymNotice', { content: JSON.stringify(newList) });
+    showLoading(false);
 
-            if (res) {
-                gymNoticeCache = newList; // 画面上の表示データも更新
-                renderGymNotice();       // 再描画
-                document.getElementById("gymNoticeModal").style.display = "none";
-
-                // 保存が終わったらインデックスをリセット
-                editingGymNoticeIndex = -1;
-            }
-        }
+    if (res) {
+        gymNoticeCache = newList; 
+        renderGymNotice();
+        document.getElementById("gymNoticeModal").style.display = "none";
+        
+        // 保存完了後にインデックスをリセット
+        editingGymNoticeIndex = -1;
+    }
+}
 
         function editGymNotice() {
             document.getElementById("gymNoticeInput").value = ""; // 常に空で開く（新規追加用）
             document.getElementById("gymNoticeModal").style.display = "flex";
         }
 
-        async function saveGymNotice() {
-            const text = document.getElementById("gymNoticeInput").value.trim();
-            if (!text) return;
-
-            showLoading(true);
-            const newList = [...gymNoticeCache, text];
-            const res = await callGas('saveGymNotice', { content: JSON.stringify(newList) });
-            showLoading(false);
-
-            if (res) {
-                gymNoticeCache = newList; // キャッシュを更新
-                renderGymNotice();       // ★ここでボタンも含めて再描画されます
-                document.getElementById("gymNoticeModal").style.display = "none";
-            }
-        }
-
+        
         async function deleteGymNoticeItem(index) {
             if (!confirm("この項目を削除しますか？")) return;
 
@@ -5614,3 +5626,4 @@ function exportTasksForNotebookLM() {
 </body>
 
 </html>
+

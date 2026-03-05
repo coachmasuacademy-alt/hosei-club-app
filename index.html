@@ -2411,6 +2411,35 @@
         </div>
     </div>
 
+<div id="otherSection" class="card-section" style="display:none;">
+            <h2>📝 その他連絡事項</h2>
+            <div style="background:#f9f9f9; padding:20px; border-radius:12px; border:1px solid #ddd; margin-bottom:30px;">
+                <label>タイトル</label>
+                <input type="text" id="otherTitle" placeholder="例：4月1日 合宿の案内">
+                <label>内容</label>
+                <textarea id="otherContent" placeholder="詳細を入力してください"></textarea>
+                <label>担当者</label>
+                <input type="text" id="otherPerson">
+                <label>状況</label>
+                <select id="otherStatus">
+                    <option value="未着手">未着手</option>
+                    <option value="進行中">進行中</option>
+                    <option value="完了">完了</option>
+                </select>
+                <button onclick="saveOtherData()">登録する</button>
+            </div>
+            <div class="table-container">
+                <table id="otherList">
+                    <thead>
+                        <tr>
+                            <th>タイトル</th><th>内容</th><th>担当者</th><th>状況</th><th>編集</th><th>削除</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
     <div id="feeSection" class="card-section" style="display:none;">
         <h2>💴 月謝管理 (4,000円/月)</h2>
         <div

@@ -2795,7 +2795,7 @@
         }
 
         // ▼▼▼ GASのURL（スクリプト先頭に移動） ▼▼▼
-        const SHEET_URL = "https://script.google.com/macros/s/AKfycbwbhnQQvc6nlC5tWe_ia5JLV9Hf3YXB3bi8WTc4NTGhKNiX-lCV1zbYGM-DqdaKf86p/exec";
+        const SHEET_URL = "https://script.google.com/macros/s/AKfycbw4f1kQHBzm4bMf3TXdOmAS9FwJXedk64uSZyMJQdcjTWx_4b5Pw7i_9iCNOZdHVOe3/exec";
 
         // ▼▼▼ Firebaseの設定 ▼▼▼
         const firebaseConfig = {
@@ -3093,20 +3093,27 @@
             }
 
             displayList.forEach(m => {
-                const originalIndex = weeklyMembers.findIndex(wm => wm.name === m.name);
-                const card = document.createElement("div");
-                card.className = "member-card";
+        const originalIndex = weeklyMembers.findIndex(wm => wm.name === m.name);
+        const card = document.createElement("div");
+        card.className = "member-card";
 
-                if (savedList.includes(m.name)) {
-                    card.style.border = "2px solid #FF9966";
-                    card.style.backgroundColor = "#fff5f0";
-                }
+        const isCoach = m.isCoach === true || m.isCoach === "〇";
 
-                card.onclick = () => openIndModal(originalIndex);
-                card.innerHTML = `<span class="member-name">${m.name}</span><span class="member-grade">${m.grade}</span>`;
-                container.appendChild(card);
-            });
+        if (isCoach) {
+            // コーチのボタン：水色の背景
+            card.style.border = "2px solid #1976D2";
+            card.style.backgroundColor = "#E3F2FD";
+        } else if (savedList.includes(m.name)) {
+            // お気に入り（生徒）：オレンジの背景
+            card.style.border = "2px solid #FF9966";
+            card.style.backgroundColor = "#fff5f0";
         }
+
+        card.onclick = () => openIndModal(originalIndex);
+        card.innerHTML = `<span class="member-name">${m.name}</span><span class="member-grade">${isCoach ? 'コーチ' : m.grade}</span>`;
+        container.appendChild(card);
+    });
+}
 
         // 個人モーダル処理
         function openIndModal(memberIndex) {
@@ -3115,13 +3122,21 @@
             const container = document.getElementById("indList");
             container.innerHTML = "";
 
+            // コーチ判定フラグを取得
+            const isCoach = currentIndMember.isCoach === true || currentIndMember.isCoach === "〇";
+
             weeklyEvents.forEach((evt, idx) => {
                 let isTarget = false;
 
-                if (evt.group === 'club' && currentIndMember.isClub && !currentIndMember.isSkill) isTarget = true;
-
-                if (evt.group === 'federation' && currentIndMember.isFed) isTarget = true;
-                if (evt.group === 'skillup' && currentIndMember.isSkill) isTarget = true;
+                if (isCoach) {
+                    // コーチの場合は、すべての練習スケジュールを表示対象にする
+                    isTarget = true;
+                } else {
+                    // 生徒の場合は、所属カテゴリが一致するものだけ表示
+                    if (evt.group === 'club' && currentIndMember.isClub && !currentIndMember.isSkill) isTarget = true;
+                    if (evt.group === 'federation' && currentIndMember.isFed) isTarget = true;
+                    if (evt.group === 'skillup' && currentIndMember.isSkill) isTarget = true;
+                }
 
                 if (isTarget) {
                     const key = `${evt.dateKey}_${evt.fullTitle}_${currentIndMember.name}`;
@@ -3209,99 +3224,116 @@
 
         // 参加者集計
         function renderSummary() {
-            const containerClub = document.getElementById("attendanceSummary");
-            const containerFed = document.getElementById("attendanceSummaryFed");
-            containerClub.innerHTML = "";
-            containerFed.innerHTML = "";
+    const containerClub = document.getElementById("attendanceSummary");
+    const containerFed = document.getElementById("attendanceSummaryFed");
+    containerClub.innerHTML = "";
+    containerFed.innerHTML = "";
 
-            if (!weeklyEvents || weeklyEvents.length === 0) return;
+    if (!weeklyEvents || weeklyEvents.length === 0) return;
 
-            let myMembers = [];
-            try {
-                myMembers = JSON.parse(localStorage.getItem("my_members_list") || "[]");
-            } catch (e) { }
+    let myMembers = [];
+    try {
+        myMembers = JSON.parse(localStorage.getItem("my_members_list") || "[]");
+    } catch (e) { }
 
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-            let memoToggleCounter = 0;
+    let memoToggleCounter = 0;
 
-            weeklyEvents.forEach(evt => {
-                const eventDate = new Date(evt.dateKey);
-                if (eventDate < today) return;
+    weeklyEvents.forEach(evt => {
+        const eventDate = new Date(evt.dateKey);
+        if (eventDate < today) return;
 
-                const attendees = [];
-                const memoList = [];
+        const attendeesHtml = []; 
+        let studentCount = 0;    
+        const memoList = [];
 
-                weeklyMembers.forEach(m => {
-                    if (evt.group === 'club' && m.isSkill) return;
+        weeklyMembers.forEach(m => {
+            const key = `${evt.dateKey}_${evt.fullTitle}_${m.name}`;
+            const isCoach = m.isCoach === true || m.isCoach === "〇"; 
 
-                    const key = `${evt.dateKey}_${evt.fullTitle}_${m.name}`;
+            // --- ここから表示判定のロジック ---
+            let isTarget = false;
 
-                    if (weeklyStatus[key] === "出席") {
-                        attendees.push(m.name);
-                        const memo = weeklyMemo[key];
-                        if (memo) memoList.push({ name: m.name, text: memo });
+            if (isCoach) {
+                // コーチは全てのイベントの判定対象にする
+                isTarget = true;
+            } else {
+                // 生徒はカテゴリが一致する場合のみ表示対象にする
+                if (evt.group === 'club' && m.isClub && !m.isSkill) isTarget = true;
+                if (evt.group === 'federation' && m.isFed) isTarget = true;
+                if (evt.group === 'skillup' && m.isSkill) isTarget = true;
+            }
+
+            if (isTarget && weeklyStatus[key] === "出席") {
+                let nameStyle = "";
+                if (isCoach) {
+                    nameStyle = "color:#1976D2; font-weight:bold;"; // コーチは青
+                } else {
+                    studentCount++; // コーチ以外をカウント
+                    if (myMembers.includes(m.name)) {
+                        nameStyle = "color:#FF9966; font-weight:bold;"; // お気に入りはオレンジ
                     }
-                });
+                }
 
-                if (attendees.length > 0) {
-                    const dayStr = getDayOfWeekStr(evt.dateKey);
+                attendeesHtml.push(`<span style="${nameStyle}">${m.name}</span>`);
 
-                    const formattedNames = attendees.map(name => {
-                        if (myMembers.includes(name)) {
-                            return `<span style="color:#FF9966; font-weight:bold;">${name}</span>`;
-                        }
-                        return name;
-                    }).join("、 ");
+                const memo = weeklyMemo[key];
+                if (memo) memoList.push({ name: m.name, text: memo });
+            }
+        });
 
-                    const div = document.createElement("div");
-                    let cls = "";
-                    let label = "";
-                    let isFed = false;
+        // 出席者が一人でもいる場合に枠を表示
+        if (attendeesHtml.length > 0) {
+            const dayStr = getDayOfWeekStr(evt.dateKey);
+            const div = document.createElement("div");
+            let cls = "";
+            let label = "";
+            let isFed = false;
 
-                    if (evt.group === 'club') { cls = "club"; label = "【クラブ】"; }
-                    if (evt.group === 'federation') { cls = "fed"; label = "【中学生練習】"; isFed = true; }
-                    if (evt.group === 'skillup') { cls = "skill"; label = "【スキルアップ】"; }
+            if (evt.group === 'club') { cls = "club"; label = "【クラブ】"; }
+            if (evt.group === 'federation') { cls = "fed"; label = "【中学生練習】"; isFed = true; }
+            if (evt.group === 'skillup') { cls = "skill"; label = "【スキルアップ】"; }
 
-                    div.className = `summary-box ${cls}`;
+            div.className = `summary-box ${cls}`;
 
-                    let htmlContent = `
-                    <div class="summary-header">
+            let htmlContent = `
+                <div class="summary-header">
                     <span>${label} ${evt.start}${evt.end ? '～' + evt.end : ''}${dayStr} ${evt.title}</span>
-                    <span class="summary-count">${attendees.length}名</span>
-                    </div>
-                    <div class="summary-names">${formattedNames}</div>
-                `;
+                    <span class="summary-count">${studentCount}名</span>
+                </div>
+                <div class="summary-names">${attendeesHtml.join("、 ")}</div>
+            `;
 
-                    if (memoList.length > 0) {
-                        memoToggleCounter++;
-                        const contentId = `memo-content-${memoToggleCounter}`;
-                        const iconId = `memo-icon-${memoToggleCounter}`;
-
-                        htmlContent += `
+            // メモ表示（省略せずに維持）
+            if (memoList.length > 0) {
+                memoToggleCounter++;
+                const contentId = `memo-content-${memoToggleCounter}`;
+                const iconId = `memo-icon-${memoToggleCounter}`;
+                htmlContent += `
                     <div class="summary-memo-container">
                         <div class="memo-toggle-header" onclick="toggleMemoContent('${contentId}', '${iconId}')">
-                        <span>📝 連絡事項あり (${memoList.length}件)</span>
-                        <span id="${iconId}" style="font-size:0.8em; transform:rotate(0deg); transition:transform 0.2s;">▼</span>
+                            <span>📝 連絡事項あり (${memoList.length}件)</span>
+                            <span id="${iconId}" style="font-size:0.8em; transform:rotate(0deg); transition:transform 0.2s;">▼</span>
                         </div>
                         <div id="${contentId}" class="memo-list-content">`;
+                memoList.forEach(item => {
+                    htmlContent += `<div class="memo-item"><span class="memo-person-name">${item.name}:</span><span class="memo-text">${escapeHtml(item.text)}</span></div>`;
+                });
+                htmlContent += `</div></div>`;
+            }
 
-                        memoList.forEach(item => {
-                            htmlContent += `<div class="memo-item"><span class="memo-person-name">${item.name}:</span><span class="memo-text">${escapeHtml(item.text)}</span></div>`;
-                        });
-                        htmlContent += `</div></div>`;
-                    }
-
-                    div.innerHTML = htmlContent;
-                    if (isFed) containerFed.appendChild(div);
-                    else containerClub.appendChild(div);
-                }
-            });
-
-            if (containerClub.innerHTML === "") containerClub.innerHTML = "<p style='color:#999; text-align:center;'>予定はありません。</p>";
-            if (containerFed.innerHTML === "") containerFed.innerHTML = "<p style='color:#999; text-align:center;'>予定はありません。</p>";
+            div.innerHTML = htmlContent;
+            if (isFed) containerFed.appendChild(div);
+            else containerClub.appendChild(div);
         }
+    });
+
+    // 予定がない場合の表示
+    if (containerClub.innerHTML === "") containerClub.innerHTML = "<p style='color:#999; text-align:center;'>予定はありません。</p>";
+    if (containerFed.innerHTML === "") containerFed.innerHTML = "<p style='color:#999; text-align:center;'>予定はありません。</p>";
+}
 
         // 道具運搬
         async function loadSchedule() { const cache = localStorage.getItem(CACHE_KEY_SCHEDULE); if (cache) renderScheduleOptions(JSON.parse(cache)); const data = await callGas('getScheduleList'); if (data) { safeSetStorage(CACHE_KEY_SCHEDULE, JSON.stringify(data)); renderScheduleOptions(data); } }

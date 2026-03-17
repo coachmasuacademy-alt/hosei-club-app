@@ -2033,18 +2033,23 @@
                 <tbody id="matrixBody"></tbody>
             </table>
         </div>
-        <div id="coachingSection" class="card-section" style="display:none; background: #f1f8e9; border: 2px solid #a5d6a7;">
-    <h2 id="coaching-section-title" style="color: #2e7d32; margin-top: 0; display: flex; align-items: center; gap: 10px;">
-        💡 コーチング理論
+        <div id="coachingSection" class="card-section" style="display:none; background: #fff; border-top: 5px solid #2e7d32;">
+    <h2 style="color: #2e7d32; margin-top: 0; display: flex; align-items: center; gap: 10px;">
+        💡 コーチング理論ライブラリ
     </h2>
-    <p id="coaching-section-desc" style="font-size: 14px; color: #555; margin-bottom: 20px;">
-        指導者向けの理論動画です。クリックすると詳細の確認やYouTubeでの視聴ができます。
+    <p style="font-size: 13px; color: #666; margin-bottom: 15px;">
+        カテゴリーを選択するか、下にスクロールして閲覧してください。
     </p>
 
-    <div style="background: #fff; border-radius: 8px; border: 1px solid #ccc; overflow: hidden;">
-        <div id="videoListContainer" style="max-height: 600px; overflow-y: auto;">
-            <p style="padding: 15px; color: #999; text-align: center;">読み込み中...</p>
-        </div>
+    <div style="display: flex; overflow-x: auto; gap: 8px; margin-bottom: 20px; padding-bottom: 5px; -webkit-overflow-scrolling: touch;">
+        <button onclick="scrollToCategory('cat-coaching')" style="flex:0 0 auto; width:auto; padding:8px 15px; font-size:12px; background:#e8f5e9; color:#2e7d32; border:1px solid #c8e6c9;">コーチング</button>
+        <button onclick="scrollToCategory('cat-training')" style="flex:0 0 auto; width:auto; padding:8px 15px; font-size:12px; background:#e8f5e9; color:#2e7d32; border:1px solid #c8e6c9;">トレーニング</button>
+        <button onclick="scrollToCategory('cat-overseas')" style="flex:0 0 auto; width:auto; padding:8px 15px; font-size:12px; background:#e8f5e9; color:#2e7d32; border:1px solid #c8e6c9;">海外</button>
+        <button onclick="scrollToCategory('cat-reflection')" style="flex:0 0 auto; width:auto; padding:8px 15px; font-size:12px; background:#e8f5e9; color:#2e7d32; border:1px solid #c8e6c9;">課題の考察</button>
+    </div>
+
+    <div id="videoListContainer" style="background: #fff; border-radius: 8px; border: 1px solid #eee;">
+        <p style="padding: 20px; text-align: center; color: #999;">読み込み中...</p>
     </div>
 </div>
         <div id="taskSection" class="card-section" style="display:none;">
@@ -5330,87 +5335,78 @@ ${isAdmin ? `
             }
         }
 
-        async function loadCoachingVideos() {
-    const container = document.getElementById("videoListContainer");
-    container.innerHTML = "<p style='text-align:center; padding:20px;'>動画を読み込み中...</p>";
+      function scrollToCategory(id) {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
 
-    const data = await callGas('getCoachingVideos');
+async function loadCoachingVideos() {
+    const container = document.getElementById("videoListContainer");
     container.innerHTML = "";
 
+    const data = await callGas('getCoachingVideos');
     if (!data || data.length === 0) {
-        container.innerHTML = "<p style='color:#999; text-align:center; padding:20px;'>動画が登録されていません。</p>";
+        container.innerHTML = "<p style='padding:20px; text-align:center;'>動画データがありません。</p>";
         return;
     }
 
-    // カテゴリーごとにグループ化
-    const grouped = data.reduce((acc, v) => {
-        const cat = v.category || "その他";
-        if (!acc[cat]) acc[cat] = [];
-        acc[cat].push(v);
-        return acc;
-    }, {});
+    // 指定されたカテゴリー順で定義
+    const categoryDefinition = [
+        { id: "cat-coaching", label: "コーチング", match: "コーチング" },
+        { id: "cat-training", label: "トレーニング", match: "トレーニング" },
+        { id: "cat-overseas", label: "海外", match: "海外" },
+        { id: "cat-reflection", label: "課題の考察", match: "課題の考察" }
+    ];
 
-    for (const cat in grouped) {
-        // カテゴリー見出し（Smart Coach風）
-        const catHeader = document.createElement("div");
-        catHeader.style.cssText = "background: #e8f5e9; padding: 10px 15px; font-weight: bold; color: #2e7d32; border-bottom: 1px solid #c8e6c9; font-size: 14px;";
-        catHeader.innerText = `📂 ${cat}`;
-        container.appendChild(catHeader);
+    categoryDefinition.forEach(catDef => {
+        // データの「カテゴリー」列が一致するものを抽出
+        const filtered = data.filter(v => v.category === catDef.match);
+        
+        if (filtered.length > 0) {
+            // カテゴリー見出し
+            const header = document.createElement("div");
+            header.id = catDef.id;
+            header.style.cssText = "background: #f1f8e9; padding: 12px 15px; font-weight: bold; color: #2e7d32; border-bottom: 2px solid #a5d6a7; font-size: 15px; position: sticky; top: 0; z-index: 5;";
+            header.innerText = `📁 ${catDef.label}`;
+            container.appendChild(header);
 
-        grouped[cat].forEach(v => {
-            // YouTube IDの抽出
-            let videoId = "";
-            if (v.url.includes("v=")) {
-                videoId = v.url.split("v=")[1].split("&")[0];
-            } else if (v.url.includes("youtu.be/")) {
-                videoId = v.url.split("youtu.be/")[1].split("?")[0];
-            }
+            filtered.forEach(v => {
+                const videoId = extractYouTubeId(v.url);
+                const item = document.createElement("div");
+                item.style.cssText = "padding: 15px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: background 0.2s;";
+                
+                item.onmouseover = () => { item.style.background = "#f9fbe7"; };
+                item.onmouseout = () => { item.style.background = "transparent"; };
 
-            const item = document.createElement("div");
-            item.style.cssText = `
-                padding: 12px 15px; 
-                border-bottom: 1px solid #eee; 
-                cursor: pointer; 
-                transition: background 0.2s; 
-                display: flex; 
-                align-items: center; 
-                gap: 15px;
-            `;
-
-            // ホバー・タップ時の背景色変化
-            item.onmouseover = () => { item.style.background = "#f9fbe7"; };
-            item.onmouseout = () => { item.style.background = "transparent"; };
-
-            // サムネイル部分
-            const thumbUrl = videoId ? `https://img.youtube.com/vi/${videoId}/default.jpg` : "";
-            const thumbHtml = videoId 
-                ? `<img src="${thumbUrl}" style="width: 80px; height: 60px; object-fit: cover; border-radius: 6px; flex-shrink: 0;">`
-                : `<div style="width:80px; height:60px; background:#eee; border-radius:6px; flex-shrink: 0;"></div>`;
-
-            item.innerHTML = `
-                ${thumbHtml}
-                <div style="flex: 1;">
-                    <div style="font-weight: bold; font-size: 15px; color: #333; margin-bottom: 4px;">
-                        ${v.title} <span style="font-size:11px; color:#1a73e8;">(詳細/再生 ↗)</span>
+                const thumbUrl = videoId ? `https://img.youtube.com/vi/${videoId}/default.jpg` : "";
+                
+                item.innerHTML = `
+                    <div style="flex: 0 0 100px; height: 70px; background: #000; border-radius: 6px; overflow: hidden;">
+                        ${videoId ? `<img src="${thumbUrl}" style="width:100%; height:100%; object-fit:cover;">` : `<div style="color:#666; font-size:10px; text-align:center; padding-top:25px;">No Image</div>`}
                     </div>
-                    <div class="video-desc" style="font-size: 12px; color: #666; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height:1.4;">
-                        ${v.description || ""}
+                    <div style="flex: 1;">
+                        <div style="font-weight: bold; font-size: 14px; color: #333; margin-bottom: 4px; line-height: 1.4;">
+                            ${v.title}
+                        </div>
+                        <div style="font-size: 11px; color: #777; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4;">
+                            ${v.description || ""}
+                        </div>
                     </div>
-                </div>
-            `;
+                    <div style="color: #1a73e8; font-size: 18px;">▶</div>
+                `;
 
-            // クリックでYouTubeを開く
-            item.onclick = () => {
-                if (v.url) {
-                    window.open(v.url, '_blank');
-                } else {
-                    alert("URLがありません");
-                }
-            };
+                item.onclick = () => { if (v.url) window.open(v.url, '_blank'); };
+                container.appendChild(item);
+            });
+        }
+    });
+}
 
-            container.appendChild(item);
-        });
-    }
+// YouTube ID抽出ヘルパー
+function extractYouTubeId(url) {
+    if (!url) return "";
+    const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|v\/|embed\/|shorts\/))([^#\?&]+)/);
+    return (match && match[1]) ? match[1] : "";
 }
 
         function openReflectionModal(row, taskContent, existingReflection) {

@@ -1853,35 +1853,85 @@
             }
         }
 
-/* 連絡事項アイテムのスマホ最適化 */
-.gym-notice-item {
-    display: flex;
-    flex-direction: column; /* 縦に並べる */
-    border-bottom: 1px dashed #FBC02D;
-    padding: 12px 0;
-}
+        /* 連絡事項アイテムのスマホ最適化 */
+        .gym-notice-item {
+            display: flex;
+            flex-direction: column;
+            /* 縦に並べる */
+            border-bottom: 1px dashed #FBC02D;
+            padding: 12px 0;
+        }
 
-.gym-notice-text {
-    font-size: 1em;
-    color: #333;
-    line-height: 1.6;
-    word-break: break-all; /* 長い英単語などの折り返し */
-    margin-bottom: 8px;    /* 下のボタンとの余白 */
-}
+        .gym-notice-text {
+            font-size: 1em;
+            color: #333;
+            line-height: 1.6;
+            word-break: break-all;
+            /* 長い英単語などの折り返し */
+            margin-bottom: 8px;
+            /* 下のボタンとの余白 */
+        }
 
-.gym-notice-btns {
-    display: flex;
-    justify-content: flex-end; /* 右寄せ */
-    gap: 10px;
-}
+        .gym-notice-btns {
+            display: flex;
+            justify-content: flex-end;
+            /* 右寄せ */
+            gap: 10px;
+        }
 
-.gym-notice-btns button {
-    width: auto !important; /* ボタン幅を自動に */
-    margin: 0 !important;
-    padding: 6px 15px !important;
-    font-size: 12px !important;
-    border-radius: 6px !important;
-}
+        .gym-notice-btns button {
+            width: auto !important;
+            /* ボタン幅を自動に */
+            margin: 0 !important;
+            padding: 6px 15px !important;
+            font-size: 12px !important;
+            border-radius: 6px !important;
+        }
+
+        /* --- コーチング理論 スマホ最適化 --- */
+        @media (max-width: 600px) {
+            #videoListContainer {
+                gap: 15px !important;
+                /* カード間の隙間を狭くする */
+                padding: 0 5px;
+            }
+
+            .video-card {
+                border-radius: 8px;
+                /* 角丸を少し小さく */
+            }
+
+            .video-info {
+                padding: 10px;
+                /* 余白を削って高さを抑える */
+            }
+
+            .video-title {
+                font-size: 0.9em;
+                /* タイトルを少し小さく */
+                margin-bottom: 4px;
+                line-height: 1.3;
+            }
+
+            .video-desc {
+                font-size: 0.75em;
+                /* 説明文を小さく */
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                /* 3行以上は省略して高さを統一 */
+                line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+
+            /* カテゴリ見出しの調整 */
+            #videoListContainer h3 {
+                font-size: 15px;
+                margin-top: 20px !important;
+                margin-bottom: 10px !important;
+                padding-bottom: 3px;
+            }
+        }
     </style>
 </head>
 
@@ -1983,14 +2033,20 @@
                 <tbody id="matrixBody"></tbody>
             </table>
         </div>
-        <div id="coachingSection" class="card-section" style="display:none;">
-            <h2>コーチング理論</h2>
-            <p style="font-size:0.9em; color:#666;">YouTube動画を見て、効果的なコーチングを学びましょう。</p>
+        <div id="coachingSection" class="card-section" style="display:none; background: #f1f8e9; border: 2px solid #a5d6a7;">
+    <h2 id="coaching-section-title" style="color: #2e7d32; margin-top: 0; display: flex; align-items: center; gap: 10px;">
+        💡 コーチング理論
+    </h2>
+    <p id="coaching-section-desc" style="font-size: 14px; color: #555; margin-bottom: 20px;">
+        指導者向けの理論動画です。クリックすると詳細の確認やYouTubeでの視聴ができます。
+    </p>
 
-            <div id="videoListContainer"
-                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 20px; min-height: 300px;">
-            </div>
+    <div style="background: #fff; border-radius: 8px; border: 1px solid #ccc; overflow: hidden;">
+        <div id="videoListContainer" style="max-height: 600px; overflow-y: auto;">
+            <p style="padding: 15px; color: #999; text-align: center;">読み込み中...</p>
         </div>
+    </div>
+</div>
         <div id="taskSection" class="card-section" style="display:none;">
             <h2>課題の収集と分析</h2>
             <p style="font-size:0.9em; color:#666;">連盟登録者（小学生・中学生）のみ入力可能です。</p>
@@ -2077,10 +2133,10 @@
                             style="width:auto; padding:10px 16px; background:#1976D2; border:none; box-shadow:0 2px 5px rgba(0,0,0,0.2); font-size:0.9em;">
                             🚀 Smart Coach
                         </button>
-<button onclick="exportTasksForNotebookLM()"
-        style="width:auto; padding:10px 16px; background:#6f42c1; border:none; box-shadow:0 2px 5px rgba(0,0,0,0.2); font-size:0.9em;">
-        📋 NotebookLM用抽出
-    </button>
+                        <button onclick="exportTasksForNotebookLM()"
+                            style="width:auto; padding:10px 16px; background:#6f42c1; border:none; box-shadow:0 2px 5px rgba(0,0,0,0.2); font-size:0.9em;">
+                            📋 NotebookLM用抽出
+                        </button>
                     </div>
 
                     <div class="table-container">
@@ -2411,34 +2467,39 @@
         </div>
     </div>
 
-<div id="otherSection" class="card-section" style="display:none;">
-            <h2>📝 その他連絡事項</h2>
-            <div style="background:#f9f9f9; padding:20px; border-radius:12px; border:1px solid #ddd; margin-bottom:30px;">
-                <label>タイトル</label>
-                <input type="text" id="otherTitle" placeholder="例：4月1日 合宿の案内">
-                <label>内容</label>
-                <textarea id="otherContent" placeholder="詳細を入力してください"></textarea>
-                <label>担当者</label>
-                <input type="text" id="otherPerson">
-                <label>状況</label>
-                <select id="otherStatus">
-                    <option value="未着手">未着手</option>
-                    <option value="進行中">進行中</option>
-                    <option value="完了">完了</option>
-                </select>
-                <button onclick="saveOtherData()">登録する</button>
-            </div>
-            <div class="table-container">
-                <table id="otherList">
-                    <thead>
-                        <tr>
-                            <th>タイトル</th><th>内容</th><th>担当者</th><th>状況</th><th>編集</th><th>削除</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
+    <div id="otherSection" class="card-section" style="display:none;">
+        <h2>📝 その他連絡事項</h2>
+        <div style="background:#f9f9f9; padding:20px; border-radius:12px; border:1px solid #ddd; margin-bottom:30px;">
+            <label>タイトル</label>
+            <input type="text" id="otherTitle" placeholder="例：4月1日 合宿の案内">
+            <label>内容</label>
+            <textarea id="otherContent" placeholder="詳細を入力してください"></textarea>
+            <label>担当者</label>
+            <input type="text" id="otherPerson">
+            <label>状況</label>
+            <select id="otherStatus">
+                <option value="未着手">未着手</option>
+                <option value="進行中">進行中</option>
+                <option value="完了">完了</option>
+            </select>
+            <button onclick="saveOtherData()">登録する</button>
         </div>
+        <div class="table-container">
+            <table id="otherList">
+                <thead>
+                    <tr>
+                        <th>タイトル</th>
+                        <th>内容</th>
+                        <th>担当者</th>
+                        <th>状況</th>
+                        <th>編集</th>
+                        <th>削除</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
 
     <div id="feeSection" class="card-section" style="display:none;">
         <h2>💴 月謝管理 (4,000円/月)</h2>
@@ -3093,27 +3154,27 @@
             }
 
             displayList.forEach(m => {
-        const originalIndex = weeklyMembers.findIndex(wm => wm.name === m.name);
-        const card = document.createElement("div");
-        card.className = "member-card";
+                const originalIndex = weeklyMembers.findIndex(wm => wm.name === m.name);
+                const card = document.createElement("div");
+                card.className = "member-card";
 
-        const isCoach = m.isCoach === true || m.isCoach === "〇";
+                const isCoach = m.isCoach === true || m.isCoach === "〇";
 
-        if (isCoach) {
-            // コーチのボタン：水色の背景
-            card.style.border = "2px solid #1976D2";
-            card.style.backgroundColor = "#E3F2FD";
-        } else if (savedList.includes(m.name)) {
-            // お気に入り（生徒）：オレンジの背景
-            card.style.border = "2px solid #FF9966";
-            card.style.backgroundColor = "#fff5f0";
+                if (isCoach) {
+                    // コーチのボタン：水色の背景
+                    card.style.border = "2px solid #1976D2";
+                    card.style.backgroundColor = "#E3F2FD";
+                } else if (savedList.includes(m.name)) {
+                    // お気に入り（生徒）：オレンジの背景
+                    card.style.border = "2px solid #FF9966";
+                    card.style.backgroundColor = "#fff5f0";
+                }
+
+                card.onclick = () => openIndModal(originalIndex);
+                card.innerHTML = `<span class="member-name">${m.name}</span><span class="member-grade">${isCoach ? 'コーチ' : m.grade}</span>`;
+                container.appendChild(card);
+            });
         }
-
-        card.onclick = () => openIndModal(originalIndex);
-        card.innerHTML = `<span class="member-name">${m.name}</span><span class="member-grade">${isCoach ? 'コーチ' : m.grade}</span>`;
-        container.appendChild(card);
-    });
-}
 
         // 個人モーダル処理
         function openIndModal(memberIndex) {
@@ -3224,81 +3285,81 @@
 
         // 参加者集計
         function renderSummary() {
-    const containerClub = document.getElementById("attendanceSummary");
-    const containerFed = document.getElementById("attendanceSummaryFed");
-    containerClub.innerHTML = "";
-    containerFed.innerHTML = "";
+            const containerClub = document.getElementById("attendanceSummary");
+            const containerFed = document.getElementById("attendanceSummaryFed");
+            containerClub.innerHTML = "";
+            containerFed.innerHTML = "";
 
-    if (!weeklyEvents || weeklyEvents.length === 0) return;
+            if (!weeklyEvents || weeklyEvents.length === 0) return;
 
-    let myMembers = [];
-    try {
-        myMembers = JSON.parse(localStorage.getItem("my_members_list") || "[]");
-    } catch (e) { }
+            let myMembers = [];
+            try {
+                myMembers = JSON.parse(localStorage.getItem("my_members_list") || "[]");
+            } catch (e) { }
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
 
-    let memoToggleCounter = 0;
+            let memoToggleCounter = 0;
 
-    weeklyEvents.forEach(evt => {
-        const eventDate = new Date(evt.dateKey);
-        if (eventDate < today) return;
+            weeklyEvents.forEach(evt => {
+                const eventDate = new Date(evt.dateKey);
+                if (eventDate < today) return;
 
-        const attendeesHtml = []; 
-        let studentCount = 0;    
-        const memoList = [];
+                const attendeesHtml = [];
+                let studentCount = 0;
+                const memoList = [];
 
-        weeklyMembers.forEach(m => {
-            const key = `${evt.dateKey}_${evt.fullTitle}_${m.name}`;
-            const isCoach = m.isCoach === true || m.isCoach === "〇"; 
+                weeklyMembers.forEach(m => {
+                    const key = `${evt.dateKey}_${evt.fullTitle}_${m.name}`;
+                    const isCoach = m.isCoach === true || m.isCoach === "〇";
 
-            // --- ここから表示判定のロジック ---
-            let isTarget = false;
+                    // --- ここから表示判定のロジック ---
+                    let isTarget = false;
 
-            if (isCoach) {
-                // コーチは全てのイベントの判定対象にする
-                isTarget = true;
-            } else {
-                // 生徒はカテゴリが一致する場合のみ表示対象にする
-                if (evt.group === 'club' && m.isClub && !m.isSkill) isTarget = true;
-                if (evt.group === 'federation' && m.isFed) isTarget = true;
-                if (evt.group === 'skillup' && m.isSkill) isTarget = true;
-            }
-
-            if (isTarget && weeklyStatus[key] === "出席") {
-                let nameStyle = "";
-                if (isCoach) {
-                    nameStyle = "color:#1976D2; font-weight:bold;"; // コーチは青
-                } else {
-                    studentCount++; // コーチ以外をカウント
-                    if (myMembers.includes(m.name)) {
-                        nameStyle = "color:#FF9966; font-weight:bold;"; // お気に入りはオレンジ
+                    if (isCoach) {
+                        // コーチは全てのイベントの判定対象にする
+                        isTarget = true;
+                    } else {
+                        // 生徒はカテゴリが一致する場合のみ表示対象にする
+                        if (evt.group === 'club' && m.isClub && !m.isSkill) isTarget = true;
+                        if (evt.group === 'federation' && m.isFed) isTarget = true;
+                        if (evt.group === 'skillup' && m.isSkill) isTarget = true;
                     }
-                }
 
-                attendeesHtml.push(`<span style="${nameStyle}">${m.name}</span>`);
+                    if (isTarget && weeklyStatus[key] === "出席") {
+                        let nameStyle = "";
+                        if (isCoach) {
+                            nameStyle = "color:#1976D2; font-weight:bold;"; // コーチは青
+                        } else {
+                            studentCount++; // コーチ以外をカウント
+                            if (myMembers.includes(m.name)) {
+                                nameStyle = "color:#FF9966; font-weight:bold;"; // お気に入りはオレンジ
+                            }
+                        }
 
-                const memo = weeklyMemo[key];
-                if (memo) memoList.push({ name: m.name, text: memo });
-            }
-        });
+                        attendeesHtml.push(`<span style="${nameStyle}">${m.name}</span>`);
 
-        // 出席者が一人でもいる場合に枠を表示
-        if (attendeesHtml.length > 0) {
-            const dayStr = getDayOfWeekStr(evt.dateKey);
-            const div = document.createElement("div");
-            let cls = "";
-            let label = "";
-            let isFed = false;
+                        const memo = weeklyMemo[key];
+                        if (memo) memoList.push({ name: m.name, text: memo });
+                    }
+                });
 
-            if (evt.group === 'club') { cls = "club"; label = "【クラブ】"; }
-            if (evt.group === 'federation') { cls = "fed"; label = "【中学生練習】"; isFed = true; }
-            if (evt.group === 'skillup') { cls = "skill"; label = "【スキルアップ】"; }
+                // 出席者が一人でもいる場合に枠を表示
+                if (attendeesHtml.length > 0) {
+                    const dayStr = getDayOfWeekStr(evt.dateKey);
+                    const div = document.createElement("div");
+                    let cls = "";
+                    let label = "";
+                    let isFed = false;
 
-            div.className = `summary-box ${cls}`;
+                    if (evt.group === 'club') { cls = "club"; label = "【クラブ】"; }
+                    if (evt.group === 'federation') { cls = "fed"; label = "【中学生練習】"; isFed = true; }
+                    if (evt.group === 'skillup') { cls = "skill"; label = "【スキルアップ】"; }
 
-            let htmlContent = `
+                    div.className = `summary-box ${cls}`;
+
+                    let htmlContent = `
                 <div class="summary-header">
                     <span>${label} ${evt.start}${evt.end ? '～' + evt.end : ''}${dayStr} ${evt.title}</span>
                     <span class="summary-count">${studentCount}名</span>
@@ -3306,34 +3367,34 @@
                 <div class="summary-names">${attendeesHtml.join("、 ")}</div>
             `;
 
-            // メモ表示（省略せずに維持）
-            if (memoList.length > 0) {
-                memoToggleCounter++;
-                const contentId = `memo-content-${memoToggleCounter}`;
-                const iconId = `memo-icon-${memoToggleCounter}`;
-                htmlContent += `
+                    // メモ表示（省略せずに維持）
+                    if (memoList.length > 0) {
+                        memoToggleCounter++;
+                        const contentId = `memo-content-${memoToggleCounter}`;
+                        const iconId = `memo-icon-${memoToggleCounter}`;
+                        htmlContent += `
                     <div class="summary-memo-container">
                         <div class="memo-toggle-header" onclick="toggleMemoContent('${contentId}', '${iconId}')">
                             <span>📝 連絡事項あり (${memoList.length}件)</span>
                             <span id="${iconId}" style="font-size:0.8em; transform:rotate(0deg); transition:transform 0.2s;">▼</span>
                         </div>
                         <div id="${contentId}" class="memo-list-content">`;
-                memoList.forEach(item => {
-                    htmlContent += `<div class="memo-item"><span class="memo-person-name">${item.name}:</span><span class="memo-text">${escapeHtml(item.text)}</span></div>`;
-                });
-                htmlContent += `</div></div>`;
-            }
+                        memoList.forEach(item => {
+                            htmlContent += `<div class="memo-item"><span class="memo-person-name">${item.name}:</span><span class="memo-text">${escapeHtml(item.text)}</span></div>`;
+                        });
+                        htmlContent += `</div></div>`;
+                    }
 
-            div.innerHTML = htmlContent;
-            if (isFed) containerFed.appendChild(div);
-            else containerClub.appendChild(div);
+                    div.innerHTML = htmlContent;
+                    if (isFed) containerFed.appendChild(div);
+                    else containerClub.appendChild(div);
+                }
+            });
+
+            // 予定がない場合の表示
+            if (containerClub.innerHTML === "") containerClub.innerHTML = "<p style='color:#999; text-align:center;'>予定はありません。</p>";
+            if (containerFed.innerHTML === "") containerFed.innerHTML = "<p style='color:#999; text-align:center;'>予定はありません。</p>";
         }
-    });
-
-    // 予定がない場合の表示
-    if (containerClub.innerHTML === "") containerClub.innerHTML = "<p style='color:#999; text-align:center;'>予定はありません。</p>";
-    if (containerFed.innerHTML === "") containerFed.innerHTML = "<p style='color:#999; text-align:center;'>予定はありません。</p>";
-}
 
         // 道具運搬
         async function loadSchedule() { const cache = localStorage.getItem(CACHE_KEY_SCHEDULE); if (cache) renderScheduleOptions(JSON.parse(cache)); const data = await callGas('getScheduleList'); if (data) { safeSetStorage(CACHE_KEY_SCHEDULE, JSON.stringify(data)); renderScheduleOptions(data); } }
@@ -5164,45 +5225,45 @@
         let editingGymNoticeIndex = -1;
 
         function renderGymNotice() {
-    const area = document.getElementById("gymNoticeArea");
-    const content = document.getElementById("gymNoticeContent");
-    const emptyBtnContainer = document.getElementById("gymNoticeEmptyBtn");
-    const isAdmin = localStorage.getItem("isTaskLoggedIn") === "true";
+            const area = document.getElementById("gymNoticeArea");
+            const content = document.getElementById("gymNoticeContent");
+            const emptyBtnContainer = document.getElementById("gymNoticeEmptyBtn");
+            const isAdmin = localStorage.getItem("isTaskLoggedIn") === "true";
 
-    content.innerHTML = "";
+            content.innerHTML = "";
 
-    if (gymNoticeCache && gymNoticeCache.length > 0) {
-        gymNoticeCache.forEach((item, index) => {
-            const div = document.createElement("div");
-            div.className = "gym-notice-item";
-            if (index === gymNoticeCache.length - 1) div.style.borderBottom = "none";
+            if (gymNoticeCache && gymNoticeCache.length > 0) {
+                gymNoticeCache.forEach((item, index) => {
+                    const div = document.createElement("div");
+                    div.className = "gym-notice-item";
+                    if (index === gymNoticeCache.length - 1) div.style.borderBottom = "none";
 
-            // 修正ポイント：テンプレートリテラル内の改行やスペースが反映されないよう、
-            // <div>の開始タグと中身をくっつけて記述します。
-            div.innerHTML = `
+                    // 修正ポイント：テンプレートリテラル内の改行やスペースが反映されないよう、
+                    // <div>の開始タグと中身をくっつけて記述します。
+                    div.innerHTML = `
 <div class="gym-notice-text">${escapeHtml(item.trim())}</div>
 ${isAdmin ? `
 <div class="gym-notice-btns">
     <button onclick="editSpecificGymNotice(${index})" style="background:#17a2b8; color:white;">編集</button>
     <button onclick="deleteGymNoticeItem(${index})" style="background:#dc3545; color:white;">削除</button>
 </div>` : ""}`;
-            content.appendChild(div);
-        });
-        area.style.display = "block";
-    } else {
-        area.style.display = "none";
-    }
+                    content.appendChild(div);
+                });
+                area.style.display = "block";
+            } else {
+                area.style.display = "none";
+            }
 
-    if (isAdmin && emptyBtnContainer) {
-        emptyBtnContainer.style.display = "block";
-        emptyBtnContainer.innerHTML = `
+            if (isAdmin && emptyBtnContainer) {
+                emptyBtnContainer.style.display = "block";
+                emptyBtnContainer.innerHTML = `
             <button onclick="editGymNotice()" style="width:auto; padding:10px 20px; font-size:0.85em; background:#666; color:white; border-radius:20px; border:1px dashed #fff; box-shadow:0 2px 5px rgba(0,0,0,0.2); cursor:pointer; margin-top:5px;">
                 ＋ 連絡事項を追加する
             </button>`;
-    } else if (emptyBtnContainer) {
-        emptyBtnContainer.style.display = "none";
-    }
-}
+            } else if (emptyBtnContainer) {
+                emptyBtnContainer.style.display = "none";
+            }
+        }
 
         // 新規追加用
         function editGymNotice() {
@@ -5218,41 +5279,41 @@ ${isAdmin ? `
         }
 
         async function saveGymNotice() {
-    const text = document.getElementById("gymNoticeInput").value.trim();
-    if (!text) return;
+            const text = document.getElementById("gymNoticeInput").value.trim();
+            if (!text) return;
 
-    showLoading(true);
+            showLoading(true);
 
-    // 現在のリストをコピー
-    let newList = [...gymNoticeCache];
+            // 現在のリストをコピー
+            let newList = [...gymNoticeCache];
 
-    // インデックスが -1 より大きい場合は「上書き」、それ以外は「新規追加」
-    if (editingGymNoticeIndex > -1) {
-        newList[editingGymNoticeIndex] = text; // 指定した番号を書き換え
-    } else {
-        newList.push(text); // 末尾に追加
-    }
+            // インデックスが -1 より大きい場合は「上書き」、それ以外は「新規追加」
+            if (editingGymNoticeIndex > -1) {
+                newList[editingGymNoticeIndex] = text; // 指定した番号を書き換え
+            } else {
+                newList.push(text); // 末尾に追加
+            }
 
-    // GASへ保存（JSON形式）
-    const res = await callGas('saveGymNotice', { content: JSON.stringify(newList) });
-    showLoading(false);
+            // GASへ保存（JSON形式）
+            const res = await callGas('saveGymNotice', { content: JSON.stringify(newList) });
+            showLoading(false);
 
-    if (res) {
-        gymNoticeCache = newList; 
-        renderGymNotice();
-        document.getElementById("gymNoticeModal").style.display = "none";
-        
-        // 保存完了後にインデックスをリセット
-        editingGymNoticeIndex = -1;
-    }
-}
+            if (res) {
+                gymNoticeCache = newList;
+                renderGymNotice();
+                document.getElementById("gymNoticeModal").style.display = "none";
+
+                // 保存完了後にインデックスをリセット
+                editingGymNoticeIndex = -1;
+            }
+        }
 
         function editGymNotice() {
             document.getElementById("gymNoticeInput").value = ""; // 常に空で開く（新規追加用）
             document.getElementById("gymNoticeModal").style.display = "flex";
         }
 
-        
+
         async function deleteGymNoticeItem(index) {
             if (!confirm("この項目を削除しますか？")) return;
 
@@ -5270,58 +5331,87 @@ ${isAdmin ? `
         }
 
         async function loadCoachingVideos() {
-            const container = document.getElementById("videoListContainer");
-            container.innerHTML = "<p style='text-align:center;'>動画を読み込み中...</p>";
+    const container = document.getElementById("videoListContainer");
+    container.innerHTML = "<p style='text-align:center; padding:20px;'>動画を読み込み中...</p>";
 
-            const data = await callGas('getCoachingVideos');
-            container.innerHTML = "";
+    const data = await callGas('getCoachingVideos');
+    container.innerHTML = "";
 
-            if (!data || data.length === 0) {
-                container.innerHTML = "<p style='color:#999; text-align:center; padding:20px;'>動画が登録されていません。</p>";
-                return;
+    if (!data || data.length === 0) {
+        container.innerHTML = "<p style='color:#999; text-align:center; padding:20px;'>動画が登録されていません。</p>";
+        return;
+    }
+
+    // カテゴリーごとにグループ化
+    const grouped = data.reduce((acc, v) => {
+        const cat = v.category || "その他";
+        if (!acc[cat]) acc[cat] = [];
+        acc[cat].push(v);
+        return acc;
+    }, {});
+
+    for (const cat in grouped) {
+        // カテゴリー見出し（Smart Coach風）
+        const catHeader = document.createElement("div");
+        catHeader.style.cssText = "background: #e8f5e9; padding: 10px 15px; font-weight: bold; color: #2e7d32; border-bottom: 1px solid #c8e6c9; font-size: 14px;";
+        catHeader.innerText = `📂 ${cat}`;
+        container.appendChild(catHeader);
+
+        grouped[cat].forEach(v => {
+            // YouTube IDの抽出
+            let videoId = "";
+            if (v.url.includes("v=")) {
+                videoId = v.url.split("v=")[1].split("&")[0];
+            } else if (v.url.includes("youtu.be/")) {
+                videoId = v.url.split("youtu.be/")[1].split("?")[0];
             }
 
-            // --- カテゴリーごとにデータをグループ化 ---
-            const grouped = data.reduce((acc, v) => {
-                const cat = v.category || "その他";
-                if (!acc[cat]) acc[cat] = [];
-                acc[cat].push(v);
-                return acc;
-            }, {});
+            const item = document.createElement("div");
+            item.style.cssText = `
+                padding: 12px 15px; 
+                border-bottom: 1px solid #eee; 
+                cursor: pointer; 
+                transition: background 0.2s; 
+                display: flex; 
+                align-items: center; 
+                gap: 15px;
+            `;
 
-            // --- カテゴリーごとに表示 ---
-            for (const cat in grouped) {
-                // カテゴリーの見出しを追加
-                const catHeader = document.createElement("h3");
-                catHeader.style.cssText = "grid-column: 1 / -1; margin-top: 30px; border-bottom: 2px solid #FF9966; padding-bottom: 5px; color: #333;";
-                catHeader.innerText = `📂 ${cat}`;
-                container.appendChild(catHeader);
+            // ホバー・タップ時の背景色変化
+            item.onmouseover = () => { item.style.background = "#f9fbe7"; };
+            item.onmouseout = () => { item.style.background = "transparent"; };
 
-                grouped[cat].forEach(v => {
-                    let videoId = "";
-                    if (v.url.includes("v=")) {
-                        videoId = v.url.split("v=")[1].split("&")[0];
-                    } else if (v.url.includes("youtu.be/")) {
-                        videoId = v.url.split("youtu.be/")[1].split("?")[0];
-                    }
+            // サムネイル部分
+            const thumbUrl = videoId ? `https://img.youtube.com/vi/${videoId}/default.jpg` : "";
+            const thumbHtml = videoId 
+                ? `<img src="${thumbUrl}" style="width: 80px; height: 60px; object-fit: cover; border-radius: 6px; flex-shrink: 0;">`
+                : `<div style="width:80px; height:60px; background:#eee; border-radius:6px; flex-shrink: 0;"></div>`;
 
-                    const embedUrl = `https://www.youtube.com/embed/${videoId}`;
-
-                    const card = document.createElement("div");
-                    card.className = "video-card";
-                    card.innerHTML = `
-                <div class="video-iframe-wrapper">
-                    <iframe src="${embedUrl}" frameborder="0" allowfullscreen></iframe>
-                </div>
-                <div class="video-info">
-                    <span class="video-title">${escapeHtml(v.title)}</span>
-                    <p class="video-desc">${escapeHtml(v.description)}</p>
+            item.innerHTML = `
+                ${thumbHtml}
+                <div style="flex: 1;">
+                    <div style="font-weight: bold; font-size: 15px; color: #333; margin-bottom: 4px;">
+                        ${v.title} <span style="font-size:11px; color:#1a73e8;">(詳細/再生 ↗)</span>
+                    </div>
+                    <div class="video-desc" style="font-size: 12px; color: #666; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height:1.4;">
+                        ${v.description || ""}
+                    </div>
                 </div>
             `;
-                    container.appendChild(card);
-                });
-            }
-        }
+
+            // クリックでYouTubeを開く
+            item.onclick = () => {
+                if (v.url) {
+                    window.open(v.url, '_blank');
+                } else {
+                    alert("URLがありません");
+                }
+            };
+
+            container.appendChild(item);
+        });
+    }
+}
 
         function openReflectionModal(row, taskContent, existingReflection) {
             document.getElementById("reflectTaskRow").value = row;
@@ -5565,64 +5655,64 @@ ${isAdmin ? `
             }
         }
 
-function exportTasksForNotebookLM() {
-    const filterMonth = document.getElementById("analysisFilterMonth").value;
-    if (!allTasksCache || allTasksCache.length === 0) return alert("データがありません");
+        function exportTasksForNotebookLM() {
+            const filterMonth = document.getElementById("analysisFilterMonth").value;
+            if (!allTasksCache || allTasksCache.length === 0) return alert("データがありません");
 
-    // 1. 現在表示中のカテゴリ・月のデータをフィルタリング
-    const targetTasks = allTasksCache.filter(task => {
-        // 月フィルタ
-        if (filterMonth && !task.date.startsWith(filterMonth)) return false;
+            // 1. 現在表示中のカテゴリ・月のデータをフィルタリング
+            const targetTasks = allTasksCache.filter(task => {
+                // 月フィルタ
+                if (filterMonth && !task.date.startsWith(filterMonth)) return false;
 
-        // カテゴリフィルタ
-        const member = weeklyMembers.find(m => m.name === task.name);
-        if (!member) return false;
-        let schoolType = member.isElemFed ? "elem" : (member.isFed ? "mid" : "unknown");
-        const taskType = task.type || "シングルス";
+                // カテゴリフィルタ
+                const member = weeklyMembers.find(m => m.name === task.name);
+                if (!member) return false;
+                let schoolType = member.isElemFed ? "elem" : (member.isFed ? "mid" : "unknown");
+                const taskType = task.type || "シングルス";
 
-        if (currentAnalysisMode === 'elem_s') return schoolType === 'elem' && taskType === 'シングルス';
-        if (currentAnalysisMode === 'elem_d') return schoolType === 'elem' && taskType === 'ダブルス';
-        if (currentAnalysisMode === 'mid_s') return schoolType === 'mid' && taskType === 'シングルス';
-        if (currentAnalysisMode === 'mid_d') return schoolType === 'mid' && taskType === 'ダブルス';
-        return false;
-    });
+                if (currentAnalysisMode === 'elem_s') return schoolType === 'elem' && taskType === 'シングルス';
+                if (currentAnalysisMode === 'elem_d') return schoolType === 'elem' && taskType === 'ダブルス';
+                if (currentAnalysisMode === 'mid_s') return schoolType === 'mid' && taskType === 'シングルス';
+                if (currentAnalysisMode === 'mid_d') return schoolType === 'mid' && taskType === 'ダブルス';
+                return false;
+            });
 
-    if (targetTasks.length === 0) return alert("抽出対象のデータがありません");
+            if (targetTasks.length === 0) return alert("抽出対象のデータがありません");
 
-    // 2. テキスト構成の作成
-    let catText = "";
-    if (currentAnalysisMode === 'elem_s') catText = "小学生・シングルス";
-    else if (currentAnalysisMode === 'elem_d') catText = "小学生・ダブルス";
-    else if (currentAnalysisMode === 'mid_s') catText = "中学生・シングルス";
-    else if (currentAnalysisMode === 'mid_d') catText = "中学生・ダブルス";
+            // 2. テキスト構成の作成
+            let catText = "";
+            if (currentAnalysisMode === 'elem_s') catText = "小学生・シングルス";
+            else if (currentAnalysisMode === 'elem_d') catText = "小学生・ダブルス";
+            else if (currentAnalysisMode === 'mid_s') catText = "中学生・シングルス";
+            else if (currentAnalysisMode === 'mid_d') catText = "中学生・ダブルス";
 
-    let report = `# バドミントン課題・振り返りレポート\n`;
-    report += `対象月: ${filterMonth || "全期間"}\n`;
-    report += `カテゴリ: ${catText}\n`;
-    report += `作成日: ${new Date().toLocaleDateString()}\n\n`;
-    report += `------------------------------------------\n\n`;
+            let report = `# バドミントン課題・振り返りレポート\n`;
+            report += `対象月: ${filterMonth || "全期間"}\n`;
+            report += `カテゴリ: ${catText}\n`;
+            report += `作成日: ${new Date().toLocaleDateString()}\n\n`;
+            report += `------------------------------------------\n\n`;
 
-    targetTasks.forEach(t => {
-        report += `■ 選手名: ${t.name}\n`;
-        report += `【現在の課題】\n${t.content}\n`;
-        report += `【考察・振り返り】\n${t.reflection || "（未入力）"}\n`;
-        report += `\n`;
-    });
+            targetTasks.forEach(t => {
+                report += `■ 選手名: ${t.name}\n`;
+                report += `【現在の課題】\n${t.content}\n`;
+                report += `【考察・振り返り】\n${t.reflection || "（未入力）"}\n`;
+                report += `\n`;
+            });
 
-    // 3. クリップボードへコピー
-    const tempTextArea = document.createElement("textarea");
-    tempTextArea.value = report;
-    document.body.appendChild(tempTextArea);
-    tempTextArea.select();
-    try {
-        document.execCommand('copy');
-        alert(`【${catText}】${targetTasks.length}件のデータをコピーしました。\nNotebookLMに貼り付けてアップロードしてください。`);
-    } catch (err) {
-        console.error('Copy failed', err);
-        alert("コピーに失敗しました。コンソールを確認してください。");
-    }
-    document.body.removeChild(tempTextArea);
-}
+            // 3. クリップボードへコピー
+            const tempTextArea = document.createElement("textarea");
+            tempTextArea.value = report;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            try {
+                document.execCommand('copy');
+                alert(`【${catText}】${targetTasks.length}件のデータをコピーしました。\nNotebookLMに貼り付けてアップロードしてください。`);
+            } catch (err) {
+                console.error('Copy failed', err);
+                alert("コピーに失敗しました。コンソールを確認してください。");
+            }
+            document.body.removeChild(tempTextArea);
+        }
     </script>
 
     <div id="appLoginModal" class="login-overlay">
@@ -5687,4 +5777,3 @@ function exportTasksForNotebookLM() {
 </body>
 
 </html>
-

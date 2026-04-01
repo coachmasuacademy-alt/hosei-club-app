@@ -1986,16 +1986,34 @@
             </div>
             <p style="font-size:0.9em; color:#666; margin-bottom:20px;">氏名をタップして、今後の出欠を入力してください。</p>
 
-            <div style="background:#fff; padding:15px; border-radius:12px; margin-bottom:20px; border:1px solid #eee;">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <button onclick="openSettingModal()"
-                        style="width:auto; margin:0; padding:8px 16px; font-size:0.9em; background:#666; border-radius:20px; box-shadow:none;">⚙️
-                        表示設定</button>
-                    <button id="toggleDisplayBtn" onclick="toggleShowAll()"
-                        style="width:auto; margin:0; padding:8px 16px; font-size:0.9em; background:#FF9966; border-radius:20px; box-shadow:none;">👥
-                        全員を表示</button>
+           <div style="background:#fff; padding:15px; border-radius:12px; margin-bottom:10px; border:1px solid #eee;">
+                <div style="display:flex; flex-direction:column; gap:12px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <button onclick="openSettingModal()"
+                            style="width:auto; margin:0; padding:8px 16px; font-size:0.85em; background:#666; border-radius:20px; box-shadow:none;">⚙️
+                            表示設定</button>
+                        <button id="toggleDisplayBtn" onclick="toggleShowAll()"
+                            style="width:auto; margin:0; padding:8px 16px; font-size:0.85em; background:#FF9966; border-radius:20px; box-shadow:none;">👥
+                            全員を表示</button>
+                    </div>
+
+                    <div style="position:relative;">
+                        <select id="memberSearchSelect" onchange="showPersonalSchedule(this.value)" 
+                            style="background:#f0f7ff; border:2px solid #17a2b8; color:#005662; font-weight:bold; height:45px;">
+                            <option value="">🔍 選手の出席予定を検索...</option>
+                        </select>
+                    </div>
                 </div>
-                <div id="selectedMembersLabel" style="font-size:0.85em; color:#888; margin-top:10px;"></div>
+                <div id="selectedMembersLabel" style="font-size:0.8em; color:#888; margin-top:8px;"></div>
+            </div>
+
+            <div id="personalScheduleArea" style="display:none; background:#e0f7fa; padding:15px; border-radius:12px; border:2px solid #17a2b8; margin-bottom:20px; animation:fadeIn 0.3s ease;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <h3 id="personalScheduleName" style="margin:0; color:#006064; font-size:16px;">選手名の予定</h3>
+                    <button onclick="document.getElementById('personalScheduleArea').style.display='none'" 
+                        style="width:auto; margin:0; padding:5px 12px; background:#00acc1; font-size:11px; border-radius:15px;">✕ 閉じる</button>
+                </div>
+                <div id="personalScheduleList" style="font-size:0.9em; color:#333; line-height:1.6;"></div>
             </div>
 
             <div id="memberListContainer" class="member-grid"></div>
@@ -2861,7 +2879,7 @@
         }
 
         // ▼▼▼ GASのURL（スクリプト先頭に移動） ▼▼▼
-        const SHEET_URL = "https://script.google.com/macros/s/AKfycbw4f1kQHBzm4bMf3TXdOmAS9FwJXedk64uSZyMJQdcjTWx_4b5Pw7i_9iCNOZdHVOe3/exec";
+        const SHEET_URL = "https://script.google.com/macros/s/AKfycbyhlZ958j2STbpenMN_dAysKZPU3IElL8Ra-Cgn7kHtEUYykcUpxEKsi5r86WkeMm5S/exec";
 
         // ▼▼▼ Firebaseの設定 ▼▼▼
         const firebaseConfig = {
@@ -3178,8 +3196,9 @@
                 card.onclick = () => openIndModal(originalIndex);
                 card.innerHTML = `<span class="member-name">${m.name}</span><span class="member-grade">${isCoach ? 'コーチ' : m.grade}</span>`;
                 container.appendChild(card);
-            });
-        }
+        });
+        updateSearchDropdown(); // ★ここに追加することで、名簿が出るたびに検索リストも新しくなります
+    }
 
         // 個人モーダル処理
         function openIndModal(memberIndex) {
@@ -3399,6 +3418,58 @@
             // 予定がない場合の表示
             if (containerClub.innerHTML === "") containerClub.innerHTML = "<p style='color:#999; text-align:center;'>予定はありません。</p>";
             if (containerFed.innerHTML === "") containerFed.innerHTML = "<p style='color:#999; text-align:center;'>予定はありません。</p>";
+        }
+
+// 1. 検索プルダウンに名簿をセットする
+        function updateSearchDropdown() {
+            const select = document.getElementById("memberSearchSelect");
+            if (!select) return;
+            select.innerHTML = '<option value="">🔍 選手の出席予定を検索...</option>';
+            
+            const sortedMembers = [...weeklyMembers].sort((a, b) => a.name.localeCompare(b.name, "ja"));
+            sortedMembers.forEach(m => {
+                const op = document.createElement("option");
+                op.value = m.name;
+                op.text = `${m.name} (${m.grade})`;
+                select.appendChild(op);
+            });
+        }
+
+        // 2. 選択した選手の「出席」予定だけを抽出して表示する
+        function showPersonalSchedule(name) {
+            if (!name) {
+                document.getElementById("personalScheduleArea").style.display = "none";
+                return;
+            }
+            const area = document.getElementById("personalScheduleArea");
+            const listEl = document.getElementById("personalScheduleList");
+            document.getElementById("personalScheduleName").innerText = `📅 ${name} さんの出席予定`;
+            listEl.innerHTML = "";
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            let foundAny = false;
+            let html = '<div style="background:white; border-radius:8px; padding:10px;">';
+            weeklyEvents.forEach(evt => {
+                const eventDate = new Date(evt.dateKey);
+                if (eventDate < today) return; 
+                const key = `${evt.dateKey}_${evt.fullTitle}_${name}`;
+                if (weeklyStatus[key] === "出席") {
+                    foundAny = true;
+                    const dayStr = getDayOfWeekStr(evt.dateKey);
+                    html += `<div style="padding:5px 0; border-bottom:1px dashed #eee;">
+                        <b style="color:#00796b;">${evt.dateKey.substring(5)} ${dayStr}</b> 
+                        <span style="margin-left:8px;">${evt.start}〜 ${evt.title}</span>
+                    </div>`;
+                }
+            });
+            html += "</div>";
+            if (!foundAny) {
+                listEl.innerHTML = "<p style='color:#666; margin:5px 0; text-align:center;'>今後3週間の出席予定はありません。</p>";
+            } else {
+                listEl.innerHTML = html;
+            }
+            area.style.display = "block";
+            area.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         // 道具運搬
@@ -4324,60 +4395,57 @@
         }
 
         function showShuttleDayDetail(dateStr, logs) {
-            const detailBox = document.getElementById("shuttleDayDetail");
-            const listContent = document.getElementById("detailListContent");
-            document.getElementById("detailDateStr").innerText = `${dateStr} の履歴`;
+    const detailBox = document.getElementById("shuttleDayDetail");
+    const listContent = document.getElementById("detailListContent");
+    document.getElementById("detailDateStr").innerText = `${dateStr} の履歴`;
 
-            listContent.innerHTML = "";
+    listContent.innerHTML = "";
 
-            if (logs.length === 0) {
-                listContent.innerHTML = "<p style='color:#999; text-align:center;'>履歴はありません</p>";
-            } else {
-                logs.forEach(l => {
-                    const div = document.createElement("div");
-                    div.className = "detail-item";
+    if (logs.length === 0) {
+        listContent.innerHTML = "<p style='color:#999; text-align:center;'>履歴はありません</p>";
+    } else {
+        logs.forEach(l => {
+            const div = document.createElement("div");
+            div.className = "detail-item";
 
-                    let catName = "不明";
-                    let catClass = "bg-jr";
+            let catName = "不明";
+            let catClass = "bg-jr";
+            if (l.category.includes("fed")) { catName = "中学"; catClass = "bg-fed"; }
+            else if (l.category.includes("kamiho")) { catName = "上星"; catClass = "bg-kamiho"; }
+            else if (l.category.includes("kamitsu")) { catName = "上鶴"; catClass = "bg-kamitsu"; }
 
-                    if (l.category.includes("fed")) {
-                        catName = "中学";
-                        catClass = "bg-fed";
-                    } else if (l.category.includes("kamiho")) {
-                        catName = "上星";
-                        catClass = "bg-kamiho";
-                    } else if (l.category.includes("kamitsu")) {
-                        catName = "上鶴";
-                        catClass = "bg-kamitsu";
-                    }
+            let actionText = "";
+            const parts = [];
+            if (l.used > 0) parts.push(`<span style="color:#FF5E62; font-weight:bold;">消費: ${l.used}筒</span>`);
+            if (l.added > 0) parts.push(`<span style="color:#0277BD; font-weight:bold;">入荷: ${l.added}筒</span>`);
+            actionText = parts.join(" / ");
 
-                    let actionText = "";
-                    const parts = [];
-                    if (l.used > 0) parts.push(`<span style="color:#FF5E62; font-weight:bold;">消費: ${l.used}筒</span>`);
-                    if (l.added > 0) parts.push(`<span style="color:#0277BD; font-weight:bold;">入荷: ${l.added}筒</span>`);
-                    actionText = parts.join(" / ");
-
-                    let detailText = "";
-                    if (l.usageType) detailText += `[${l.usageType}] `;
-                    if (l.remarks) detailText += `${l.remarks}`;
-                    if (!detailText) detailText = "(詳細なし)";
-
-                    div.innerHTML = `
-                    <div class="detail-row-header">
+            let detailText = "";
+            if (l.usageType) detailText += `[${l.usageType}] `;
+            if (l.remarks) detailText += `${l.remarks}`;
+            
+            // --- 修正箇所：ボタンを追加 ---
+            div.innerHTML = `
+                <div class="detail-row-header" style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
                         <span class="detail-cat ${catClass}">${catName}</span>
                         <span class="detail-stats">${actionText}</span>
                     </div>
-                    <div style="font-size:0.85em; color:#666; padding-left:5px; margin-left: 5px; border-left: 2px solid #eee;">
-                        📝 ${detailText}
+                    <div style="display:flex; gap:5px;">
+                        <button onclick="openEditShuttleModal(${l.row}, ${l.used}, ${l.added}, '${l.usageType}', '${l.remarks}')" style="width:auto; margin:0; padding:4px 8px; font-size:11px; background:#17a2b8;">編集</button>
+                        <button onclick="deleteShuttleLog(${l.row})" style="width:auto; margin:0; padding:4px 8px; font-size:11px; background:#dc3545;">削除</button>
                     </div>
-                `;
-                    listContent.appendChild(div);
-                });
-            }
-
-            detailBox.style.display = "block";
-            detailBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
+                </div>
+                <div style="font-size:0.85em; color:#666; padding-left:5px; margin-left: 5px; border-left: 2px solid #eee;">
+                    📝 ${detailText || "(詳細なし)"}
+                </div>
+            `;
+            listContent.appendChild(div);
+        });
+    }
+    detailBox.style.display = "block";
+    detailBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
 
         const TRAINING_APP_URL = "https://coachmasuacademy-alt.github.io/my-website/";
 
@@ -5709,6 +5777,51 @@ function extractYouTubeId(url) {
             }
             document.body.removeChild(tempTextArea);
         }
+
+// 編集モーダルを開く
+function openEditShuttleModal(row, used, added, usage, memo) {
+    document.getElementById("editShuttleRow").value = row;
+    document.getElementById("editShuttleUsed").value = used;
+    document.getElementById("editShuttleAdded").value = added;
+    document.getElementById("editShuttleUsageType").value = usage || "練習";
+    document.getElementById("editShuttleRemarks").value = memo || "";
+    document.getElementById("shuttleEditModal").style.display = "flex";
+}
+
+// 編集内容を送信
+async function submitEditShuttle() {
+    const row = document.getElementById("editShuttleRow").value;
+    const used = Number(document.getElementById("editShuttleUsed").value) || 0;
+    const added = Number(document.getElementById("editShuttleAdded").value) || 0;
+    const usageType = document.getElementById("editShuttleUsageType").value;
+    const remarks = document.getElementById("editShuttleRemarks").value;
+
+    showLoading(true);
+    const res = await callGas('updateShuttleLog', { row, used, added, usageType, remarks });
+    showLoading(false);
+
+    if (res) {
+        alert("履歴を修正しました。在庫数も自動調整されました。");
+        document.getElementById("shuttleEditModal").style.display = "none";
+        document.getElementById("shuttleDayDetail").style.display = "none";
+        loadShuttleData(); // 在庫とカレンダーを再読み込み
+    }
+}
+
+// 履歴を削除
+async function deleteShuttleLog(row) {
+    if (!confirm("この履歴を削除しますか？\n（削除すると在庫数もその分戻ります）")) return;
+
+    showLoading(true);
+    const res = await callGas('deleteShuttleLog', { row });
+    showLoading(false);
+
+    if (res) {
+        alert("削除しました。");
+        document.getElementById("shuttleDayDetail").style.display = "none";
+        loadShuttleData(); // 在庫とカレンダーを再読み込み
+    }
+}
     </script>
 
     <div id="appLoginModal" class="login-overlay">
@@ -5770,6 +5883,34 @@ function extractYouTubeId(url) {
         </div>
     </div>
 
+<div id="shuttleEditModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:5000; justify-content:center; align-items:center;">
+        <div style="background:white; width:90%; max-width:400px; border-radius:12px; padding:20px; box-shadow:0 4px 15px rgba(0,0,0,0.2);">
+            <h3 style="margin-top:0; color:#333;">履歴の修正</h3>
+            <input type="hidden" id="editShuttleRow">
+            
+            <label>使用数 (-)</label>
+            <input type="number" id="editShuttleUsed" style="margin-bottom:10px;" placeholder="0">
+            
+            <label>追加数 (+)</label>
+            <input type="number" id="editShuttleAdded" style="margin-bottom:10px;" placeholder="0">
+
+            <label>用途</label>
+            <select id="editShuttleUsageType" style="margin-bottom:10px;">
+                <option value="練習">練習</option>
+                <option value="練習試合">練習試合</option>
+                <option value="大会">大会</option>
+                <option value="その他">その他</option>
+            </select>
+
+            <label>備考</label>
+            <input type="text" id="editShuttleRemarks" style="margin-bottom:20px;" placeholder="メモ">
+
+            <div style="display:flex; gap:10px;">
+                <button onclick="submitEditShuttle()" style="flex:1; background:#FF9966; color:white; margin-top:0; border-radius:10px; padding:10px;">更新</button>
+                <button onclick="document.getElementById('shuttleEditModal').style.display='none'" style="flex:1; background:#ccc; color:#333; margin-top:0; border-radius:10px; padding:10px; box-shadow:none;">キャンセル</button>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

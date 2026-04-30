@@ -2164,15 +2164,17 @@
 
                     <div class="table-container">
                         <table id="taskTable">
-                            <thead>
-                                <tr>
-                                    <th>氏名</th>
-                                    <th>課題</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
+          <thead>
+            <tr>
+              <th>日付</th>
+              <th>大会</th>
+              <th>カテゴリー</th>
+              <th>選手名</th>
+              <th>内容</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
                     </div>
                 </div>
 
@@ -2815,14 +2817,14 @@
     <script>
 
         // ▼▼▼ パスワード設定（ここを変更してください） ▼▼▼
-        const APP_PASSWORD = "1234";  // アプリを開くときのパスワード
-        const TASK_PASSWORD = "5678"; // 課題管理を開くときのパスワード
+        const APP_PASSWORD = "6781";  // アプリを開くときのパスワード
+        const TASK_PASSWORD = "5721"; // 課題管理を開くときのパスワード
         // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
         // アプリログイン認証処理
-        function checkAppLogin() {
-            // 保存されたフラグがあるか確認
-            if (localStorage.getItem("isAppLoggedIn") === "true") {
+       function checkAppLogin() {
+            // 変更点: 保存されたパスワードと現在のパスワードが一致するか確認する
+            if (localStorage.getItem("appAuthToken") === APP_PASSWORD) {
                 document.getElementById("appLoginModal").classList.remove("active");
             } else {
                 document.getElementById("appLoginModal").classList.add("active");
@@ -2832,7 +2834,8 @@
         function verifyAppLogin() {
             const input = document.getElementById("appPassInput").value;
             if (input === APP_PASSWORD) {
-                localStorage.setItem("isAppLoggedIn", "true"); // ログイン状態を保存
+                // 変更点: "true" ではなく、認証トークンとして現在のパスワードを保存する
+                localStorage.setItem("appAuthToken", APP_PASSWORD); 
                 document.getElementById("appLoginModal").classList.remove("active");
             } else {
                 alert("パスワードが違います");
@@ -2844,10 +2847,11 @@
         let pendingTaskBtn = null; // ログイン後に押したボタンを記憶用
 
         function checkTaskLogin(btnElement) {
-            if (localStorage.getItem("isTaskLoggedIn") === "true") {
+            // 変更点: 保存されたパスワードと現在のパスワードが一致するか確認する
+            if (localStorage.getItem("taskAuthToken") === TASK_PASSWORD) {
                 return true; // 認証済みならOK
             }
-            // 未認証ならモーダル表示
+            // 未認証（またはパスワード変更後）ならモーダル表示
             pendingTaskBtn = btnElement; // 押されたボタンを記憶
             document.getElementById("taskLoginModal").classList.add("active");
             return false; // ロック中
@@ -2856,7 +2860,8 @@
         function verifyTaskLogin() {
             const input = document.getElementById("taskPassInput").value;
             if (input === TASK_PASSWORD) {
-                localStorage.setItem("isTaskLoggedIn", "true"); // ログイン状態を保存
+                // 変更点: "true" ではなく、認証トークンとして現在のパスワードを保存する
+                localStorage.setItem("taskAuthToken", TASK_PASSWORD); 
                 document.getElementById("taskLoginModal").classList.remove("active");
 
                 // 認証成功したら、中断していたタブ切り替えを再実行
@@ -3819,49 +3824,52 @@
         }
 
         function renderTournamentParticipants() {
-            const container = document.getElementById("tParticipantList");
-            container.innerHTML = "";
+    const container = document.getElementById("tParticipantList");
+    container.innerHTML = "";
 
-            // 現在の大会データを取得（参加費を知るため）
-            const currentTournament = tournamentListCache.find(r => r.row == currentTournamentRow);
-            const feePerPerson = currentTournament ? Number(currentTournament.fee || 0) : 0;
+    const currentTournament = tournamentListCache.find(r => r.row == currentTournamentRow);
+    const feePerPerson = currentTournament ? Number(currentTournament.fee || 0) : 0;
 
-            const total = currentTournamentParticipants.length;
-            const paidCount = currentTournamentParticipants.filter(p => p.paid).length;
+    const total = currentTournamentParticipants.length;
+    const paidCount = currentTournamentParticipants.filter(p => p.paid).length;
+    const totalAmount = feePerPerson * paidCount;
 
-            // 合計金額の計算
-            const totalAmount = feePerPerson * paidCount;
+    const countLabel = document.getElementById("tParticipantCount");
+    if (countLabel) {
+        countLabel.innerHTML = `(済:<span style="color:#1976D2; font-weight:bold;">${paidCount}</span> / ${total}名) <span style="font-size:0.9em; margin-left:5px;">計 ¥${totalAmount.toLocaleString()}</span>`;
+    }
 
-            const countLabel = document.getElementById("tParticipantCount");
-            if (countLabel) {
-                // 人数と、金額を表示
-                countLabel.innerHTML = `(済:<span style="color:#1976D2; font-weight:bold;">${paidCount}</span> / ${total}名) <span style="font-size:0.9em; margin-left:5px;">計 ¥${totalAmount.toLocaleString()}</span>`;
-            }
+    if (total === 0) {
+        container.innerHTML = "<p style='color:#999; text-align:center;'>参加者はまだ登録されていません</p>";
+        return;
+    }
 
-            if (total === 0) {
-                container.innerHTML = "<p style='color:#999; text-align:center;'>参加者はまだ登録されていません</p>";
-                return;
-            }
+    currentTournamentParticipants.forEach((p, index) => {
+        const div = document.createElement("div");
+        div.className = "participant-row";
+        div.style.alignItems = "flex-start"; // 縦並びの要素があるため上揃えにする
 
-            currentTournamentParticipants.forEach((p, index) => {
-                const div = document.createElement("div");
-                div.className = "participant-row";
+        const statusClass = p.paid ? "paid" : "unpaid";
+        const statusText = p.paid ? "￥ 支払済" : "￥ 未払い";
+        
+        // 振込日の表示（支払済かつ日付データがある場合）
+        const dateText = (p.paid && p.date) ? `<div style="font-size:0.8em; color:#666; margin-top:4px; text-align:right;">振込日: ${escapeHtml(p.date)}</div>` : "";
 
-                const statusClass = p.paid ? "paid" : "unpaid";
-                const statusText = p.paid ? "￥ 支払済" : "￥ 未払い";
-
-                div.innerHTML = `
-                <span style="font-weight:bold;">${p.name}</span>
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <button class="payment-status-btn ${statusClass}" onclick="togglePaymentStatus(${index})">
-                        ${statusText}
-                    </button>
-                    <button style="background:#ccc; color:#333; width:auto; padding:4px 8px; font-size:12px; margin:0;" onclick="removeTournamentParticipant(${index})">✕</button>
-                </div>
-            `;
-                container.appendChild(div);
-            });
-        }
+        div.innerHTML = `
+        <span style="font-weight:bold; margin-top:5px;">${p.name}</span>
+        <div style="display:flex; flex-direction:column; align-items:flex-end;">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <button class="payment-status-btn ${statusClass}" onclick="togglePaymentStatus(${index})">
+                    ${statusText}
+                </button>
+                <button style="background:#ccc; color:#333; width:auto; padding:4px 8px; font-size:12px; margin:0;" onclick="removeTournamentParticipant(${index})">✕</button>
+            </div>
+            ${dateText}
+        </div>
+        `;
+        container.appendChild(div);
+    });
+}
 
         function toggleAddParticipantBox() {
             const box = document.getElementById("addParticipantBox");
@@ -3869,19 +3877,20 @@
         }
 
         function addParticipantToTournament() {
-            const name = document.getElementById("tMemberSelect").value;
-            if (!name) return;
+    const name = document.getElementById("tMemberSelect").value;
+    if (!name) return;
 
-            // 重複チェック
-            if (currentTournamentParticipants.some(p => p.name === name)) {
-                alert("すでに追加されています");
-                return;
-            }
+    // 重複チェック
+    if (currentTournamentParticipants.some(p => p.name === name)) {
+        alert("すでに追加されています");
+        return;
+    }
 
-            currentTournamentParticipants.push({ name: name, paid: false });
-            renderTournamentParticipants();
-            document.getElementById("addParticipantBox").style.display = "none";
-        }
+    // date: "" を追加
+    currentTournamentParticipants.push({ name: name, paid: false, date: "" });
+    renderTournamentParticipants();
+    document.getElementById("addParticipantBox").style.display = "none";
+}
 
         function removeTournamentParticipant(index) {
             if (confirm("リストから削除しますか？")) {
@@ -3891,11 +3900,38 @@
         }
 
         function togglePaymentStatus(index) {
-            currentTournamentParticipants[index].paid = !currentTournamentParticipants[index].paid;
-            renderTournamentParticipants();
+    const p = currentTournamentParticipants[index];
+    
+    if (!p.paid) {
+        // 未払い → 支払済 に変更
+        // 今日の日付を初期値としてセット
+        const today = new Date();
+        const defaultDate = today.getFullYear() + "/" + String(today.getMonth() + 1).padStart(2, '0') + "/" + String(today.getDate()).padStart(2, '0');
+        
+        const dateInput = prompt(`「${p.name}」を支払済に変更します。\n振込日を入力してください。`, defaultDate);
+        
+        if (dateInput === null) {
+            return; // キャンセルされた場合は何もしない
         }
+        
+        p.paid = true;
+        p.date = dateInput; // 振込日をデータに追加
+        renderTournamentParticipants();
+    } else {
+        // 支払済 → 未払い に戻す (ロック解除)
+        const pass = prompt(`「${p.name}」を未払いに戻します。\nロック解除パスワードを入力してください。`);
+        
+        if (pass === "masu1201") {
+            p.paid = false;
+            p.date = ""; // 日付をリセット
+            renderTournamentParticipants();
+        } else if (pass !== null) {
+            alert("パスワードが違います。");
+        }
+    }
+}
 
-        async function saveTournamentDetails() {
+async function saveTournamentDetails() {
             if (!storage) { alert("Firebaseの設定が無効です。"); return; }
 
             showLoading(true);
@@ -3914,9 +3950,6 @@
                 // GASへ保存（参加者リストはJSON文字列化）
                 const participantsJson = JSON.stringify(currentTournamentParticipants);
 
-                // updateTournament は既存の関数ですが、GAS側で引数を増やして対応させる必要があります
-                // frontend側からはすべての情報を送ります
-                // ※既存のeditTournament等のロジックとは別ルートとして "updateTournamentDetail" を呼ぶ形にします
                 const res = await callGas('updateTournamentDetail', {
                     row: currentTournamentRow,
                     fileUrl: fileUrl,

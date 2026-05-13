@@ -1944,8 +1944,12 @@
         </div>
     </div>
 
-    <header>
+    <header style="position: relative;">
         <h1>法政Jr.バドミントンクラブ<br>運営管理アプリ</h1>
+        <!-- 更新ボタンを追加 -->
+        <button onclick="reloadApp()" style="position: absolute; top: 15px; right: 15px; width: auto; margin: 0; padding: 6px 12px; background: rgba(255,255,255,0.25); color: white; border: 1px solid rgba(255,255,255,0.8); border-radius: 20px; font-size: 12px; font-weight: bold; box-shadow: none; backdrop-filter: blur(2px);">
+            ↻ 更新
+        </button>
     </header>
 
     <div class="notice-wrapper">
@@ -2820,6 +2824,29 @@
         const APP_PASSWORD = "6781";  // アプリを開くときのパスワード
         const TASK_PASSWORD = "5721"; // 課題管理を開くときのパスワード
         // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
+// アプリ全体のデータを最新にして再読み込みする関数
+        function reloadApp() {
+            // パスワード認証や表示設定は残し、データキャッシュのみ削除
+            const keysToRemove = [
+                'attendanceCache',
+                'badminton_schedule_v1',
+                'badminton_carry_v1',
+                'badminton_arena_v1',
+                'badminton_tournament_v1',
+                'badminton_other_v1',
+                'badminton_shuttle_v1',
+                'badminton_fee_v1',
+                'badminton_gut_v1'
+            ];
+            
+            keysToRemove.forEach(key => {
+                try { localStorage.removeItem(key); } catch(e) {}
+            });
+
+            // 画面を再読み込み（これによりGASから最新データが取得されます）
+            window.location.reload();
+        }
 
         // アプリログイン認証処理
        function checkAppLogin() {

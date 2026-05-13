@@ -5342,7 +5342,8 @@ async function saveTournamentDetails() {
             const area = document.getElementById("gymNoticeArea");
             const content = document.getElementById("gymNoticeContent");
             const emptyBtnContainer = document.getElementById("gymNoticeEmptyBtn");
-            const isAdmin = localStorage.getItem("isTaskLoggedIn") === "true";
+            // 判定ロジックを現在の仕様に合わせる
+            const isAdmin = localStorage.getItem("taskAuthToken") === TASK_PASSWORD;
 
             content.innerHTML = "";
 

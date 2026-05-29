@@ -927,6 +927,27 @@
             box-shadow: 0 2px 5px rgba(255, 153, 102, 0.4);
         }
 
+.parent-checkbox-label {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            margin: 10px 0;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            cursor: pointer;
+            background: #f9f9f9;
+            color: #666;
+            transition: all 0.2s ease;
+            font-weight: bold;
+        }
+        /* チェックが入った時のスタイル */
+        .parent-checkbox-label.checked {
+            background-color: #17a2b8; /* 青系 */
+            color: white;
+            border-color: #17a2b8;
+            box-shadow: 0 2px 5px rgba(23, 162, 184, 0.3);
+        }
+
         /* アコーディオン */
         .summary-container {
             margin-bottom: 20px;
@@ -3238,17 +3259,13 @@
             const container = document.getElementById("indList");
             container.innerHTML = "";
 
-            // コーチ判定フラグを取得
             const isCoach = currentIndMember.isCoach === true || currentIndMember.isCoach === "〇";
 
             weeklyEvents.forEach((evt, idx) => {
                 let isTarget = false;
-
                 if (isCoach) {
-                    // コーチの場合は、すべての練習スケジュールを表示対象にする
                     isTarget = true;
                 } else {
-                    // 生徒の場合は、所属カテゴリが一致するものだけ表示
                     if (evt.group === 'club' && currentIndMember.isClub && !currentIndMember.isSkill) isTarget = true;
                     if (evt.group === 'federation' && currentIndMember.isFed) isTarget = true;
                     if (evt.group === 'skillup' && currentIndMember.isSkill) isTarget = true;
@@ -3256,9 +3273,13 @@
 
                 if (isTarget) {
                     const newKey = `${evt.dateKey}_${evt.start}_${evt.fullTitle}_${currentIndMember.name}`;
-const oldKey = `${evt.dateKey}_${evt.fullTitle}_${currentIndMember.name}`;
-const status = weeklyStatus[newKey] || weeklyStatus[oldKey] || "未定";
-const memo = weeklyMemo[newKey] || weeklyMemo[oldKey] || "";
+                    const oldKey = `${evt.dateKey}_${evt.fullTitle}_${currentIndMember.name}`;
+                    const status = weeklyStatus[newKey] || weeklyStatus[oldKey] || "未定";
+                    const memo = weeklyMemo[newKey] || weeklyMemo[oldKey] || "";
+                    
+                    // 鍵開けフラグの抽出と表示用テキストの整形
+                    const isParentEarly = memo.includes("[鍵開け可]");
+                    const displayMemo = memo.replace("[鍵開け可]", "").trim();
                     const dayStr = getDayOfWeekStr(evt.dateKey);
 
                     let labelColor = "black";
@@ -3271,27 +3292,33 @@ const memo = weeklyMemo[newKey] || weeklyMemo[oldKey] || "";
                     div.className = "ind-row";
                     div.style.flexWrap = "wrap";
 
-                    div.innerHTML = `
-            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                <div class="ind-info">
-                  <div style="font-size:0.8em; color:${labelColor}; font-weight:bold;">
-                    ${groupLabel} ${evt.start}${evt.end ? '～' + evt.end : ''}${dayStr}
-                  </div>
-                  <div style="font-size:0.95em;">${evt.title}</div>
-                </div>
-                <div class="ind-btns" id="ind-btn-group-${idx}" data-status="${status}" data-original-status="${status}">
-                  <button class="ind-btn present ${status === '出席' ? 'active' : ''}" onclick="setIndStatus(${idx}, '出席')">出</button>
-                  <button class="ind-btn absent ${status === '欠席' ? 'active' : ''}" onclick="setIndStatus(${idx}, '欠席')">欠</button>
-                  <button class="ind-btn unknown ${status === '未定' ? 'active' : ''}" onclick="setIndStatus(${idx}, '未定')">?</button>
-                </div>
-            </div>
-            <div style="width:100%; margin-top:8px;">
-                <input type="text" class="ind-memo-input" 
-                       value="${escapeHtml(memo)}" 
-                       placeholder="メモ（遅刻、早退など）" 
-                       data-original-memo="${escapeHtml(memo)}"
-                       style="width:100%; padding:8px; font-size:14px; border:1px solid #ddd; border-radius:6px; background:#fcfcfc;">
-            </div>`;
+                   div.innerHTML = `
+                        <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                            <div class="ind-info">
+                                <div style="font-size:0.8em; color:${labelColor}; font-weight:bold;">
+                                    ${groupLabel} ${evt.start}${evt.end ? '～' + evt.end : ''}${dayStr}
+                                </div>
+                                <div style="font-size:0.95em;">${evt.title}</div>
+                            </div>
+                            <div class="ind-btns" id="ind-btn-group-${idx}" data-status="${status}" data-original-status="${status}">
+                                <button class="ind-btn present ${status === '出席' ? 'active' : ''}" onclick="setIndStatus(${idx}, '出席')">出</button>
+                                <button class="ind-btn absent ${status === '欠席' ? 'active' : ''}" onclick="setIndStatus(${idx}, '欠席')">欠</button>
+                                <button class="ind-btn unknown ${status === '未定' ? 'active' : ''}" onclick="setIndStatus(${idx}, '未定')">?</button>
+                            </div>
+                        </div>
+                        <div style="width:100%; margin-top:8px;">
+                            <label class="parent-checkbox-label ${isParentEarly ? 'checked' : ''}" id="label-parent-${idx}">
+                                <input type="checkbox" class="ind-parent-check" ${isParentEarly ? "checked" : ""} data-original-check="${isParentEarly}" 
+                                       style="display:none;" 
+                                       onchange="document.getElementById('label-parent-${idx}').classList.toggle('checked', this.checked)">
+                                🔑 ${isParentEarly ? '受付・鍵開け担当中' : '受付・鍵開け可能'}
+                            </label>
+                            <input type="text" class="ind-memo-input" 
+                                   value="${escapeHtml(displayMemo)}" 
+                                   placeholder="メモ（遅刻、早退など）" 
+                                   data-original-memo="${escapeHtml(displayMemo)}"
+                                   style="width:100%; padding:8px; font-size:14px; border:1px solid #ddd; border-radius:6px; background:#fcfcfc;">
+                        </div>`;
 
                     div.dataset.eventIndex = idx;
                     container.appendChild(div);
@@ -3316,8 +3343,22 @@ const memo = weeklyMemo[newKey] || weeklyMemo[oldKey] || "";
                 const currentStatus = btnGroup.dataset.status || "未定";
                 const originalStatus = btnGroup.dataset.originalStatus || "未定";
                 const memoInput = row.querySelector(".ind-memo-input");
-                const currentMemo = memoInput.value;
-                const originalMemo = memoInput.dataset.originalMemo;
+                
+                // ▼ 追加・修正: チェック状態を取得してメモに結合 ▼
+                const parentCheck = row.querySelector(".ind-parent-check");
+                let currentMemo = memoInput.value.trim();
+                if (parentCheck && parentCheck.checked) {
+                    currentMemo += " [鍵開け可]";
+                }
+                currentMemo = currentMemo.trim();
+
+                let originalMemo = memoInput.dataset.originalMemo || "";
+                const originalCheck = parentCheck.dataset.originalCheck === "true";
+                if (originalCheck) {
+                    originalMemo += " [鍵開け可]";
+                }
+                originalMemo = originalMemo.trim();
+                // ▲ 修正ここまで ▲
 
                 if (currentStatus !== originalStatus || currentMemo !== originalMemo) {
     updates.push({
@@ -3340,85 +3381,96 @@ const memo = weeklyMemo[newKey] || weeklyMemo[oldKey] || "";
         }
 
         // 参加者集計
-        function renderSummary() {
-            const containerClub = document.getElementById("attendanceSummary");
-            const containerFed = document.getElementById("attendanceSummaryFed");
-            containerClub.innerHTML = "";
-            containerFed.innerHTML = "";
+       function renderSummary() {
+    const containerClub = document.getElementById("attendanceSummary");
+    const containerFed = document.getElementById("attendanceSummaryFed");
+    containerClub.innerHTML = "";
+    containerFed.innerHTML = "";
 
-            if (!weeklyEvents || weeklyEvents.length === 0) return;
+    if (!weeklyEvents || weeklyEvents.length === 0) return;
 
-            let myMembers = [];
-            try {
-                myMembers = JSON.parse(localStorage.getItem("my_members_list") || "[]");
-            } catch (e) { }
+    let myMembers = [];
+    try {
+        myMembers = JSON.parse(localStorage.getItem("my_members_list") || "[]");
+    } catch (e) { }
 
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-            let memoToggleCounter = 0;
+    let memoToggleCounter = 0;
 
-            weeklyEvents.forEach(evt => {
-                const eventDate = new Date(evt.dateKey);
-                if (eventDate < today) return;
+    weeklyEvents.forEach(evt => {
+        const eventDate = new Date(evt.dateKey);
+        if (eventDate < today) return;
 
-                const attendeesHtml = [];
-                let studentCount = 0;
-                const memoList = [];
+        const attendeesHtml = [];
+        let studentCount = 0;
+        const memoList = [];
 
-                weeklyMembers.forEach(m => {
-    const newKey = `${evt.dateKey}_${evt.start}_${evt.fullTitle}_${m.name}`;
-    const oldKey = `${evt.dateKey}_${evt.fullTitle}_${m.name}`;
-    const isCoach = m.isCoach === true || m.isCoach === "〇";
+        weeklyMembers.forEach(m => {
+            const newKey = `${evt.dateKey}_${evt.start}_${evt.fullTitle}_${m.name}`;
+            const oldKey = `${evt.dateKey}_${evt.fullTitle}_${m.name}`;
+            const isCoach = m.isCoach === true || m.isCoach === "〇";
 
-                    // --- ここから表示判定のロジック ---
-                    let isTarget = false;
+            // --- ここから表示判定のロジック ---
+            let isTarget = false;
 
-                    if (isCoach) {
-                        // コーチは全てのイベントの判定対象にする
-                        isTarget = true;
-                    } else {
-                        // 生徒はカテゴリが一致する場合のみ表示対象にする
-                        if (evt.group === 'club' && m.isClub && !m.isSkill) isTarget = true;
-                        if (evt.group === 'federation' && m.isFed) isTarget = true;
-                        if (evt.group === 'skillup' && m.isSkill) isTarget = true;
+            if (isCoach) {
+                isTarget = true;
+            } else {
+                if (evt.group === 'club' && m.isClub && !m.isSkill) isTarget = true;
+                if (evt.group === 'federation' && m.isFed) isTarget = true;
+                if (evt.group === 'skillup' && m.isSkill) isTarget = true;
+            }
+
+            const status = weeklyStatus[newKey] || weeklyStatus[oldKey] || "未定";
+
+            if (isTarget && status === "出席") {
+                let nameStyle = "";
+                if (isCoach) {
+                    nameStyle = "color:#1976D2; font-weight:bold;";
+                } else {
+                    studentCount++;
+                    if (myMembers.includes(m.name)) {
+                        nameStyle = "color:#FF9966; font-weight:bold;";
                     }
+                }
 
-                    const status = weeklyStatus[newKey] || weeklyStatus[oldKey] || "未定";
+                const memo = weeklyMemo[newKey] || weeklyMemo[oldKey] || "";
+                const isParentEarly = memo.includes("[鍵開け可]");
+                const displayMemo = memo.replace("[鍵開け可]", "").trim();
 
-if (isTarget && status === "出席") {
-    let nameStyle = "";
-                        if (isCoach) {
-                            nameStyle = "color:#1976D2; font-weight:bold;"; // コーチは青
-                        } else {
-                            studentCount++; // コーチ以外をカウント
-                            if (myMembers.includes(m.name)) {
-                                nameStyle = "color:#FF9966; font-weight:bold;"; // お気に入りはオレンジ
-                            }
-                        }
+                let displayName = `<span style="${nameStyle}">${m.name}</span>`;
+                if (isParentEarly) {
+                    displayName += `<span style="font-size:0.85em; margin-left:4px; color:#17a2b8;" title="受付・鍵開け対応可">🔑</span>`;
+                }
+                attendeesHtml.push(displayName);
 
-                        attendeesHtml.push(`<span style="${nameStyle}">${m.name}</span>`);
-
-                        const memo = weeklyMemo[newKey] || weeklyMemo[oldKey];
-if (memo) memoList.push({ name: m.name, text: memo });
+                if (displayMemo || isParentEarly) {
+                    let memoText = displayMemo;
+                    if (isParentEarly) {
+                        memoText = memoText ? `🔑受付・鍵開け可 / ${memoText}` : `🔑受付・鍵開け可`;
                     }
-                });
+                    memoList.push({ name: m.name, text: memoText });
+                }
+            }
+        }); // ★ここで weeklyMembers.forEach を閉じる
 
-                // 出席者が一人でもいる場合に枠を表示
-                if (attendeesHtml.length > 0) {
-                    const dayStr = getDayOfWeekStr(evt.dateKey);
-                    const div = document.createElement("div");
-                    let cls = "";
-                    let label = "";
-                    let isFed = false;
+        // 出席者が一人でもいる場合に枠を表示
+        if (attendeesHtml.length > 0) {
+            const dayStr = getDayOfWeekStr(evt.dateKey);
+            const div = document.createElement("div");
+            let cls = "";
+            let label = "";
+            let isFed = false;
 
-                    if (evt.group === 'club') { cls = "club"; label = "【クラブ】"; }
-                    if (evt.group === 'federation') { cls = "fed"; label = "【中学生練習】"; isFed = true; }
-                    if (evt.group === 'skillup') { cls = "skill"; label = "【スキルアップ】"; }
+            if (evt.group === 'club') { cls = "club"; label = "【クラブ】"; }
+            if (evt.group === 'federation') { cls = "fed"; label = "【中学生練習】"; isFed = true; }
+            if (evt.group === 'skillup') { cls = "skill"; label = "【スキルアップ】"; }
 
-                    div.className = `summary-box ${cls}`;
+            div.className = `summary-box ${cls}`;
 
-                    let htmlContent = `
+            let htmlContent = `
                 <div class="summary-header">
                     <span>${label} ${evt.start}${evt.end ? '～' + evt.end : ''}${dayStr} ${evt.title}</span>
                     <span class="summary-count">${studentCount}名</span>
@@ -3426,34 +3478,32 @@ if (memo) memoList.push({ name: m.name, text: memo });
                 <div class="summary-names">${attendeesHtml.join("、 ")}</div>
             `;
 
-                    // メモ表示（省略せずに維持）
-                    if (memoList.length > 0) {
-                        memoToggleCounter++;
-                        const contentId = `memo-content-${memoToggleCounter}`;
-                        const iconId = `memo-icon-${memoToggleCounter}`;
-                        htmlContent += `
+            if (memoList.length > 0) {
+                memoToggleCounter++;
+                const contentId = `memo-content-${memoToggleCounter}`;
+                const iconId = `memo-icon-${memoToggleCounter}`;
+                htmlContent += `
                     <div class="summary-memo-container">
                         <div class="memo-toggle-header" onclick="toggleMemoContent('${contentId}', '${iconId}')">
                             <span>📝 連絡事項あり (${memoList.length}件)</span>
                             <span id="${iconId}" style="font-size:0.8em; transform:rotate(0deg); transition:transform 0.2s;">▼</span>
                         </div>
                         <div id="${contentId}" class="memo-list-content">`;
-                        memoList.forEach(item => {
-                            htmlContent += `<div class="memo-item"><span class="memo-person-name">${item.name}:</span><span class="memo-text">${escapeHtml(item.text)}</span></div>`;
-                        });
-                        htmlContent += `</div></div>`;
-                    }
+                memoList.forEach(item => {
+                    htmlContent += `<div class="memo-item"><span class="memo-person-name">${item.name}:</span><span class="memo-text">${escapeHtml(item.text)}</span></div>`;
+                });
+                htmlContent += `</div></div>`;
+            }
 
-                    div.innerHTML = htmlContent;
-                    if (isFed) containerFed.appendChild(div);
-                    else containerClub.appendChild(div);
-                }
-            });
-
-            // 予定がない場合の表示
-            if (containerClub.innerHTML === "") containerClub.innerHTML = "<p style='color:#999; text-align:center;'>予定はありません。</p>";
-            if (containerFed.innerHTML === "") containerFed.innerHTML = "<p style='color:#999; text-align:center;'>予定はありません。</p>";
+            div.innerHTML = htmlContent;
+            if (isFed) containerFed.appendChild(div);
+            else containerClub.appendChild(div);
         }
+    }); // ★ここで weeklyEvents.forEach を閉じる
+
+    if (containerClub.innerHTML === "") containerClub.innerHTML = "<p style='color:#999; text-align:center;'>予定はありません。</p>";
+    if (containerFed.innerHTML === "") containerFed.innerHTML = "<p style='color:#999; text-align:center;'>予定はありません。</p>";
+}
 
 // 1. 検索プルダウンに名簿をセットする
         function updateSearchDropdown() {

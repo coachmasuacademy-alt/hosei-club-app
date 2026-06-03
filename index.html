@@ -3456,49 +3456,51 @@
             }
         }); // ★ここで weeklyMembers.forEach を閉じる
 
-        // 出席者が一人でもいる場合に枠を表示
-        if (attendeesHtml.length > 0) {
-            const dayStr = getDayOfWeekStr(evt.dateKey);
-            const div = document.createElement("div");
-            let cls = "";
-            let label = "";
-            let isFed = false;
+        // 出席者が0人でも予定の枠を表示する
+        const dayStr = getDayOfWeekStr(evt.dateKey);
+        const div = document.createElement("div");
+        let cls = "";
+        let label = "";
+        let isFed = false;
 
-            if (evt.group === 'club') { cls = "club"; label = "【クラブ】"; }
-            if (evt.group === 'federation') { cls = "fed"; label = "【中学生練習】"; isFed = true; }
-            if (evt.group === 'skillup') { cls = "skill"; label = "【スキルアップ】"; }
+        if (evt.group === 'club') { cls = "club"; label = "【クラブ】"; }
+        if (evt.group === 'federation') { cls = "fed"; label = "【中学生練習】"; isFed = true; }
+        if (evt.group === 'skillup') { cls = "skill"; label = "【スキルアップ】"; }
 
-            div.className = `summary-box ${cls}`;
+        div.className = `summary-box ${cls}`;
 
-            let htmlContent = `
-                <div class="summary-header">
-                    <span>${label} ${evt.start}${evt.end ? '～' + evt.end : ''}${dayStr} ${evt.title}</span>
-                    <span class="summary-count">${studentCount}名</span>
-                </div>
-                <div class="summary-names">${attendeesHtml.join("、 ")}</div>
-            `;
+        // ★変更点：参加者が0人の場合の表示テキストを設定
+        let attendeesDisplay = attendeesHtml.length > 0 ? attendeesHtml.join("、 ") : "<span style='color:#999;'>現在参加者はいません</span>";
 
-            if (memoList.length > 0) {
-                memoToggleCounter++;
-                const contentId = `memo-content-${memoToggleCounter}`;
-                const iconId = `memo-icon-${memoToggleCounter}`;
-                htmlContent += `
-                    <div class="summary-memo-container">
-                        <div class="memo-toggle-header" onclick="toggleMemoContent('${contentId}', '${iconId}')">
-                            <span>📝 連絡事項あり (${memoList.length}件)</span>
-                            <span id="${iconId}" style="font-size:0.8em; transform:rotate(0deg); transition:transform 0.2s;">▼</span>
-                        </div>
-                        <div id="${contentId}" class="memo-list-content">`;
-                memoList.forEach(item => {
-                    htmlContent += `<div class="memo-item"><span class="memo-person-name">${item.name}:</span><span class="memo-text">${escapeHtml(item.text)}</span></div>`;
-                });
-                htmlContent += `</div></div>`;
-            }
+        let htmlContent = `
+            <div class="summary-header">
+                <span>${label} ${evt.start}${evt.end ? '～' + evt.end : ''}${dayStr} ${evt.title}</span>
+                <span class="summary-count">${studentCount}名</span>
+            </div>
+            <div class="summary-names">${attendeesDisplay}</div>
+        `;
 
-            div.innerHTML = htmlContent;
-            if (isFed) containerFed.appendChild(div);
-            else containerClub.appendChild(div);
+        if (memoList.length > 0) {
+            memoToggleCounter++;
+            const contentId = `memo-content-${memoToggleCounter}`;
+            const iconId = `memo-icon-${memoToggleCounter}`;
+            htmlContent += `
+                <div class="summary-memo-container">
+                    <div class="memo-toggle-header" onclick="toggleMemoContent('${contentId}', '${iconId}')">
+                        <span>📝 連絡事項あり (${memoList.length}件)</span>
+                        <span id="${iconId}" style="font-size:0.8em; transform:rotate(0deg); transition:transform 0.2s;">▼</span>
+                    </div>
+                    <div id="${contentId}" class="memo-list-content">`;
+            memoList.forEach(item => {
+                htmlContent += `<div class="memo-item"><span class="memo-person-name">${item.name}:</span><span class="memo-text">${escapeHtml(item.text)}</span></div>`;
+            });
+            htmlContent += `</div></div>`;
         }
+
+        div.innerHTML = htmlContent;
+        if (isFed) containerFed.appendChild(div);
+        else containerClub.appendChild(div);
+        
     }); // ★ここで weeklyEvents.forEach を閉じる
 
     if (containerClub.innerHTML === "") containerClub.innerHTML = "<p style='color:#999; text-align:center;'>予定はありません。</p>";

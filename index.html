@@ -2931,7 +2931,7 @@
         }
 
         // ▼▼▼ GASのURL（スクリプト先頭に移動） ▼▼▼
-        const SHEET_URL = "https://script.google.com/macros/s/AKfycbyhlZ958j2STbpenMN_dAysKZPU3IElL8Ra-Cgn7kHtEUYykcUpxEKsi5r86WkeMm5S/exec";
+        const SHEET_URL = "https://script.google.com/macros/s/AKfycbxKRd0zML9DUQpTxLWoK7VqZCdzfy_cccBEanXZP2Jb7fn1BcbO-Q03IOoMSCj31yhJ/exec";
 
         // ▼▼▼ Firebaseの設定 ▼▼▼
         const firebaseConfig = {
@@ -3404,59 +3404,28 @@
         if (eventDate < today) return;
 
         const attendeesHtml = [];
-        let studentCount = 0;
-        const memoList = [];
+        
+        // ★修正：GASから送られてきた evt.participants を直接利用して描画
+        if (evt.participants && Array.isArray(evt.participants)) {
+            evt.participants.forEach(name => {
+                const m = weeklyMembers.find(member => member.name === name);
+                if (!m) return;
 
-        weeklyMembers.forEach(m => {
-            const newKey = `${evt.dateKey}_${evt.start}_${evt.fullTitle}_${m.name}`;
-            const oldKey = `${evt.dateKey}_${evt.fullTitle}_${m.name}`;
-            const isCoach = m.isCoach === true || m.isCoach === "〇";
-
-            // --- ここから表示判定のロジック ---
-            let isTarget = false;
-
-            if (isCoach) {
-                isTarget = true;
-            } else {
-                if (evt.group === 'club' && m.isClub && !m.isSkill) isTarget = true;
-                if (evt.group === 'federation' && m.isFed) isTarget = true;
-                if (evt.group === 'skillup' && m.isSkill) isTarget = true;
-            }
-
-            const status = weeklyStatus[newKey] || weeklyStatus[oldKey] || "未定";
-
-            if (isTarget && status === "出席") {
+                const isCoach = m.isCoach === true || m.isCoach === "〇";
                 let nameStyle = "";
                 if (isCoach) {
                     nameStyle = "color:#1976D2; font-weight:bold;";
-                } else {
-                    studentCount++;
-                    if (myMembers.includes(m.name)) {
-                        nameStyle = "color:#FF9966; font-weight:bold;";
-                    }
+                } else if (myMembers.includes(m.name)) {
+                    nameStyle = "color:#FF9966; font-weight:bold;";
                 }
+                
+                // 🔑鍵開け対応などを表示したい場合は、ここで memoList を併用しますが、
+                // まずは参加者表示を優先するためシンプルに構成しています
+                attendeesHtml.push(`<span style="${nameStyle}">${m.name}</span>`);
+            });
+        }
 
-                const memo = weeklyMemo[newKey] || weeklyMemo[oldKey] || "";
-                const isParentEarly = memo.includes("[鍵開け可]");
-                const displayMemo = memo.replace("[鍵開け可]", "").trim();
-
-                let displayName = `<span style="${nameStyle}">${m.name}</span>`;
-                if (isParentEarly) {
-                    displayName += `<span style="font-size:0.85em; margin-left:4px; color:#17a2b8;" title="受付・鍵開け対応可">🔑</span>`;
-                }
-                attendeesHtml.push(displayName);
-
-                if (displayMemo || isParentEarly) {
-                    let memoText = displayMemo;
-                    if (isParentEarly) {
-                        memoText = memoText ? `🔑受付・鍵開け可 / ${memoText}` : `🔑受付・鍵開け可`;
-                    }
-                    memoList.push({ name: m.name, text: memoText });
-                }
-            }
-        }); // ★ここで weeklyMembers.forEach を閉じる
-
-        // 出席者が0人でも予定の枠を表示する
+        const studentCount = (evt.participants || []).length;
         const dayStr = getDayOfWeekStr(evt.dateKey);
         const div = document.createElement("div");
         let cls = "";
@@ -3469,7 +3438,6 @@
 
         div.className = `summary-box ${cls}`;
 
-        // ★変更点：参加者が0人の場合の表示テキストを設定
         let attendeesDisplay = attendeesHtml.length > 0 ? attendeesHtml.join("、 ") : "<span style='color:#999;'>現在参加者はいません</span>";
 
         let htmlContent = `
@@ -3477,31 +3445,34 @@
                 <span>${label} ${evt.start}${evt.end ? '～' + evt.end : ''}${dayStr} ${evt.title}</span>
                 <span class="summary-count">${studentCount}名</span>
             </div>
+           ${evt.description ? `
+    <div style="font-size: 1.1em; color: #d32f2f; font-weight: bold; margin: 10px 0; padding: 10px; background: #fff5f5; border: 1px solid #ffcdd2; border-radius: 8px;">
+        ${escapeHtml(evt.description).replace(/\r?\n/g, '<br>')}
+    </div>` : ""}
             <div class="summary-names">${attendeesDisplay}</div>
         `;
 
-        if (memoList.length > 0) {
+        // 連絡事項がある場合
+        if (evt.notice) {
             memoToggleCounter++;
             const contentId = `memo-content-${memoToggleCounter}`;
             const iconId = `memo-icon-${memoToggleCounter}`;
             htmlContent += `
                 <div class="summary-memo-container">
                     <div class="memo-toggle-header" onclick="toggleMemoContent('${contentId}', '${iconId}')">
-                        <span>📝 連絡事項あり (${memoList.length}件)</span>
-                        <span id="${iconId}" style="font-size:0.8em; transform:rotate(0deg); transition:transform 0.2s;">▼</span>
+                        <span>📢 連絡事項</span>
+                        <span id="${iconId}" style="font-size:0.8em; transition:transform 0.2s;">▼</span>
                     </div>
-                    <div id="${contentId}" class="memo-list-content">`;
-            memoList.forEach(item => {
-                htmlContent += `<div class="memo-item"><span class="memo-person-name">${item.name}:</span><span class="memo-text">${escapeHtml(item.text)}</span></div>`;
-            });
-            htmlContent += `</div></div>`;
+                    <div id="${contentId}" class="memo-list-content">
+                        <div class="memo-item"><span class="memo-text">${escapeHtml(evt.notice)}</span></div>
+                    </div>
+                </div>`;
         }
 
         div.innerHTML = htmlContent;
         if (isFed) containerFed.appendChild(div);
         else containerClub.appendChild(div);
-        
-    }); // ★ここで weeklyEvents.forEach を閉じる
+    });
 
     if (containerClub.innerHTML === "") containerClub.innerHTML = "<p style='color:#999; text-align:center;'>予定はありません。</p>";
     if (containerFed.innerHTML === "") containerFed.innerHTML = "<p style='color:#999; text-align:center;'>予定はありません。</p>";

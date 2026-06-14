@@ -2942,7 +2942,7 @@
         }
 
         // ▼▼▼ GASのURL（スクリプト先頭に移動） ▼▼▼
-        const SHEET_URL = "https://script.google.com/macros/s/AKfycbxKRd0zML9DUQpTxLWoK7VqZCdzfy_cccBEanXZP2Jb7fn1BcbO-Q03IOoMSCj31yhJ/exec";
+        const SHEET_URL = "https://script.google.com/macros/s/AKfycbylB31ajwCr7SmKG8RamMUdq0t8M5z0XtOqKw0nWBPEKGOGmb7OmiJdX83RVkfMR_Od/exec";
 
         // ▼▼▼ Firebaseの設定 ▼▼▼
         const firebaseConfig = {
@@ -3398,106 +3398,65 @@
 
         // 参加者集計
         function renderSummary() {
-            const containerClub = document.getElementById("attendanceSummary");
-            const containerFed = document.getElementById("attendanceSummaryFed");
-            containerClub.innerHTML = "";
-            containerFed.innerHTML = "";
+    const containerClub = document.getElementById("attendanceSummary");
+    const containerFed = document.getElementById("attendanceSummaryFed");
+    containerClub.innerHTML = "";
+    containerFed.innerHTML = "";
 
-            if (!weeklyEvents || weeklyEvents.length === 0) return;
+    if (!weeklyEvents || weeklyEvents.length === 0) return;
 
-            let myMembers = [];
-            try {
-                myMembers = JSON.parse(localStorage.getItem("my_members_list") || "[]");
-            } catch (e) { }
+    let myMembers = [];
+    try { myMembers = JSON.parse(localStorage.getItem("my_members_list") || "[]"); } catch (e) { }
 
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-            let memoToggleCounter = 0;
+    weeklyEvents.forEach(evt => {
+        const eventDate = new Date(evt.dateKey);
+        if (eventDate < today) return;
 
-            weeklyEvents.forEach(evt => {
-                const eventDate = new Date(evt.dateKey);
-                if (eventDate < today) return;
-
-const dateObj = new Date(evt.dateKey);
+        const dateObj = new Date(evt.dateKey);
         const monthDayStr = (dateObj.getMonth() + 1) + "月" + dateObj.getDate() + "日";
         const dayStr = getDayOfWeekStr(evt.dateKey);
 
-                const attendeesHtml = [];
-
-                // ★修正：GASから送られてきた evt.participants を直接利用して描画
-                if (evt.participants && Array.isArray(evt.participants)) {
-                    evt.participants.forEach(name => {
-                        const m = weeklyMembers.find(member => member.name === name);
-                        if (!m) return;
-
-                        const isCoach = m.isCoach === true || m.isCoach === "〇";
-                        let nameStyle = "";
-                        if (isCoach) {
-                            nameStyle = "color:#1976D2; font-weight:bold;";
-                        } else if (myMembers.includes(m.name)) {
-                            nameStyle = "color:#FF9966; font-weight:bold;";
-                        }
-
-                        // 🔑鍵開け対応などを表示したい場合は、ここで memoList を併用しますが、
-                        // まずは参加者表示を優先するためシンプルに構成しています
-                        attendeesHtml.push(`<span style="${nameStyle}">${m.name}</span>`);
-                    });
-                }
-
-                const studentCount = (evt.participants || []).length;
+        const attendeesHtml = [];
+        
+        // ★GASで計算済みの evt.participants を直接表示！
+        if (evt.participants && Array.isArray(evt.participants)) {
+            evt.participants.forEach(name => {
+                const m = weeklyMembers.find(member => member.name === name);
+                if (!m) return;
                 
-                const div = document.createElement("div");
-                let cls = "";
-                let label = "";
-                let isFed = false;
-
-                if (evt.group === 'club') { cls = "club"; label = "【クラブ】"; }
-                if (evt.group === 'federation') { cls = "fed"; label = "【中学生練習】"; isFed = true; }
-                if (evt.group === 'skillup') { cls = "skill"; label = "【スキルアップ】"; }
-
-                div.className = `summary-box ${cls}`;
-
-                let attendeesDisplay = attendeesHtml.length > 0 ? attendeesHtml.join("、 ") : "<span style='color:#999;'>現在参加者はいません</span>";
-
-               let htmlContent = `
-    <div class="summary-header">
-        <span>
-            ${monthDayStr}${dayStr} ${label} 
-            ${evt.start}${evt.end ? '～' + evt.end : ''} 
-            ${evt.title}
-        </span>
-        <span class="summary-count">${studentCount}名</span>
-    </div>
-    ${evt.description ? `<div style="font-size: 1.1em; color: #d32f2f; font-weight: bold; margin: 10px 0; padding: 10px; background: #fff5f5; border: 1px solid #ffcdd2; border-radius: 8px;">${escapeHtml(evt.description).replace(/\r?\n/g, '<br>')}</div>` : ""}
-    <div class="summary-names">${attendeesDisplay}</div>
-`;
-
-                // 連絡事項がある場合
-                if (evt.notice) {
-                    memoToggleCounter++;
-                    const contentId = `memo-content-${memoToggleCounter}`;
-                    const iconId = `memo-icon-${memoToggleCounter}`;
-                    htmlContent += `
-                <div class="summary-memo-container">
-                    <div class="memo-toggle-header" onclick="toggleMemoContent('${contentId}', '${iconId}')">
-                        <span>📢 連絡事項</span>
-                        <span id="${iconId}" style="font-size:0.8em; transition:transform 0.2s;">▼</span>
-                    </div>
-                    <div id="${contentId}" class="memo-list-content">
-                        <div class="memo-item"><span class="memo-text">${escapeHtml(evt.notice)}</span></div>
-                    </div>
-                </div>`;
-                }
-
-                div.innerHTML = htmlContent;
-                if (isFed) containerFed.appendChild(div);
-                else containerClub.appendChild(div);
+                const isCoach = m.isCoach === true || m.isCoach === "〇";
+                let nameStyle = isCoach ? "color:#1976D2; font-weight:bold;" : (myMembers.includes(m.name) ? "color:#FF9966; font-weight:bold;" : "");
+                attendeesHtml.push(`<span style="${nameStyle}">${m.name}</span>`);
             });
-
-            if (containerClub.innerHTML === "") containerClub.innerHTML = "<p style='color:#999; text-align:center;'>予定はありません。</p>";
-            if (containerFed.innerHTML === "") containerFed.innerHTML = "<p style='color:#999; text-align:center;'>予定はありません。</p>";
         }
+
+        const studentCount = (evt.participants || []).length;
+        const div = document.createElement("div");
+        let cls = evt.group === 'club' ? "club" : (evt.group === 'federation' ? "fed" : "skill");
+        let label = evt.group === 'club' ? "【クラブ】" : (evt.group === 'federation' ? "【中学生練習】" : "【スキルアップ】");
+
+        div.className = `summary-box ${cls}`;
+        let attendeesDisplay = attendeesHtml.length > 0 ? attendeesHtml.join("、 ") : "<span style='color:#999;'>現在参加者はいません</span>";
+
+        div.innerHTML = `
+            <div class="summary-header">
+                <span>${monthDayStr}${dayStr} ${label} ${evt.start}〜 ${evt.title}</span>
+                <span class="summary-count">${studentCount}名</span>
+            </div>
+            ${evt.description ? `<div style="font-size: 1.1em; color: #d32f2f; font-weight: bold; margin: 10px 0; padding: 10px; background: #fff5f5; border: 1px solid #ffcdd2; border-radius: 8px;">${escapeHtml(evt.description).replace(/\r?\n/g, '<br>')}</div>` : ""}
+            <div class="summary-names">${attendeesDisplay}</div>
+        `;
+        
+        if (evt.group === 'federation') containerFed.appendChild(div);
+        else containerClub.appendChild(div);
+    });
+
+    if (containerClub.innerHTML === "") containerClub.innerHTML = "<p style='color:#999; text-align:center;'>予定はありません。</p>";
+    if (containerFed.innerHTML === "") containerFed.innerHTML = "<p style='color:#999; text-align:center;'>予定はありません。</p>";
+}
 
         // 1. 検索プルダウンに名簿をセットする
         function updateSearchDropdown() {

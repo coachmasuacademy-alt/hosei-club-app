@@ -927,7 +927,7 @@
             box-shadow: 0 2px 5px rgba(255, 153, 102, 0.4);
         }
 
-.parent-checkbox-label {
+        .parent-checkbox-label {
             display: flex;
             align-items: center;
             padding: 10px 15px;
@@ -940,9 +940,11 @@
             transition: all 0.2s ease;
             font-weight: bold;
         }
+
         /* チェックが入った時のスタイル */
         .parent-checkbox-label.checked {
-            background-color: #17a2b8; /* 青系 */
+            background-color: #17a2b8;
+            /* 青系 */
             color: white;
             border-color: #17a2b8;
             box-shadow: 0 2px 5px rgba(23, 162, 184, 0.3);
@@ -1966,7 +1968,8 @@
     </div>
 
     <header style="position: relative; padding-top: 45px; padding-bottom: 20px;">
-        <button onclick="reloadApp()" style="position: absolute; top: 10px; right: 15px; width: auto; margin: 0; padding: 6px 12px; background: rgba(255,255,255,0.25); color: white; border: 1px solid rgba(255,255,255,0.8); border-radius: 20px; font-size: 12px; font-weight: bold; box-shadow: none; backdrop-filter: blur(2px);">
+        <button onclick="reloadApp()"
+            style="position: absolute; top: 10px; right: 15px; width: auto; margin: 0; padding: 6px 12px; background: rgba(255,255,255,0.25); color: white; border: 1px solid rgba(255,255,255,0.8); border-radius: 20px; font-size: 12px; font-weight: bold; box-shadow: none; backdrop-filter: blur(2px);">
             ↻ 更新
         </button>
         <h1 style="margin: 0; line-height: 1.4;">法政Jr.バドミントンクラブ<br>運営管理アプリ</h1>
@@ -2010,7 +2013,7 @@
             </div>
             <p style="font-size:0.9em; color:#666; margin-bottom:20px;">氏名をタップして、今後の出欠を入力してください。</p>
 
-           <div style="background:#fff; padding:15px; border-radius:12px; margin-bottom:10px; border:1px solid #eee;">
+            <div style="background:#fff; padding:15px; border-radius:12px; margin-bottom:10px; border:1px solid #eee;">
                 <div style="display:flex; flex-direction:column; gap:12px;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <button onclick="openSettingModal()"
@@ -2022,7 +2025,7 @@
                     </div>
 
                     <div style="position:relative;">
-                        <select id="memberSearchSelect" onchange="showPersonalSchedule(this.value)" 
+                        <select id="memberSearchSelect" onchange="showPersonalSchedule(this.value)"
                             style="background:#f0f7ff; border:2px solid #17a2b8; color:#005662; font-weight:bold; height:45px;">
                             <option value="">🔍 選手の出席予定を検索...</option>
                         </select>
@@ -2031,11 +2034,13 @@
                 <div id="selectedMembersLabel" style="font-size:0.8em; color:#888; margin-top:8px;"></div>
             </div>
 
-            <div id="personalScheduleArea" style="display:none; background:#e0f7fa; padding:15px; border-radius:12px; border:2px solid #17a2b8; margin-bottom:20px; animation:fadeIn 0.3s ease;">
+            <div id="personalScheduleArea"
+                style="display:none; background:#e0f7fa; padding:15px; border-radius:12px; border:2px solid #17a2b8; margin-bottom:20px; animation:fadeIn 0.3s ease;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                     <h3 id="personalScheduleName" style="margin:0; color:#006064; font-size:16px;">選手名の予定</h3>
-                    <button onclick="document.getElementById('personalScheduleArea').style.display='none'" 
-                        style="width:auto; margin:0; padding:5px 12px; background:#00acc1; font-size:11px; border-radius:15px;">✕ 閉じる</button>
+                    <button onclick="document.getElementById('personalScheduleArea').style.display='none'"
+                        style="width:auto; margin:0; padding:5px 12px; background:#00acc1; font-size:11px; border-radius:15px;">✕
+                        閉じる</button>
                 </div>
                 <div id="personalScheduleList" style="font-size:0.9em; color:#333; line-height:1.6;"></div>
             </div>
@@ -2075,25 +2080,31 @@
                 <tbody id="matrixBody"></tbody>
             </table>
         </div>
-        <div id="coachingSection" class="card-section" style="display:none; background: #fff; border-top: 5px solid #2e7d32;">
-    <h2 style="color: #2e7d32; margin-top: 0; display: flex; align-items: center; gap: 10px;">
-        💡 コーチング理論ライブラリ
-    </h2>
-    <p style="font-size: 13px; color: #666; margin-bottom: 15px;">
-        カテゴリーを選択するか、下にスクロールして閲覧してください。
-    </p>
+        <div id="coachingSection" class="card-section"
+            style="display:none; background: #fff; border-top: 5px solid #2e7d32;">
+            <h2 style="color: #2e7d32; margin-top: 0; display: flex; align-items: center; gap: 10px;">
+                💡 コーチング理論ライブラリ
+            </h2>
+            <p style="font-size: 13px; color: #666; margin-bottom: 15px;">
+                カテゴリーを選択するか、下にスクロールして閲覧してください。
+            </p>
 
-    <div style="display: flex; overflow-x: auto; gap: 8px; margin-bottom: 20px; padding-bottom: 5px; -webkit-overflow-scrolling: touch;">
-        <button onclick="scrollToCategory('cat-coaching')" style="flex:0 0 auto; width:auto; padding:8px 15px; font-size:12px; background:#e8f5e9; color:#2e7d32; border:1px solid #c8e6c9;">コーチング</button>
-        <button onclick="scrollToCategory('cat-training')" style="flex:0 0 auto; width:auto; padding:8px 15px; font-size:12px; background:#e8f5e9; color:#2e7d32; border:1px solid #c8e6c9;">トレーニング</button>
-        <button onclick="scrollToCategory('cat-overseas')" style="flex:0 0 auto; width:auto; padding:8px 15px; font-size:12px; background:#e8f5e9; color:#2e7d32; border:1px solid #c8e6c9;">海外</button>
-        <button onclick="scrollToCategory('cat-reflection')" style="flex:0 0 auto; width:auto; padding:8px 15px; font-size:12px; background:#e8f5e9; color:#2e7d32; border:1px solid #c8e6c9;">課題の考察</button>
-    </div>
+            <div
+                style="display: flex; overflow-x: auto; gap: 8px; margin-bottom: 20px; padding-bottom: 5px; -webkit-overflow-scrolling: touch;">
+                <button onclick="scrollToCategory('cat-coaching')"
+                    style="flex:0 0 auto; width:auto; padding:8px 15px; font-size:12px; background:#e8f5e9; color:#2e7d32; border:1px solid #c8e6c9;">コーチング</button>
+                <button onclick="scrollToCategory('cat-training')"
+                    style="flex:0 0 auto; width:auto; padding:8px 15px; font-size:12px; background:#e8f5e9; color:#2e7d32; border:1px solid #c8e6c9;">トレーニング</button>
+                <button onclick="scrollToCategory('cat-overseas')"
+                    style="flex:0 0 auto; width:auto; padding:8px 15px; font-size:12px; background:#e8f5e9; color:#2e7d32; border:1px solid #c8e6c9;">海外</button>
+                <button onclick="scrollToCategory('cat-reflection')"
+                    style="flex:0 0 auto; width:auto; padding:8px 15px; font-size:12px; background:#e8f5e9; color:#2e7d32; border:1px solid #c8e6c9;">課題の考察</button>
+            </div>
 
-    <div id="videoListContainer" style="background: #fff; border-radius: 8px; border: 1px solid #eee;">
-        <p style="padding: 20px; text-align: center; color: #999;">読み込み中...</p>
-    </div>
-</div>
+            <div id="videoListContainer" style="background: #fff; border-radius: 8px; border: 1px solid #eee;">
+                <p style="padding: 20px; text-align: center; color: #999;">読み込み中...</p>
+            </div>
+        </div>
         <div id="taskSection" class="card-section" style="display:none;">
             <h2>課題の収集と分析</h2>
             <p style="font-size:0.9em; color:#666;">連盟登録者（小学生・中学生）のみ入力可能です。</p>
@@ -2188,17 +2199,17 @@
 
                     <div class="table-container">
                         <table id="taskTable">
-          <thead>
-            <tr>
-              <th>日付</th>
-              <th>大会</th>
-              <th>カテゴリー</th>
-              <th>選手名</th>
-              <th>内容</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+                            <thead>
+                                <tr>
+                                    <th>日付</th>
+                                    <th>大会</th>
+                                    <th>カテゴリー</th>
+                                    <th>選手名</th>
+                                    <th>内容</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
                     </div>
                 </div>
 
@@ -2845,7 +2856,7 @@
         const TASK_PASSWORD = "5721"; // 課題管理を開くときのパスワード
         // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
-// アプリ全体のデータを最新にして再読み込みする関数
+        // アプリ全体のデータを最新にして再読み込みする関数
         function reloadApp() {
             // パスワード認証や表示設定は残し、データキャッシュのみ削除
             const keysToRemove = [
@@ -2859,9 +2870,9 @@
                 'badminton_fee_v1',
                 'badminton_gut_v1'
             ];
-            
+
             keysToRemove.forEach(key => {
-                try { localStorage.removeItem(key); } catch(e) {}
+                try { localStorage.removeItem(key); } catch (e) { }
             });
 
             // 画面を再読み込み（これによりGASから最新データが取得されます）
@@ -2869,7 +2880,7 @@
         }
 
         // アプリログイン認証処理
-       function checkAppLogin() {
+        function checkAppLogin() {
             // 変更点: 保存されたパスワードと現在のパスワードが一致するか確認する
             if (localStorage.getItem("appAuthToken") === APP_PASSWORD) {
                 document.getElementById("appLoginModal").classList.remove("active");
@@ -2882,7 +2893,7 @@
             const input = document.getElementById("appPassInput").value;
             if (input === APP_PASSWORD) {
                 // 変更点: "true" ではなく、認証トークンとして現在のパスワードを保存する
-                localStorage.setItem("appAuthToken", APP_PASSWORD); 
+                localStorage.setItem("appAuthToken", APP_PASSWORD);
                 document.getElementById("appLoginModal").classList.remove("active");
             } else {
                 alert("パスワードが違います");
@@ -2908,7 +2919,7 @@
             const input = document.getElementById("taskPassInput").value;
             if (input === TASK_PASSWORD) {
                 // 変更点: "true" ではなく、認証トークンとして現在のパスワードを保存する
-                localStorage.setItem("taskAuthToken", TASK_PASSWORD); 
+                localStorage.setItem("taskAuthToken", TASK_PASSWORD);
                 document.getElementById("taskLoginModal").classList.remove("active");
 
                 // 認証成功したら、中断していたタブ切り替えを再実行
@@ -3248,9 +3259,9 @@
                 card.onclick = () => openIndModal(originalIndex);
                 card.innerHTML = `<span class="member-name">${m.name}</span><span class="member-grade">${isCoach ? 'コーチ' : m.grade}</span>`;
                 container.appendChild(card);
-        });
-        updateSearchDropdown(); // ★ここに追加することで、名簿が出るたびに検索リストも新しくなります
-    }
+            });
+            updateSearchDropdown(); // ★ここに追加することで、名簿が出るたびに検索リストも新しくなります
+        }
 
         // 個人モーダル処理
         function openIndModal(memberIndex) {
@@ -3272,6 +3283,11 @@
                 }
 
                 if (isTarget) {
+                    // ★追加：日付の整形
+                    const dateObj = new Date(evt.dateKey);
+                    const monthDayStr = (dateObj.getMonth() + 1) + "月" + dateObj.getDate() + "日";
+                    const dayStr = getDayOfWeekStr(evt.dateKey);
+
                     const newKey = `${evt.dateKey}_${evt.start}_${evt.fullTitle}_${currentIndMember.name}`;
                     const oldKey = `${evt.dateKey}_${evt.fullTitle}_${currentIndMember.name}`;
                     const status = weeklyStatus[newKey] || weeklyStatus[oldKey] || "未定";
@@ -3280,7 +3296,6 @@
                     // 鍵開けフラグの抽出と表示用テキストの整形
                     const isParentEarly = memo.includes("[鍵開け可]");
                     const displayMemo = memo.replace("[鍵開け可]", "").trim();
-                    const dayStr = getDayOfWeekStr(evt.dateKey);
 
                     let labelColor = "black";
                     let groupLabel = "";
@@ -3292,11 +3307,11 @@
                     div.className = "ind-row";
                     div.style.flexWrap = "wrap";
 
-                   div.innerHTML = `
+                    div.innerHTML = `
                         <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
                             <div class="ind-info">
                                 <div style="font-size:0.8em; color:${labelColor}; font-weight:bold;">
-                                    ${groupLabel} ${evt.start}${evt.end ? '～' + evt.end : ''}${dayStr}
+                                    ${monthDayStr}${dayStr} ${groupLabel} ${evt.start}${evt.end ? '～' + evt.end : ''}
                                 </div>
                                 <div style="font-size:0.95em;">${evt.title}</div>
                             </div>
@@ -3324,6 +3339,7 @@
                     container.appendChild(div);
                 }
             });
+
             document.getElementById("individualModal").style.display = "block";
         }
 
@@ -3343,7 +3359,7 @@
                 const currentStatus = btnGroup.dataset.status || "未定";
                 const originalStatus = btnGroup.dataset.originalStatus || "未定";
                 const memoInput = row.querySelector(".ind-memo-input");
-                
+
                 // ▼ 追加・修正: チェック状態を取得してメモに結合 ▼
                 const parentCheck = row.querySelector(".ind-parent-check");
                 let currentMemo = memoInput.value.trim();
@@ -3361,14 +3377,14 @@
                 // ▲ 修正ここまで ▲
 
                 if (currentStatus !== originalStatus || currentMemo !== originalMemo) {
-    updates.push({
-        date: evt.dateKey,
-        title: `${evt.start}_${evt.fullTitle}`, // 時間をくっつけて送る
-        name: currentIndMember.name,
-        status: currentStatus,
-        memo: currentMemo
-    });
-}
+                    updates.push({
+                        date: evt.dateKey,
+                        title: `${evt.start}_${evt.fullTitle}`, // 時間をくっつけて送る
+                        name: currentIndMember.name,
+                        status: currentStatus,
+                        memo: currentMemo
+                    });
+                }
             });
 
             if (updates.length === 0) { alert("変更箇所がありません。"); return; }
@@ -3381,83 +3397,88 @@
         }
 
         // 参加者集計
-       function renderSummary() {
-    const containerClub = document.getElementById("attendanceSummary");
-    const containerFed = document.getElementById("attendanceSummaryFed");
-    containerClub.innerHTML = "";
-    containerFed.innerHTML = "";
+        function renderSummary() {
+            const containerClub = document.getElementById("attendanceSummary");
+            const containerFed = document.getElementById("attendanceSummaryFed");
+            containerClub.innerHTML = "";
+            containerFed.innerHTML = "";
 
-    if (!weeklyEvents || weeklyEvents.length === 0) return;
+            if (!weeklyEvents || weeklyEvents.length === 0) return;
 
-    let myMembers = [];
-    try {
-        myMembers = JSON.parse(localStorage.getItem("my_members_list") || "[]");
-    } catch (e) { }
+            let myMembers = [];
+            try {
+                myMembers = JSON.parse(localStorage.getItem("my_members_list") || "[]");
+            } catch (e) { }
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
 
-    let memoToggleCounter = 0;
+            let memoToggleCounter = 0;
 
-    weeklyEvents.forEach(evt => {
-        const eventDate = new Date(evt.dateKey);
-        if (eventDate < today) return;
+            weeklyEvents.forEach(evt => {
+                const eventDate = new Date(evt.dateKey);
+                if (eventDate < today) return;
 
-        const attendeesHtml = [];
-        
-        // ★修正：GASから送られてきた evt.participants を直接利用して描画
-        if (evt.participants && Array.isArray(evt.participants)) {
-            evt.participants.forEach(name => {
-                const m = weeklyMembers.find(member => member.name === name);
-                if (!m) return;
-
-                const isCoach = m.isCoach === true || m.isCoach === "〇";
-                let nameStyle = "";
-                if (isCoach) {
-                    nameStyle = "color:#1976D2; font-weight:bold;";
-                } else if (myMembers.includes(m.name)) {
-                    nameStyle = "color:#FF9966; font-weight:bold;";
-                }
-                
-                // 🔑鍵開け対応などを表示したい場合は、ここで memoList を併用しますが、
-                // まずは参加者表示を優先するためシンプルに構成しています
-                attendeesHtml.push(`<span style="${nameStyle}">${m.name}</span>`);
-            });
-        }
-
-        const studentCount = (evt.participants || []).length;
+const dateObj = new Date(evt.dateKey);
+        const monthDayStr = (dateObj.getMonth() + 1) + "月" + dateObj.getDate() + "日";
         const dayStr = getDayOfWeekStr(evt.dateKey);
-        const div = document.createElement("div");
-        let cls = "";
-        let label = "";
-        let isFed = false;
 
-        if (evt.group === 'club') { cls = "club"; label = "【クラブ】"; }
-        if (evt.group === 'federation') { cls = "fed"; label = "【中学生練習】"; isFed = true; }
-        if (evt.group === 'skillup') { cls = "skill"; label = "【スキルアップ】"; }
+                const attendeesHtml = [];
 
-        div.className = `summary-box ${cls}`;
+                // ★修正：GASから送られてきた evt.participants を直接利用して描画
+                if (evt.participants && Array.isArray(evt.participants)) {
+                    evt.participants.forEach(name => {
+                        const m = weeklyMembers.find(member => member.name === name);
+                        if (!m) return;
 
-        let attendeesDisplay = attendeesHtml.length > 0 ? attendeesHtml.join("、 ") : "<span style='color:#999;'>現在参加者はいません</span>";
+                        const isCoach = m.isCoach === true || m.isCoach === "〇";
+                        let nameStyle = "";
+                        if (isCoach) {
+                            nameStyle = "color:#1976D2; font-weight:bold;";
+                        } else if (myMembers.includes(m.name)) {
+                            nameStyle = "color:#FF9966; font-weight:bold;";
+                        }
 
-        let htmlContent = `
-            <div class="summary-header">
-                <span>${label} ${evt.start}${evt.end ? '～' + evt.end : ''}${dayStr} ${evt.title}</span>
-                <span class="summary-count">${studentCount}名</span>
-            </div>
-           ${evt.description ? `
-    <div style="font-size: 1.1em; color: #d32f2f; font-weight: bold; margin: 10px 0; padding: 10px; background: #fff5f5; border: 1px solid #ffcdd2; border-radius: 8px;">
-        ${escapeHtml(evt.description).replace(/\r?\n/g, '<br>')}
-    </div>` : ""}
-            <div class="summary-names">${attendeesDisplay}</div>
-        `;
+                        // 🔑鍵開け対応などを表示したい場合は、ここで memoList を併用しますが、
+                        // まずは参加者表示を優先するためシンプルに構成しています
+                        attendeesHtml.push(`<span style="${nameStyle}">${m.name}</span>`);
+                    });
+                }
 
-        // 連絡事項がある場合
-        if (evt.notice) {
-            memoToggleCounter++;
-            const contentId = `memo-content-${memoToggleCounter}`;
-            const iconId = `memo-icon-${memoToggleCounter}`;
-            htmlContent += `
+                const studentCount = (evt.participants || []).length;
+                
+                const div = document.createElement("div");
+                let cls = "";
+                let label = "";
+                let isFed = false;
+
+                if (evt.group === 'club') { cls = "club"; label = "【クラブ】"; }
+                if (evt.group === 'federation') { cls = "fed"; label = "【中学生練習】"; isFed = true; }
+                if (evt.group === 'skillup') { cls = "skill"; label = "【スキルアップ】"; }
+
+                div.className = `summary-box ${cls}`;
+
+                let attendeesDisplay = attendeesHtml.length > 0 ? attendeesHtml.join("、 ") : "<span style='color:#999;'>現在参加者はいません</span>";
+
+               let htmlContent = `
+    <div class="summary-header">
+        <span>
+            ${monthDayStr}${dayStr} ${label} 
+            ${evt.start}${evt.end ? '～' + evt.end : ''} 
+            ${evt.title}
+        </span>
+        <span class="summary-count">${studentCount}名</span>
+    </div>
+    ${evt.description ? `<div style="font-size: 1.1em; color: #d32f2f; font-weight: bold; margin: 10px 0; padding: 10px; background: #fff5f5; border: 1px solid #ffcdd2; border-radius: 8px;">${escapeHtml(evt.description).replace(/\r?\n/g, '<br>')}</div>` : ""}
+    <div class="summary-names">${attendeesDisplay}</div>
+`;
+
+                // 連絡事項がある場合
+                if (evt.notice) {
+                    memoToggleCounter++;
+                    const contentId = `memo-content-${memoToggleCounter}`;
+                    const iconId = `memo-icon-${memoToggleCounter}`;
+                    htmlContent += `
                 <div class="summary-memo-container">
                     <div class="memo-toggle-header" onclick="toggleMemoContent('${contentId}', '${iconId}')">
                         <span>📢 連絡事項</span>
@@ -3467,23 +3488,23 @@
                         <div class="memo-item"><span class="memo-text">${escapeHtml(evt.notice)}</span></div>
                     </div>
                 </div>`;
+                }
+
+                div.innerHTML = htmlContent;
+                if (isFed) containerFed.appendChild(div);
+                else containerClub.appendChild(div);
+            });
+
+            if (containerClub.innerHTML === "") containerClub.innerHTML = "<p style='color:#999; text-align:center;'>予定はありません。</p>";
+            if (containerFed.innerHTML === "") containerFed.innerHTML = "<p style='color:#999; text-align:center;'>予定はありません。</p>";
         }
 
-        div.innerHTML = htmlContent;
-        if (isFed) containerFed.appendChild(div);
-        else containerClub.appendChild(div);
-    });
-
-    if (containerClub.innerHTML === "") containerClub.innerHTML = "<p style='color:#999; text-align:center;'>予定はありません。</p>";
-    if (containerFed.innerHTML === "") containerFed.innerHTML = "<p style='color:#999; text-align:center;'>予定はありません。</p>";
-}
-
-// 1. 検索プルダウンに名簿をセットする
+        // 1. 検索プルダウンに名簿をセットする
         function updateSearchDropdown() {
             const select = document.getElementById("memberSearchSelect");
             if (!select) return;
             select.innerHTML = '<option value="">🔍 選手の出席予定を検索...</option>';
-            
+
             const sortedMembers = [...weeklyMembers].sort((a, b) => a.name.localeCompare(b.name, "ja"));
             sortedMembers.forEach(m => {
                 const op = document.createElement("option");
@@ -3509,13 +3530,14 @@
             let html = '<div style="background:white; border-radius:8px; padding:10px;">';
             weeklyEvents.forEach(evt => {
                 const eventDate = new Date(evt.dateKey);
-                if (eventDate < today) return; 
-                const newKey = `${evt.dateKey}_${evt.start}_${evt.fullTitle}_${name}`;
-const oldKey = `${evt.dateKey}_${evt.fullTitle}_${name}`;
-const status = weeklyStatus[newKey] || weeklyStatus[oldKey] || "未定";
+                if (eventDate < today) return;
 
-if (status === "出席") {
-    foundAny = true;
+                const newKey = `${evt.dateKey}_${evt.start}_${evt.fullTitle}_${name}`;
+                const oldKey = `${evt.dateKey}_${evt.fullTitle}_${name}`;
+                const status = weeklyStatus[newKey] || weeklyStatus[oldKey] || "未定";
+
+                if (status === "出席") {
+                    foundAny = true;
                     foundAny = true;
                     const dayStr = getDayOfWeekStr(evt.dateKey);
                     html += `<div style="padding:5px 0; border-bottom:1px dashed #eee;">
@@ -3881,38 +3903,38 @@ if (status === "出席") {
         }
 
         function renderTournamentParticipants() {
-    const container = document.getElementById("tParticipantList");
-    container.innerHTML = "";
+            const container = document.getElementById("tParticipantList");
+            container.innerHTML = "";
 
-    const currentTournament = tournamentListCache.find(r => r.row == currentTournamentRow);
-    const feePerPerson = currentTournament ? Number(currentTournament.fee || 0) : 0;
+            const currentTournament = tournamentListCache.find(r => r.row == currentTournamentRow);
+            const feePerPerson = currentTournament ? Number(currentTournament.fee || 0) : 0;
 
-    const total = currentTournamentParticipants.length;
-    const paidCount = currentTournamentParticipants.filter(p => p.paid).length;
-    const totalAmount = feePerPerson * paidCount;
+            const total = currentTournamentParticipants.length;
+            const paidCount = currentTournamentParticipants.filter(p => p.paid).length;
+            const totalAmount = feePerPerson * paidCount;
 
-    const countLabel = document.getElementById("tParticipantCount");
-    if (countLabel) {
-        countLabel.innerHTML = `(済:<span style="color:#1976D2; font-weight:bold;">${paidCount}</span> / ${total}名) <span style="font-size:0.9em; margin-left:5px;">計 ¥${totalAmount.toLocaleString()}</span>`;
-    }
+            const countLabel = document.getElementById("tParticipantCount");
+            if (countLabel) {
+                countLabel.innerHTML = `(済:<span style="color:#1976D2; font-weight:bold;">${paidCount}</span> / ${total}名) <span style="font-size:0.9em; margin-left:5px;">計 ¥${totalAmount.toLocaleString()}</span>`;
+            }
 
-    if (total === 0) {
-        container.innerHTML = "<p style='color:#999; text-align:center;'>参加者はまだ登録されていません</p>";
-        return;
-    }
+            if (total === 0) {
+                container.innerHTML = "<p style='color:#999; text-align:center;'>参加者はまだ登録されていません</p>";
+                return;
+            }
 
-    currentTournamentParticipants.forEach((p, index) => {
-        const div = document.createElement("div");
-        div.className = "participant-row";
-        div.style.alignItems = "flex-start"; // 縦並びの要素があるため上揃えにする
+            currentTournamentParticipants.forEach((p, index) => {
+                const div = document.createElement("div");
+                div.className = "participant-row";
+                div.style.alignItems = "flex-start"; // 縦並びの要素があるため上揃えにする
 
-        const statusClass = p.paid ? "paid" : "unpaid";
-        const statusText = p.paid ? "￥ 支払済" : "￥ 未払い";
-        
-        // 振込日の表示（支払済かつ日付データがある場合）
-        const dateText = (p.paid && p.date) ? `<div style="font-size:0.8em; color:#666; margin-top:4px; text-align:right;">振込日: ${escapeHtml(p.date)}</div>` : "";
+                const statusClass = p.paid ? "paid" : "unpaid";
+                const statusText = p.paid ? "￥ 支払済" : "￥ 未払い";
 
-        div.innerHTML = `
+                // 振込日の表示（支払済かつ日付データがある場合）
+                const dateText = (p.paid && p.date) ? `<div style="font-size:0.8em; color:#666; margin-top:4px; text-align:right;">振込日: ${escapeHtml(p.date)}</div>` : "";
+
+                div.innerHTML = `
         <span style="font-weight:bold; margin-top:5px;">${p.name}</span>
         <div style="display:flex; flex-direction:column; align-items:flex-end;">
             <div style="display:flex; align-items:center; gap:10px;">
@@ -3924,9 +3946,9 @@ if (status === "出席") {
             ${dateText}
         </div>
         `;
-        container.appendChild(div);
-    });
-}
+                container.appendChild(div);
+            });
+        }
 
         function toggleAddParticipantBox() {
             const box = document.getElementById("addParticipantBox");
@@ -3934,20 +3956,20 @@ if (status === "出席") {
         }
 
         function addParticipantToTournament() {
-    const name = document.getElementById("tMemberSelect").value;
-    if (!name) return;
+            const name = document.getElementById("tMemberSelect").value;
+            if (!name) return;
 
-    // 重複チェック
-    if (currentTournamentParticipants.some(p => p.name === name)) {
-        alert("すでに追加されています");
-        return;
-    }
+            // 重複チェック
+            if (currentTournamentParticipants.some(p => p.name === name)) {
+                alert("すでに追加されています");
+                return;
+            }
 
-    // date: "" を追加
-    currentTournamentParticipants.push({ name: name, paid: false, date: "" });
-    renderTournamentParticipants();
-    document.getElementById("addParticipantBox").style.display = "none";
-}
+            // date: "" を追加
+            currentTournamentParticipants.push({ name: name, paid: false, date: "" });
+            renderTournamentParticipants();
+            document.getElementById("addParticipantBox").style.display = "none";
+        }
 
         function removeTournamentParticipant(index) {
             if (confirm("リストから削除しますか？")) {
@@ -3957,38 +3979,38 @@ if (status === "出席") {
         }
 
         function togglePaymentStatus(index) {
-    const p = currentTournamentParticipants[index];
-    
-    if (!p.paid) {
-        // 未払い → 支払済 に変更
-        // 今日の日付を初期値としてセット
-        const today = new Date();
-        const defaultDate = today.getFullYear() + "/" + String(today.getMonth() + 1).padStart(2, '0') + "/" + String(today.getDate()).padStart(2, '0');
-        
-        const dateInput = prompt(`「${p.name}」を支払済に変更します。\n振込日を入力してください。`, defaultDate);
-        
-        if (dateInput === null) {
-            return; // キャンセルされた場合は何もしない
-        }
-        
-        p.paid = true;
-        p.date = dateInput; // 振込日をデータに追加
-        renderTournamentParticipants();
-    } else {
-        // 支払済 → 未払い に戻す (ロック解除)
-        const pass = prompt(`「${p.name}」を未払いに戻します。\nロック解除パスワードを入力してください。`);
-        
-        if (pass === "masu1201") {
-            p.paid = false;
-            p.date = ""; // 日付をリセット
-            renderTournamentParticipants();
-        } else if (pass !== null) {
-            alert("パスワードが違います。");
-        }
-    }
-}
+            const p = currentTournamentParticipants[index];
 
-async function saveTournamentDetails() {
+            if (!p.paid) {
+                // 未払い → 支払済 に変更
+                // 今日の日付を初期値としてセット
+                const today = new Date();
+                const defaultDate = today.getFullYear() + "/" + String(today.getMonth() + 1).padStart(2, '0') + "/" + String(today.getDate()).padStart(2, '0');
+
+                const dateInput = prompt(`「${p.name}」を支払済に変更します。\n振込日を入力してください。`, defaultDate);
+
+                if (dateInput === null) {
+                    return; // キャンセルされた場合は何もしない
+                }
+
+                p.paid = true;
+                p.date = dateInput; // 振込日をデータに追加
+                renderTournamentParticipants();
+            } else {
+                // 支払済 → 未払い に戻す (ロック解除)
+                const pass = prompt(`「${p.name}」を未払いに戻します。\nロック解除パスワードを入力してください。`);
+
+                if (pass === "masu1201") {
+                    p.paid = false;
+                    p.date = ""; // 日付をリセット
+                    renderTournamentParticipants();
+                } else if (pass !== null) {
+                    alert("パスワードが違います。");
+                }
+            }
+        }
+
+        async function saveTournamentDetails() {
             if (!storage) { alert("Firebaseの設定が無効です。"); return; }
 
             showLoading(true);
@@ -4485,37 +4507,37 @@ async function saveTournamentDetails() {
         }
 
         function showShuttleDayDetail(dateStr, logs) {
-    const detailBox = document.getElementById("shuttleDayDetail");
-    const listContent = document.getElementById("detailListContent");
-    document.getElementById("detailDateStr").innerText = `${dateStr} の履歴`;
+            const detailBox = document.getElementById("shuttleDayDetail");
+            const listContent = document.getElementById("detailListContent");
+            document.getElementById("detailDateStr").innerText = `${dateStr} の履歴`;
 
-    listContent.innerHTML = "";
+            listContent.innerHTML = "";
 
-    if (logs.length === 0) {
-        listContent.innerHTML = "<p style='color:#999; text-align:center;'>履歴はありません</p>";
-    } else {
-        logs.forEach(l => {
-            const div = document.createElement("div");
-            div.className = "detail-item";
+            if (logs.length === 0) {
+                listContent.innerHTML = "<p style='color:#999; text-align:center;'>履歴はありません</p>";
+            } else {
+                logs.forEach(l => {
+                    const div = document.createElement("div");
+                    div.className = "detail-item";
 
-            let catName = "不明";
-            let catClass = "bg-jr";
-            if (l.category.includes("fed")) { catName = "中学"; catClass = "bg-fed"; }
-            else if (l.category.includes("kamiho")) { catName = "上星"; catClass = "bg-kamiho"; }
-            else if (l.category.includes("kamitsu")) { catName = "上鶴"; catClass = "bg-kamitsu"; }
+                    let catName = "不明";
+                    let catClass = "bg-jr";
+                    if (l.category.includes("fed")) { catName = "中学"; catClass = "bg-fed"; }
+                    else if (l.category.includes("kamiho")) { catName = "上星"; catClass = "bg-kamiho"; }
+                    else if (l.category.includes("kamitsu")) { catName = "上鶴"; catClass = "bg-kamitsu"; }
 
-            let actionText = "";
-            const parts = [];
-            if (l.used > 0) parts.push(`<span style="color:#FF5E62; font-weight:bold;">消費: ${l.used}筒</span>`);
-            if (l.added > 0) parts.push(`<span style="color:#0277BD; font-weight:bold;">入荷: ${l.added}筒</span>`);
-            actionText = parts.join(" / ");
+                    let actionText = "";
+                    const parts = [];
+                    if (l.used > 0) parts.push(`<span style="color:#FF5E62; font-weight:bold;">消費: ${l.used}筒</span>`);
+                    if (l.added > 0) parts.push(`<span style="color:#0277BD; font-weight:bold;">入荷: ${l.added}筒</span>`);
+                    actionText = parts.join(" / ");
 
-            let detailText = "";
-            if (l.usageType) detailText += `[${l.usageType}] `;
-            if (l.remarks) detailText += `${l.remarks}`;
-            
-            // --- 修正箇所：ボタンを追加 ---
-            div.innerHTML = `
+                    let detailText = "";
+                    if (l.usageType) detailText += `[${l.usageType}] `;
+                    if (l.remarks) detailText += `${l.remarks}`;
+
+                    // --- 修正箇所：ボタンを追加 ---
+                    div.innerHTML = `
                 <div class="detail-row-header" style="display:flex; justify-content:space-between; align-items:center;">
                     <div>
                         <span class="detail-cat ${catClass}">${catName}</span>
@@ -4530,12 +4552,12 @@ async function saveTournamentDetails() {
                     📝 ${detailText || "(詳細なし)"}
                 </div>
             `;
-            listContent.appendChild(div);
-        });
-    }
-    detailBox.style.display = "block";
-    detailBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
-}
+                    listContent.appendChild(div);
+                });
+            }
+            detailBox.style.display = "block";
+            detailBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
 
         const TRAINING_APP_URL = "https://coachmasuacademy-alt.github.io/my-website/";
 
@@ -5494,52 +5516,52 @@ ${isAdmin ? `
             }
         }
 
-      function scrollToCategory(id) {
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
+        function scrollToCategory(id) {
+            const el = document.getElementById(id);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
 
-async function loadCoachingVideos() {
-    const container = document.getElementById("videoListContainer");
-    container.innerHTML = "";
+        async function loadCoachingVideos() {
+            const container = document.getElementById("videoListContainer");
+            container.innerHTML = "";
 
-    const data = await callGas('getCoachingVideos');
-    if (!data || data.length === 0) {
-        container.innerHTML = "<p style='padding:20px; text-align:center;'>動画データがありません。</p>";
-        return;
-    }
+            const data = await callGas('getCoachingVideos');
+            if (!data || data.length === 0) {
+                container.innerHTML = "<p style='padding:20px; text-align:center;'>動画データがありません。</p>";
+                return;
+            }
 
-    // 指定されたカテゴリー順で定義
-    const categoryDefinition = [
-        { id: "cat-coaching", label: "コーチング", match: "コーチング" },
-        { id: "cat-training", label: "トレーニング", match: "トレーニング" },
-        { id: "cat-overseas", label: "海外", match: "海外" },
-        { id: "cat-reflection", label: "課題の考察", match: "課題の考察" }
-    ];
+            // 指定されたカテゴリー順で定義
+            const categoryDefinition = [
+                { id: "cat-coaching", label: "コーチング", match: "コーチング" },
+                { id: "cat-training", label: "トレーニング", match: "トレーニング" },
+                { id: "cat-overseas", label: "海外", match: "海外" },
+                { id: "cat-reflection", label: "課題の考察", match: "課題の考察" }
+            ];
 
-    categoryDefinition.forEach(catDef => {
-        // データの「カテゴリー」列が一致するものを抽出
-        const filtered = data.filter(v => v.category === catDef.match);
-        
-        if (filtered.length > 0) {
-            // カテゴリー見出し
-            const header = document.createElement("div");
-            header.id = catDef.id;
-            header.style.cssText = "background: #f1f8e9; padding: 12px 15px; font-weight: bold; color: #2e7d32; border-bottom: 2px solid #a5d6a7; font-size: 15px; position: sticky; top: 0; z-index: 5;";
-            header.innerText = `📁 ${catDef.label}`;
-            container.appendChild(header);
+            categoryDefinition.forEach(catDef => {
+                // データの「カテゴリー」列が一致するものを抽出
+                const filtered = data.filter(v => v.category === catDef.match);
 
-            filtered.forEach(v => {
-                const videoId = extractYouTubeId(v.url);
-                const item = document.createElement("div");
-                item.style.cssText = "padding: 15px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: background 0.2s;";
-                
-                item.onmouseover = () => { item.style.background = "#f9fbe7"; };
-                item.onmouseout = () => { item.style.background = "transparent"; };
+                if (filtered.length > 0) {
+                    // カテゴリー見出し
+                    const header = document.createElement("div");
+                    header.id = catDef.id;
+                    header.style.cssText = "background: #f1f8e9; padding: 12px 15px; font-weight: bold; color: #2e7d32; border-bottom: 2px solid #a5d6a7; font-size: 15px; position: sticky; top: 0; z-index: 5;";
+                    header.innerText = `📁 ${catDef.label}`;
+                    container.appendChild(header);
 
-                const thumbUrl = videoId ? `https://img.youtube.com/vi/${videoId}/default.jpg` : "";
-                
-                item.innerHTML = `
+                    filtered.forEach(v => {
+                        const videoId = extractYouTubeId(v.url);
+                        const item = document.createElement("div");
+                        item.style.cssText = "padding: 15px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: background 0.2s;";
+
+                        item.onmouseover = () => { item.style.background = "#f9fbe7"; };
+                        item.onmouseout = () => { item.style.background = "transparent"; };
+
+                        const thumbUrl = videoId ? `https://img.youtube.com/vi/${videoId}/default.jpg` : "";
+
+                        item.innerHTML = `
                     <div style="flex: 0 0 100px; height: 70px; background: #000; border-radius: 6px; overflow: hidden;">
                         ${videoId ? `<img src="${thumbUrl}" style="width:100%; height:100%; object-fit:cover;">` : `<div style="color:#666; font-size:10px; text-align:center; padding-top:25px;">No Image</div>`}
                     </div>
@@ -5554,19 +5576,19 @@ async function loadCoachingVideos() {
                     <div style="color: #1a73e8; font-size: 18px;">▶</div>
                 `;
 
-                item.onclick = () => { if (v.url) window.open(v.url, '_blank'); };
-                container.appendChild(item);
+                        item.onclick = () => { if (v.url) window.open(v.url, '_blank'); };
+                        container.appendChild(item);
+                    });
+                }
             });
         }
-    });
-}
 
-// YouTube ID抽出ヘルパー
-function extractYouTubeId(url) {
-    if (!url) return "";
-    const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|v\/|embed\/|shorts\/))([^#\?&]+)/);
-    return (match && match[1]) ? match[1] : "";
-}
+        // YouTube ID抽出ヘルパー
+        function extractYouTubeId(url) {
+            if (!url) return "";
+            const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|v\/|embed\/|shorts\/))([^#\?&]+)/);
+            return (match && match[1]) ? match[1] : "";
+        }
 
         function openReflectionModal(row, taskContent, existingReflection) {
             document.getElementById("reflectTaskRow").value = row;
@@ -5869,50 +5891,50 @@ function extractYouTubeId(url) {
             document.body.removeChild(tempTextArea);
         }
 
-// 編集モーダルを開く
-function openEditShuttleModal(row, used, added, usage, memo) {
-    document.getElementById("editShuttleRow").value = row;
-    document.getElementById("editShuttleUsed").value = used;
-    document.getElementById("editShuttleAdded").value = added;
-    document.getElementById("editShuttleUsageType").value = usage || "練習";
-    document.getElementById("editShuttleRemarks").value = memo || "";
-    document.getElementById("shuttleEditModal").style.display = "flex";
-}
+        // 編集モーダルを開く
+        function openEditShuttleModal(row, used, added, usage, memo) {
+            document.getElementById("editShuttleRow").value = row;
+            document.getElementById("editShuttleUsed").value = used;
+            document.getElementById("editShuttleAdded").value = added;
+            document.getElementById("editShuttleUsageType").value = usage || "練習";
+            document.getElementById("editShuttleRemarks").value = memo || "";
+            document.getElementById("shuttleEditModal").style.display = "flex";
+        }
 
-// 編集内容を送信
-async function submitEditShuttle() {
-    const row = document.getElementById("editShuttleRow").value;
-    const used = Number(document.getElementById("editShuttleUsed").value) || 0;
-    const added = Number(document.getElementById("editShuttleAdded").value) || 0;
-    const usageType = document.getElementById("editShuttleUsageType").value;
-    const remarks = document.getElementById("editShuttleRemarks").value;
+        // 編集内容を送信
+        async function submitEditShuttle() {
+            const row = document.getElementById("editShuttleRow").value;
+            const used = Number(document.getElementById("editShuttleUsed").value) || 0;
+            const added = Number(document.getElementById("editShuttleAdded").value) || 0;
+            const usageType = document.getElementById("editShuttleUsageType").value;
+            const remarks = document.getElementById("editShuttleRemarks").value;
 
-    showLoading(true);
-    const res = await callGas('updateShuttleLog', { row, used, added, usageType, remarks });
-    showLoading(false);
+            showLoading(true);
+            const res = await callGas('updateShuttleLog', { row, used, added, usageType, remarks });
+            showLoading(false);
 
-    if (res) {
-        alert("履歴を修正しました。在庫数も自動調整されました。");
-        document.getElementById("shuttleEditModal").style.display = "none";
-        document.getElementById("shuttleDayDetail").style.display = "none";
-        loadShuttleData(); // 在庫とカレンダーを再読み込み
-    }
-}
+            if (res) {
+                alert("履歴を修正しました。在庫数も自動調整されました。");
+                document.getElementById("shuttleEditModal").style.display = "none";
+                document.getElementById("shuttleDayDetail").style.display = "none";
+                loadShuttleData(); // 在庫とカレンダーを再読み込み
+            }
+        }
 
-// 履歴を削除
-async function deleteShuttleLog(row) {
-    if (!confirm("この履歴を削除しますか？\n（削除すると在庫数もその分戻ります）")) return;
+        // 履歴を削除
+        async function deleteShuttleLog(row) {
+            if (!confirm("この履歴を削除しますか？\n（削除すると在庫数もその分戻ります）")) return;
 
-    showLoading(true);
-    const res = await callGas('deleteShuttleLog', { row });
-    showLoading(false);
+            showLoading(true);
+            const res = await callGas('deleteShuttleLog', { row });
+            showLoading(false);
 
-    if (res) {
-        alert("削除しました。");
-        document.getElementById("shuttleDayDetail").style.display = "none";
-        loadShuttleData(); // 在庫とカレンダーを再読み込み
-    }
-}
+            if (res) {
+                alert("削除しました。");
+                document.getElementById("shuttleDayDetail").style.display = "none";
+                loadShuttleData(); // 在庫とカレンダーを再読み込み
+            }
+        }
     </script>
 
     <div id="appLoginModal" class="login-overlay">
@@ -5974,14 +5996,16 @@ async function deleteShuttleLog(row) {
         </div>
     </div>
 
-<div id="shuttleEditModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:5000; justify-content:center; align-items:center;">
-        <div style="background:white; width:90%; max-width:400px; border-radius:12px; padding:20px; box-shadow:0 4px 15px rgba(0,0,0,0.2);">
+    <div id="shuttleEditModal"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:5000; justify-content:center; align-items:center;">
+        <div
+            style="background:white; width:90%; max-width:400px; border-radius:12px; padding:20px; box-shadow:0 4px 15px rgba(0,0,0,0.2);">
             <h3 style="margin-top:0; color:#333;">履歴の修正</h3>
             <input type="hidden" id="editShuttleRow">
-            
+
             <label>使用数 (-)</label>
             <input type="number" id="editShuttleUsed" style="margin-bottom:10px;" placeholder="0">
-            
+
             <label>追加数 (+)</label>
             <input type="number" id="editShuttleAdded" style="margin-bottom:10px;" placeholder="0">
 
@@ -5997,8 +6021,10 @@ async function deleteShuttleLog(row) {
             <input type="text" id="editShuttleRemarks" style="margin-bottom:20px;" placeholder="メモ">
 
             <div style="display:flex; gap:10px;">
-                <button onclick="submitEditShuttle()" style="flex:1; background:#FF9966; color:white; margin-top:0; border-radius:10px; padding:10px;">更新</button>
-                <button onclick="document.getElementById('shuttleEditModal').style.display='none'" style="flex:1; background:#ccc; color:#333; margin-top:0; border-radius:10px; padding:10px; box-shadow:none;">キャンセル</button>
+                <button onclick="submitEditShuttle()"
+                    style="flex:1; background:#FF9966; color:white; margin-top:0; border-radius:10px; padding:10px;">更新</button>
+                <button onclick="document.getElementById('shuttleEditModal').style.display='none'"
+                    style="flex:1; background:#ccc; color:#333; margin-top:0; border-radius:10px; padding:10px; box-shadow:none;">キャンセル</button>
             </div>
         </div>
     </div>

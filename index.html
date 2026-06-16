@@ -3422,7 +3422,8 @@
         const dayStr = getDayOfWeekStr(evt.dateKey);
 
         const attendeesHtml = [];
-        const memoList = []; // ★追加：メモリストを格納する配列を復活
+        const memoList = []; 
+        let studentCount = 0; // ★ここで生徒の人数を0からカウントし始めます
 
         if (evt.participants && Array.isArray(evt.participants)) {
             evt.participants.forEach(name => {
@@ -3430,9 +3431,14 @@
                 if (!m) return;
                 
                 const isCoach = m.isCoach === true || m.isCoach === "〇";
+                
+                // ★追加：コーチでなければ、人数を+1する
+                if (!isCoach) {
+                    studentCount++;
+                }
+
                 let nameStyle = isCoach ? "color:#1976D2; font-weight:bold;" : (myMembers.includes(m.name) ? "color:#FF9966; font-weight:bold;" : "");
                 
-                // --- ★追加：メモと鍵マークの判定ロジックを復活 ---
                 const newKey = `${evt.dateKey}_${evt.start}_${evt.fullTitle}_${m.name}`;
                 const oldKey = `${evt.dateKey}_${evt.fullTitle}_${m.name}`;
                 const memo = weeklyMemo[newKey] || weeklyMemo[oldKey] || "";
@@ -3456,11 +3462,9 @@
                     }
                     memoList.push({ name: m.name, text: memoText });
                 }
-                // ------------------------------------------------
             });
         }
 
-        const studentCount = (evt.participants || []).length;
         const div = document.createElement("div");
         let cls = evt.group === 'club' ? "club" : (evt.group === 'federation' ? "fed" : "skill");
         let label = evt.group === 'club' ? "【クラブ】" : (evt.group === 'federation' ? "【中学生練習】" : "【スキルアップ】");
@@ -3477,7 +3481,7 @@
             <div class="summary-names">${attendeesDisplay}</div>
         `;
         
-        // ★追加：メモリストの表示HTMLを生成
+        // メモリストの表示HTMLを生成
         if (memoList.length > 0) {
             memoToggleCounter++;
             const contentId = `memo-content-${memoToggleCounter}`;

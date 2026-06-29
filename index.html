@@ -772,6 +772,15 @@
                 font-size: 0.9em;
             }
 
+/* 写真 */
+            #otherList tbody td:nth-child(5) {
+                text-align: center;
+                margin: 10px 0;
+                background: #fafafa;
+                padding: 10px;
+                border-radius: 8px;
+            }
+
             #otherList tbody td:nth-child(4)::before {
                 content: "状況: ";
                 color: #999;
@@ -2551,6 +2560,9 @@
                 <option value="進行中">進行中</option>
                 <option value="完了">完了</option>
             </select>
+            <label>写真 (任意)</label>
+            <input type="file" id="otherPhoto" accept="image/*" style="padding:10px; border:1px dashed #ccc; margin-bottom:15px; background:white;">
+
             <button onclick="saveOtherData()">登録する</button>
         </div>
         <div class="table-container">
@@ -2561,7 +2573,7 @@
                         <th>内容</th>
                         <th>担当者</th>
                         <th>状況</th>
-                        <th>編集</th>
+                        <th>写真</th> <th>編集</th>
                         <th>削除</th>
                     </tr>
                 </thead>
@@ -2955,7 +2967,7 @@
         }
 
         // ▼▼▼ GASのURL（スクリプト先頭に移動） ▼▼▼
-        const SHEET_URL = "https://script.google.com/macros/s/AKfycbzye-dRPVzR4cO6oxcLaLxrB4tuOA7CnxSI5Aum41UF4Op-jWTs56Wc1pAz9X04_Dxi/exec";
+        const SHEET_URL = "https://script.google.com/macros/s/AKfycbxJJ6InT-osphgieHACuT5BmOPIXW39zNHduTqd4lJkkt-pwfBKpu4GLvDPyZfvR4KA/exec";
 
         // ▼▼▼ Firebaseの設定 ▼▼▼
         const firebaseConfig = {
@@ -3525,6 +3537,7 @@ let noticeHtml = "";
                         <div style="font-size: 0.95em; color: #0056b3; background: #e0f7fa; border: 2px solid #17a2b8; border-radius: 8px; padding: 12px; margin: 12px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
                             <div style="font-weight: bold; margin-bottom: 6px; font-size: 1.05em;">📢 体育館ルール：${escapeHtml(displayTitle)}</div>
                             <div style="white-space: pre-wrap; font-size: 0.95em; line-height: 1.5; color: #333;">${escapeHtml(n.content)}</div>
+                            ${n.url ? `<div style="margin-top:8px; text-align:center;"><img src="${n.url}" style="max-width:100%; max-height:200px; border-radius:6px; cursor:pointer;" onclick="showPhotoModal('${n.url}')"></div>` : ""}
                         </div>`;
                     });
                 }
@@ -4154,14 +4167,14 @@ let noticeHtml = "";
             if (cache) { 
                 otherDataCache = JSON.parse(cache);
                 renderOtherTable(otherDataCache); 
-                renderSummary(); // 出欠画面にも即反映
+                renderSummary(); 
             } 
             const data = await callGas('getOtherList'); 
             if (data) { 
                 otherDataCache = data;
                 safeSetStorage(CACHE_KEY_OTHER, JSON.stringify(data)); 
                 renderOtherTable(data); 
-                renderSummary(); // 出欠画面にも最新を反映
+                renderSummary(); 
             } 
         }
 
@@ -4171,7 +4184,6 @@ let noticeHtml = "";
             const incomplete = data.filter(r => !/完了/.test(String(r.status || ""))); 
             const complete = data.filter(r => /完了/.test(String(r.status || ""))); 
             
-            // 登録順（行番号が新しい順）に並び替え
             incomplete.sort((a, b) => b.row - a.row); 
             complete.sort((a, b) => b.row - a.row);
             
@@ -4180,20 +4192,23 @@ let noticeHtml = "";
                 const tr = document.createElement("tr"); 
                 if (isCompleted) tr.classList.add("other-completed"); 
                 
-                // 表示を見やすく整形（[上星小学校] などのタグを目立たせる）
                 let displayTitle = escapeHtml(r.title);
                 displayTitle = displayTitle.replace(/\[(上星小学校|文ヶ岡小学校|スカイアリーナ座間|上鶴間小学校|くぬぎ台小学校)\]/g, '<span style="color:#17a2b8; font-weight:bold;">[$1]</span><br>');
 
-                tr.innerHTML = `<td>${displayTitle}</td><td>${escapeHtml(r.content)}</td><td>${escapeHtml(r.person)}</td><td style="font-weight:bold; color:${isCompleted ? '#999' : '#17a2b8'};">${escapeHtml(r.status)}</td><td class="delete-col"><button type="button" style="background:#17a2b8;" onclick="editOther(${r.row}, '${(r.title || '').replace(/'/g, "\\'")}', '${(r.content || '').replace(/'/g, "\\'")}', '${(r.person || '').replace(/'/g, "\\'")}', '${(r.status || '').replace(/'/g, "\\'")}')">編集</button></td><td class="delete-col"><button type="button" style="background:#dc3545;" onclick="deleteOtherRow(${r.row})">削除</button></td>`; 
+                // ★追加：写真があれば表示する
+                const imgHtml = r.url ? `<img src="${r.url}" style="max-width:80px; max-height:60px; object-fit:cover; cursor:pointer; border-radius:4px;" onclick="showPhotoModal('${r.url}')">` : "<span style='color:#ccc; font-size:12px;'>なし</span>";
+
+                tr.innerHTML = `<td>${displayTitle}</td><td>${escapeHtml(r.content)}</td><td>${escapeHtml(r.person)}</td><td style="font-weight:bold; color:${isCompleted ? '#999' : '#17a2b8'};">${escapeHtml(r.status)}</td><td>${imgHtml}</td><td class="delete-col"><button type="button" style="background:#17a2b8;" onclick="editOther(${r.row}, '${(r.title || '').replace(/'/g, "\\'")}', '${(r.content || '').replace(/'/g, "\\'")}', '${(r.person || '').replace(/'/g, "\\'")}', '${(r.status || '').replace(/'/g, "\\'")}', '${r.url || ""}')">編集</button></td><td class="delete-col"><button type="button" style="background:#dc3545;" onclick="deleteOtherRow(${r.row})">削除</button></td>`; 
                 tbody.appendChild(tr); 
             }); 
         }
 
         async function saveOtherData() { 
+            if (!storage) return alert("Firebaseが無効です");
+
             const targetGym = document.getElementById("otherTargetGym").value;
             let title = document.getElementById("otherTitle").value.trim(); 
             
-            // 対象体育館が選ばれている場合、タイトルの先頭に [体育館名] を付与して連携タグにする
             if (targetGym && !title.includes(targetGym)) {
                 title = `[${targetGym}] ${title}`;
             }
@@ -4201,38 +4216,85 @@ let noticeHtml = "";
             const content = document.getElementById("otherContent").value.trim(); 
             const person = document.getElementById("otherPerson").value; 
             const status = document.getElementById("otherStatus").value; 
+            const file = document.getElementById("otherPhoto").files[0]; // ★写真
             
             if (!title || !content) return alert("タイトルと内容を入力してください");
 
             showLoading(true); 
-            const res = await callGas('saveOther', { title, content, person, status }); 
-            if (res) { 
-                alert(res); 
-                document.getElementById("otherTitle").value = "";
-                document.getElementById("otherContent").value = "";
-                document.getElementById("otherTargetGym").value = "";
-                loadOtherList(); 
-                if (typeof loadWeeklyMatrix === 'function') loadWeeklyMatrix(); // 出欠の再描画
-            } 
-            showLoading(false); 
+            try {
+                let url = "";
+                if (file) {
+                    const blob = await compressImage(file, 800, 0.7); // 圧縮
+                    const storageRef = storage.ref();
+                    const fileRef = storageRef.child('other_photos/' + Date.now() + '_' + file.name);
+                    await fileRef.put(blob);
+                    url = await fileRef.getDownloadURL();
+                }
+
+                const res = await callGas('saveOther', { title, content, person, status, url }); 
+                if (res) { 
+                    alert(res); 
+                    document.getElementById("otherTitle").value = "";
+                    document.getElementById("otherContent").value = "";
+                    document.getElementById("otherTargetGym").value = "";
+                    document.getElementById("otherPhoto").value = "";
+                    loadOtherList(); 
+                    if (typeof loadWeeklyMatrix === 'function') loadWeeklyMatrix(); 
+                } 
+            } catch (e) {
+                console.error(e);
+                alert("エラー: " + e.message);
+            } finally {
+                showLoading(false); 
+            }
         }
 
-        function editOther(row, title, content, person, status) { 
+        function editOther(row, title, content, person, status, url) { 
             const tbody = document.querySelector("#otherList tbody"); 
             const tr = Array.from(tbody.children).find(tr => tr.innerHTML.includes(`editOther(${row}`)); 
             if (!tr) return; 
-            tr.innerHTML = `<td><input type="text" id="editTitle${row}" value="${title}" style="font-size:0.9em;"></td><td><textarea id="editContent${row}" style="height:60px;">${content}</textarea></td><td><input type="text" id="editPerson${row}" value="${person}"></td><td><select id="editStatus${row}"><option value="未着手" ${status==='未着手'?'selected':''}>未着手</option><option value="進行中" ${status==='進行中'?'selected':''}>進行中</option><option value="完了" ${status==='完了'?'selected':''}>完了</option></select></td><td colspan="2" class="delete-col" style="text-align:right;"><button type="button" style="background:#28a745; margin-bottom:5px;" onclick="saveEditOther(${row})">保存</button><br><button type="button" style="background:#666;" onclick="loadOtherList()">中止</button></td>`; 
+            
+            const currentImg = url ? `<img id="editOtherImg${row}" src="${url}" style="max-width:50px;"><br><button type="button" onclick="removeOtherPhoto(${row})" style="font-size:10px; padding:4px;">削除</button>` : "";
+
+            tr.innerHTML = `<td><input type="text" id="editTitle${row}" value="${title}" style="font-size:0.9em;"></td><td><textarea id="editContent${row}" style="height:60px;">${content}</textarea></td><td><input type="text" id="editPerson${row}" value="${person}"></td><td><select id="editStatus${row}"><option value="未着手" ${status==='未着手'?'selected':''}>未着手</option><option value="進行中" ${status==='進行中'?'selected':''}>進行中</option><option value="完了" ${status==='完了'?'selected':''}>完了</option></select></td><td>${currentImg}<input type="file" id="editOtherPhoto${row}" style="width:130px; font-size:10px;"></td><td colspan="2" class="delete-col" style="text-align:right;"><button type="button" style="background:#28a745; margin-bottom:5px;" onclick="saveEditOther(${row}, '${url}')">保存</button><br><button type="button" style="background:#666;" onclick="loadOtherList()">中止</button></td>`; 
         }
 
-        async function saveEditOther(row) { 
+        function removeOtherPhoto(row) {
+            const img = document.getElementById(`editOtherImg${row}`);
+            if (img) img.remove();
+            const input = document.getElementById(`editOtherPhoto${row}`);
+            if (input) input.dataset.remove = "true";
+        }
+
+        async function saveEditOther(row, oldUrl) { 
             const title = document.getElementById(`editTitle${row}`).value; 
             const content = document.getElementById(`editContent${row}`).value; 
             const person = document.getElementById(`editPerson${row}`).value; 
             const status = document.getElementById(`editStatus${row}`).value; 
+            const file = document.getElementById(`editOtherPhoto${row}`).files[0];
+            const removePhoto = document.getElementById(`editOtherPhoto${row}`).dataset.remove === "true";
+
             showLoading(true); 
-            const res = await callGas('updateOther', { row, title, content, person, status }); 
-            if (res) { alert(res); loadOtherList(); } 
-            showLoading(false); 
+            try {
+                let url = oldUrl;
+                if (file) {
+                    const blob = await compressImage(file, 800, 0.7);
+                    const storageRef = storage.ref();
+                    const fileRef = storageRef.child('other_photos/' + Date.now() + '_' + file.name);
+                    await fileRef.put(blob);
+                    url = await fileRef.getDownloadURL();
+                } else if (removePhoto) {
+                    url = ""; // 画像削除
+                }
+
+                const res = await callGas('updateOther', { row, title, content, person, status, url }); 
+                if (res) { alert(res); loadOtherList(); } 
+            } catch (e) {
+                console.error(e);
+                alert("エラー: " + e.message);
+            } finally {
+                showLoading(false); 
+            }
         }
 
         async function deleteOtherRow(row) { 

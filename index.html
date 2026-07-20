@@ -2967,7 +2967,7 @@
         }
 
         // ▼▼▼ GASのURL（スクリプト先頭に移動） ▼▼▼
-        const SHEET_URL = "https://script.google.com/macros/s/AKfycbxJJ6InT-osphgieHACuT5BmOPIXW39zNHduTqd4lJkkt-pwfBKpu4GLvDPyZfvR4KA/exec";
+        const SHEET_URL = "https://script.google.com/macros/s/AKfycbyGUPbsCDwPfZSr6fwtuRXgHlfnnPOAwejGoY_1bW_5XYbGF9O0jMazvcGxE4zGCc8s/exec";
 
         // ▼▼▼ Firebaseの設定 ▼▼▼
         const firebaseConfig = {
@@ -3319,7 +3319,7 @@ let otherDataCache = [];
 
                     const newKey = `${evt.dateKey}_${evt.start}_${evt.fullTitle}_${currentIndMember.name}`;
                     const oldKey = `${evt.dateKey}_${evt.fullTitle}_${currentIndMember.name}`;
-                    const status = weeklyStatus[newKey] || weeklyStatus[oldKey] || "未定";
+                    const status = weeklyStatus[newKey] || weeklyStatus[oldKey] || "欠席";
                     const memo = weeklyMemo[newKey] || weeklyMemo[oldKey] || "";
                     
                     // 鍵開けフラグの抽出と表示用テキストの整形
@@ -3345,10 +3345,9 @@ let otherDataCache = [];
                                 <div style="font-size:0.95em;">${evt.title}</div>
                             </div>
                             <div class="ind-btns" id="ind-btn-group-${idx}" data-status="${status}" data-original-status="${status}">
-                                <button class="ind-btn present ${status === '出席' ? 'active' : ''}" onclick="setIndStatus(${idx}, '出席')">出</button>
-                                <button class="ind-btn absent ${status === '欠席' ? 'active' : ''}" onclick="setIndStatus(${idx}, '欠席')">欠</button>
-                                <button class="ind-btn unknown ${status === '未定' ? 'active' : ''}" onclick="setIndStatus(${idx}, '未定')">?</button>
-                            </div>
+    <button class="ind-btn present ${status === '出席' ? 'active' : ''}" onclick="setIndStatus(${idx}, '出席')">出</button>
+    <button class="ind-btn absent ${status === '欠席' ? 'active' : ''}" onclick="setIndStatus(${idx}, '欠席')">欠</button>
+</div>
                         </div>
                         <div style="width:100%; margin-top:8px;">
                             <label class="parent-checkbox-label ${isParentEarly ? 'checked' : ''}" id="label-parent-${idx}">
@@ -3372,7 +3371,8 @@ let otherDataCache = [];
             document.getElementById("individualModal").style.display = "block";
         }
 
-        function setIndStatus(idx, status) { const group = document.getElementById(`ind-btn-group-${idx}`); const btns = group.querySelectorAll('.ind-btn'); btns.forEach(b => b.classList.remove('active')); if (status === '出席') group.querySelector('.present').classList.add('active'); if (status === '欠席') group.querySelector('.absent').classList.add('active'); if (status === '未定') group.querySelector('.unknown').classList.add('active'); group.dataset.status = status; }
+        function setIndStatus(idx, status) { const group = document.getElementById(`ind-btn-group-${idx}`); const btns = group.querySelectorAll('.ind-btn'); btns.forEach(b => b.classList.remove('active')); if (status === '出席') group.querySelector('.present').classList.add('active'); if (status === '欠席') group.querySelector('.absent').classList.add('active'); group.dataset.status = status; }
+
         function closeIndModal() { document.getElementById("individualModal").style.display = "none"; }
 
         async function saveIndData() {
@@ -3385,8 +3385,8 @@ let otherDataCache = [];
                 const evt = weeklyEvents[idx];
                 const btnGroup = row.querySelector(".ind-btns");
 
-                const currentStatus = btnGroup.dataset.status || "未定";
-                const originalStatus = btnGroup.dataset.originalStatus || "未定";
+                const currentStatus = btnGroup.dataset.status || "欠席";
+const originalStatus = btnGroup.dataset.originalStatus || "欠席";
                 const memoInput = row.querySelector(".ind-memo-input");
 
                 // ▼ 追加・修正: チェック状態を取得してメモに結合 ▼
@@ -3455,22 +3455,26 @@ let otherDataCache = [];
         let studentCount = 0; // ★ここで生徒の人数を0からカウントし始めます
 
         if (evt.participants && Array.isArray(evt.participants)) {
-            evt.participants.forEach(name => {
-                const m = weeklyMembers.find(member => member.name === name);
-                if (!m) return;
-                
-                const isCoach = m.isCoach === true || m.isCoach === "〇";
-                
-                // ★追加：コーチでなければ、人数を+1する
-                if (!isCoach) {
-                    studentCount++;
-                }
+    evt.participants.forEach(name => {
+        const m = weeklyMembers.find(member => member.name === name);
+        if (!m) return;
+        
+        const newKey = `${evt.dateKey}_${evt.start}_${evt.fullTitle}_${m.name}`;
+        const oldKey = `${evt.dateKey}_${evt.fullTitle}_${m.name}`;
+        
+        // ★追加：「出席」以外は一覧に表示せず、カウントもしない
+        const status = weeklyStatus[newKey] || weeklyStatus[oldKey] || "欠席";
+        if (status !== "出席") return;
 
-                let nameStyle = isCoach ? "color:#1976D2; font-weight:bold;" : (myMembers.includes(m.name) ? "color:#FF9966; font-weight:bold;" : "");
-                
-                const newKey = `${evt.dateKey}_${evt.start}_${evt.fullTitle}_${m.name}`;
-                const oldKey = `${evt.dateKey}_${evt.fullTitle}_${m.name}`;
-                const memo = weeklyMemo[newKey] || weeklyMemo[oldKey] || "";
+        const isCoach = m.isCoach === true || m.isCoach === "〇";
+        
+        // ★追加：コーチでなければ、人数を+1する
+        if (!isCoach) {
+            studentCount++;
+        }
+
+        let nameStyle = isCoach ? "color:#1976D2; font-weight:bold;" : (myMembers.includes(m.name) ? "color:#FF9966; font-weight:bold;" : "");
+        const memo = weeklyMemo[newKey] || weeklyMemo[oldKey] || "";
 
                 const isParentEarly = memo.includes("[鍵開け可]");
                 const displayMemo = memo.replace("[鍵開け可]", "").trim();
@@ -3616,7 +3620,7 @@ let noticeHtml = "";
 
                 const newKey = `${evt.dateKey}_${evt.start}_${evt.fullTitle}_${name}`;
                 const oldKey = `${evt.dateKey}_${evt.fullTitle}_${name}`;
-                const status = weeklyStatus[newKey] || weeklyStatus[oldKey] || "未定";
+                const status = weeklyStatus[newKey] || weeklyStatus[oldKey] || "欠席";
 
                 if (status === "出席") {
                     foundAny = true;
@@ -5412,13 +5416,16 @@ let noticeHtml = "";
             let totalTarget = 0;
 
             memberList.forEach(m => {
-                // ▼▼▼ 追加: H列(isExempt)に〇がある人は表示しない ▼▼▼
+                // H列(isExempt)に〇がある人は表示しない
                 if (m.isExempt) return;
-                // ▲▲▲ 追加ここまで ▲▲▲
 
                 totalTarget++;
                 const isPaid = paidList.includes(m.name);
                 if (isPaid) paidCount++;
+
+                // ★追加: 連盟メンバーかどうかの判定と月謝額の計算
+                const isFedMember = m.isFed; 
+const feeAmount = isFedMember ? 5000 : 4000;
 
                 const tr = document.createElement("tr");
                 const statusBtnClass = isPaid ? "payment-status-btn paid" : "payment-status-btn unpaid";
@@ -5427,10 +5434,11 @@ let noticeHtml = "";
 
                 tr.style.cssText = rowStyle;
 
+                // ★修正: 引数に `feeAmount` を追加して `toggleFeeStatus` に渡すように変更
                 tr.innerHTML = `
     <td style="font-weight:bold;">${m.name} <span style="font-size:0.8em; font-weight:normal; color:#888;">(${m.grade})</span></td>
     <td style="text-align:center;">
-        <button class="${statusBtnClass}" onclick="toggleFeeStatus(this, '${m.name}', '${month}', ${!isPaid})">
+        <button class="${statusBtnClass}" onclick="toggleFeeStatus(this, '${m.name}', '${month}', ${!isPaid}, ${feeAmount})">
             ${statusText}
         </button>
     </td>
@@ -5445,7 +5453,28 @@ let noticeHtml = "";
         }
 
         // 月謝の支払い状態切り替え
-        async function toggleFeeStatus(btnElement, name, month, isPay) {
+        async function toggleFeeStatus(btnElement, name, month, isPay, feeAmount) {
+            // ★追加: 「未」から「済」にする際の処理（振込日の入力）
+            let transferDate = "";
+            if (isPay) {
+                // 今日の日付を初期値としてセット
+                const today = new Date();
+                const defaultDate = today.getFullYear() + "/" + String(today.getMonth() + 1).padStart(2, '0') + "/" + String(today.getDate()).padStart(2, '0');
+                
+                transferDate = window.prompt(
+                    `【${name}】さんの月謝額は ${feeAmount.toLocaleString()} 円です。\n振込日を入力してください。`, 
+                    defaultDate
+                );
+                
+                // キャンセルされた場合、または空欄の場合は処理を中断
+                if (transferDate === null) return;
+            } 
+            // ★追加: 「済」から「未」に戻す際の確認ポップアップ
+            else {
+                const isConfirmed = window.confirm(`【${name}】さんを「未払い」に戻しますか？`);
+                if (!isConfirmed) return;
+            }
+
             // 1. 連打防止（ボタンを一時的に無効化）
             btnElement.disabled = true;
 
@@ -5462,23 +5491,23 @@ let noticeHtml = "";
                 btnElement.innerText = "済";
                 if (trElement) trElement.style.backgroundColor = "#f9f9f9";
                 // 次回クリック用設定（済→未へ）
-                btnElement.setAttribute("onclick", `toggleFeeStatus(this, '${name}', '${month}', false)`);
+                btnElement.setAttribute("onclick", `toggleFeeStatus(this, '${name}', '${month}', false, ${feeAmount})`);
             } else {
                 // 済→未
                 btnElement.className = "payment-status-btn unpaid";
                 btnElement.innerText = "未";
                 if (trElement) trElement.style.backgroundColor = "";
                 // 次回クリック用設定（未→済へ）
-                btnElement.setAttribute("onclick", `toggleFeeStatus(this, '${name}', '${month}', true)`);
+                btnElement.setAttribute("onclick", `toggleFeeStatus(this, '${name}', '${month}', true, ${feeAmount})`);
             }
 
             try {
-                // 4. サーバーにデータを送る（★ここが修正ポイントです）
-                // isPay を isPaid という名前の箱に入れて送ります
-                const res = await callGas('updateFeeStatus', { name, month, isPaid: isPay });
+                // 4. サーバーにデータを送る
+                // ★修正: 振込日(date) を送るようにバックエンドへの通信パラメータを変更（※GAS側での受け取り処理が必要です）
+                const res = await callGas('updateFeeStatus', { name, month, isPaid: isPay, date: transferDate });
 
                 // 成功した場合は何もしない（画面はすでに更新済みなので）
-                // console.log(res); // 確認したい場合のみコメントアウトを外す
+                // console.log(res);
 
             } catch (e) {
                 // 5. 失敗時：エラーを表示して、見た目を元に戻す

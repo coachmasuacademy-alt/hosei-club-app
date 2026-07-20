@@ -2967,7 +2967,7 @@
         }
 
         // ▼▼▼ GASのURL（スクリプト先頭に移動） ▼▼▼
-        const SHEET_URL = "https://script.google.com/macros/s/AKfycbyGUPbsCDwPfZSr6fwtuRXgHlfnnPOAwejGoY_1bW_5XYbGF9O0jMazvcGxE4zGCc8s/exec";
+        const SHEET_URL = "https://script.google.com/macros/s/AKfycbyf31ZDwpshg3Y5ZeI2vI5uvqQF_x_4AeFktoYXT9XYjaYeRiVgk-EzDEEWucIadSi2/exec";
 
         // ▼▼▼ Firebaseの設定 ▼▼▼
         const firebaseConfig = {
@@ -3418,11 +3418,29 @@ const originalStatus = btnGroup.dataset.originalStatus || "欠席";
 
             if (updates.length === 0) { alert("変更箇所がありません。"); return; }
 
-            showLoading(true);
-            const res = await callGas('saveBulkAttendance', { updates: updates });
-            showLoading(false);
+            // ★変更: 先にモーダルを閉じて、ユーザーを待たせない
+            closeIndModal(); 
+            // 画面の右上などに小さく「保存中...」と出す（任意）
+            const notice = document.getElementById("cache-notice");
+            if (notice) {
+                notice.style.display = "inline-block";
+                notice.innerText = "出欠を保存中...";
+            }
 
-            if (res) { alert(res); closeIndModal(); loadWeeklyMatrix(); }
+            // 裏で通信（awaitで待つが、画面ロック(showLoading)はしない）
+            callGas('saveBulkAttendance', { updates: updates }).then(res => {
+                if (res) { 
+                    // 保存成功したら、静かに最新データを読み込む
+                    loadWeeklyMatrix(); 
+                    if (notice) {
+                        notice.innerText = "出欠を保存しました";
+                        setTimeout(() => { notice.style.display = "none"; }, 2000);
+                    }
+                }
+            }).catch(e => {
+                alert("出欠の保存に失敗しました。通信環境を確認してください。");
+                if (notice) notice.style.display = "none";
+            });
         }
 
         // 参加者集計

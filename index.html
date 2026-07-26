@@ -2967,7 +2967,7 @@
         }
 
         // ▼▼▼ GASのURL（スクリプト先頭に移動） ▼▼▼
-        const SHEET_URL = "https://script.google.com/macros/s/AKfycbyf31ZDwpshg3Y5ZeI2vI5uvqQF_x_4AeFktoYXT9XYjaYeRiVgk-EzDEEWucIadSi2/exec";
+        const SHEET_URL = "https://script.google.com/macros/s/AKfycbzmkzOpX8Z_hnHQHbLILN78JfEDWF7pyf5gsgpftvs9NhpPmfopftz2CONzScpdKs6x/exec";
 
         // ▼▼▼ Firebaseの設定 ▼▼▼
         const firebaseConfig = {
@@ -5453,12 +5453,17 @@ const feeAmount = isFedMember ? 5000 : 4000;
                 tr.style.cssText = rowStyle;
 
                 // ★修正: 引数に `feeAmount` を追加して `toggleFeeStatus` に渡すように変更
+
+const payDate = (data.paidDates && data.paidDates[m.name]) ? data.paidDates[m.name] : "";
+const dateHtml = (isPaid && payDate) ? `<div class="fee-date-label" style="font-size:0.75em; color:#666; margin-top:4px;">振込日: ${escapeHtml(payDate)}</div>` : "";
+
                 tr.innerHTML = `
     <td style="font-weight:bold;">${m.name} <span style="font-size:0.8em; font-weight:normal; color:#888;">(${m.grade})</span></td>
     <td style="text-align:center;">
         <button class="${statusBtnClass}" onclick="toggleFeeStatus(this, '${m.name}', '${month}', ${!isPaid}, ${feeAmount})">
             ${statusText}
         </button>
+${dateHtml}
     </td>
     <td style="text-align:center;"></td>
 `;
@@ -5504,20 +5509,35 @@ const feeAmount = isFedMember ? 5000 : 4000;
 
             // 3. 【先行更新】画面の見た目を即座に変える（サクサク動くように見せる）
             if (isPay) {
-                // 未→済
-                btnElement.className = "payment-status-btn paid";
-                btnElement.innerText = "済";
-                if (trElement) trElement.style.backgroundColor = "#f9f9f9";
-                // 次回クリック用設定（済→未へ）
-                btnElement.setAttribute("onclick", `toggleFeeStatus(this, '${name}', '${month}', false, ${feeAmount})`);
-            } else {
-                // 済→未
-                btnElement.className = "payment-status-btn unpaid";
-                btnElement.innerText = "未";
-                if (trElement) trElement.style.backgroundColor = "";
-                // 次回クリック用設定（未→済へ）
-                btnElement.setAttribute("onclick", `toggleFeeStatus(this, '${name}', '${month}', true, ${feeAmount})`);
-            }
+    // 未→済
+    btnElement.className = "payment-status-btn paid";
+    btnElement.innerText = "済";
+    if (trElement) trElement.style.backgroundColor = "#f9f9f9";
+    
+    // ★追加: 振込日ラベルを生成して表示
+    const td = btnElement.parentElement;
+    let dateLabel = td.querySelector('.fee-date-label');
+    if (!dateLabel) {
+        td.insertAdjacentHTML('beforeend', `<div class="fee-date-label" style="font-size:0.75em; color:#666; margin-top:4px;">振込日: ${escapeHtml(transferDate)}</div>`);
+    } else {
+        dateLabel.innerText = `振込日: ${transferDate}`;
+        dateLabel.style.display = "block";
+    }
+
+    btnElement.setAttribute("onclick", `toggleFeeStatus(this, '${name}', '${month}', false, ${feeAmount})`);
+} else {
+    // 済→未
+    btnElement.className = "payment-status-btn unpaid";
+    btnElement.innerText = "未";
+    if (trElement) trElement.style.backgroundColor = "";
+
+    // ★追加: 振込日ラベルを非表示にする
+    const td = btnElement.parentElement;
+    const dateLabel = td.querySelector('.fee-date-label');
+    if (dateLabel) dateLabel.style.display = "none";
+
+    btnElement.setAttribute("onclick", `toggleFeeStatus(this, '${name}', '${month}', true, ${feeAmount})`);
+}
 
             try {
                 // 4. サーバーにデータを送る
@@ -5623,40 +5643,69 @@ const feeAmount = isFedMember ? 5000 : 4000;
                 const statusClass = isPaid ? "payment-status-btn paid" : "payment-status-btn unpaid";
                 const statusLabel = isPaid ? "済" : "未";
                 const bgStyle = isPaid ? "background-color:#f9f9f9;" : "";
+const dateHtml = (isPaid && r.payDate) ? `<div style="font-size:0.75em; color:#666; margin-top:4px;">振込日: ${escapeHtml(r.payDate)}</div>` : "";
 
                 tr.style.cssText = bgStyle;
                 tr.innerHTML = `
-                <td>${date}</td>
-                <td style="font-weight:bold;">${escapeHtml(r.name)}</td>
-                <td>
-                    <div style="font-size:0.95em; font-weight:bold; color:#555;">${detailText}</div>
-                </td>
-                <td>
-                   <div style="font-weight:bold; color:#1976D2; margin-bottom:5px;">${price}</div>
-                   <button class="${statusClass}" onclick="toggleGutStatus(${r.row}, ${!isPaid})" style="font-size:0.8em; padding:4px 10px;">
-                        ${statusLabel}
-                   </button>
-                </td>
-                <td class="delete-col">
-                    <button onclick="deleteGut(${r.row})" style="background:#dc3545; font-size:11px; padding:6px;">削除</button>
-                </td>
-            `;
+    <td>${date}</td>
+    <td style="font-weight:bold;">${escapeHtml(r.name)}</td>
+    <td>
+        <div style="font-size:0.95em; font-weight:bold; color:#555;">${detailText}</div>
+    </td>
+    <td>
+        <div style="font-weight:bold; color:#1976D2; margin-bottom:5px;">${price}</div>
+        <button class="${statusClass}" onclick="toggleGutStatus(${r.row}, ${!isPaid})" style="font-size:0.8em; padding:4px 10px;">
+            ${statusLabel}
+        </button>
+        ${dateHtml} <!-- ★ここに追加 -->
+    </td>
+    <td class="delete-col">
+        <button onclick="deleteGut(${r.row})" style="background:#dc3545; font-size:11px; padding:6px;">削除</button>
+    </td>
+`;
                 tbody.appendChild(tr);
             });
         }
 
         // 表示切り替え（ガット込み vs 持ち込み）
         async function toggleGutStatus(row, makePaid) {
-            showLoading(true);
-            const newStatus = makePaid ? "支払い済み" : "未払い";
-            const res = await callGas('updateGutStatus', { row: row, status: newStatus });
-            showLoading(false);
-            if (res) {
-                loadGutList(true);
-            } else {
-                alert("更新に失敗しました");
-            }
-        }
+    let payDate = "";
+    if (makePaid) {
+        // 未払い → 支払い済みに変更する場合
+        const today = new Date();
+        const defaultDate = today.getFullYear() + "/" + String(today.getMonth() + 1).padStart(2, '0') + "/" + String(today.getDate()).padStart(2, '0');
+        
+        payDate = window.prompt("振込日を入力してください。", defaultDate);
+        if (payDate === null) return; // キャンセル時
+    } else {
+        // 支払い済み → 未払いに戻す場合
+        if (!window.confirm("未払いに戻しますか？")) return;
+    }
+
+    showLoading(true);
+    const newStatus = makePaid ? "支払い済み" : "未払い";
+    // ★引数に payDate を追加
+    const res = await callGas('updateGutStatus', { row: row, status: newStatus, payDate: payDate });
+    showLoading(false);
+    
+    if (res) {
+        loadGutList(true);
+    } else {
+        alert("更新に失敗しました");
+    }
+}
+
+function toggleGutPayDate() {
+    const status = document.getElementById("gutStatus").value;
+    const container = document.getElementById("gutPayDateContainer");
+    if (status === "支払い済み") {
+        container.style.display = "block";
+        document.getElementById("gutPayDateInput").value = formatDate(new Date()); // 初期値に今日をセット
+    } else {
+        container.style.display = "none";
+        document.getElementById("gutPayDateInput").value = "";
+    }
+}
 
         // ガット登録送信
         async function submitGut() {
@@ -5664,6 +5713,10 @@ const feeAmount = isFedMember ? 5000 : 4000;
             const date = document.getElementById("gutDate").value;
             const count = document.getElementById("gutCount").value;
             const tension = document.getElementById("gutTension").value;
+
+            // ★修正：HTMLに要素がなくてもエラーにならないよう、「未払い」「空文字」をデフォルトにする
+            const status = document.getElementById("gutStatus") ? document.getElementById("gutStatus").value : "未払い";
+            const payDate = document.getElementById("gutPayDateInput") ? document.getElementById("gutPayDateInput").value : "";
 
             // ラジオボタンの値取得
             let option = "included";
@@ -5674,7 +5727,9 @@ const feeAmount = isFedMember ? 5000 : 4000;
 
             showLoading(true);
             const res = await callGas('saveGut', {
-                name, date, count, tension, type: option
+                name, date, count, tension, type: option,
+                status: status,
+                payDate: payDate
             });
             showLoading(false);
 

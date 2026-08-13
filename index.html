@@ -1012,6 +1012,13 @@
             border-left-color: #17a2b8;
         }
 
+.summary-box.aihara {
+            border-left-color: #28a745;
+        }
+        .aihara-header {
+            border-left-color: #28a745 !important;
+        }
+
         /* シャトル管理 */
         .shuttle-group-container {
             display: grid;
@@ -2082,6 +2089,18 @@
                 </div>
             </div>
 
+<div style="margin-top:20px;">
+                <div class="summary-container">
+                    <div class="summary-toggle-header aihara-header open" onclick="toggleSummary('aiharaContent', this)">
+                        <span>相原クラブ</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div id="aiharaContent" class="summary-content open">
+                        <div id="attendanceSummaryAihara"></div>
+                    </div>
+                </div>
+            </div>
+
             <table id="matrixTable" class="matrix-table">
                 <thead>
                     <tr id="matrixHeader"></tr>
@@ -2881,7 +2900,7 @@
         // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
         // ▼▼▼ GASのURL ▼▼▼
-        const SHEET_URL = "https://script.google.com/macros/s/AKfycbzrpABUbfFqsIW5ynpxReTaQM1f3ThCpkZCbs5KlqOAbZ_vgJBklamTjwGL3fbizNQT/exec";
+        const SHEET_URL = "https://script.google.com/macros/s/AKfycbxpYjcgLwZCsQ_7gaib5k0FG38UzSiJelPewiKCsAlMBj_4ren2R1vThZADWyUOz2AU/exec";
 
         // ▼▼▼ Firebaseの設定 ▼▼▼
         const firebaseConfig = {
@@ -3285,6 +3304,7 @@
                     if (evt.group === 'club' && currentIndMember.isClub && !currentIndMember.isSkill) isTarget = true;
                     if (evt.group === 'federation' && currentIndMember.isFed) isTarget = true;
                     if (evt.group === 'skillup' && currentIndMember.isSkill) isTarget = true;
+                    if (evt.group === 'aihara' && currentIndMember.isAihara) isTarget = true; // ★ここを修正
                 }
 
                 if (isTarget) {
@@ -3300,11 +3320,12 @@
                     const isParentEarly = memo.includes("[鍵開け可]");
                     const displayMemo = memo.replace("[鍵開け可]", "").trim();
 
-                    let labelColor = "black";
+                   let labelColor = "black";
                     let groupLabel = "";
                     if (evt.group === 'club') { labelColor = "#FF9966"; groupLabel = "【クラブ】"; }
                     if (evt.group === 'federation') { labelColor = "#17a2b8"; groupLabel = "【中学生練習】"; }
                     if (evt.group === 'skillup') { labelColor = "#6610f2"; groupLabel = "【スキルアップ】"; }
+                    if (evt.group === 'aihara') { labelColor = "#28a745"; groupLabel = "【相原クラブ】"; } // ★ここを追加
 
                     const div = document.createElement("div");
                     div.className = "ind-row";
@@ -3431,10 +3452,13 @@
 
         // 参加者集計
         function renderSummary() {
-    const containerClub = document.getElementById("attendanceSummary");
-    const containerFed = document.getElementById("attendanceSummaryFed");
-    containerClub.innerHTML = "";
-    containerFed.innerHTML = "";
+            const containerClub = document.getElementById("attendanceSummary");
+            const containerFed = document.getElementById("attendanceSummaryFed");
+            const containerAihara = document.getElementById("attendanceSummaryAihara"); // ★追加
+
+            containerClub.innerHTML = "";
+            containerFed.innerHTML = "";
+            containerAihara.innerHTML = "";
 
     if (!weeklyEvents || weeklyEvents.length === 0) return;
 
@@ -3503,8 +3527,8 @@
         }
 
         const div = document.createElement("div");
-        let cls = evt.group === 'club' ? "club" : (evt.group === 'federation' ? "fed" : "skill");
-        let label = evt.group === 'club' ? "【クラブ】" : (evt.group === 'federation' ? "【中学生練習】" : "【スキルアップ】");
+        let cls = evt.group === 'club' ? "club" : (evt.group === 'federation' ? "fed" : (evt.group === 'aihara' ? "aihara" : "skill"));
+                let label = evt.group === 'club' ? "【クラブ】" : (evt.group === 'federation' ? "【中学生練習】" : (evt.group === 'aihara' ? "【相原クラブ】" : "【スキルアップ】"));
 
         div.className = `summary-box ${cls}`;
         let attendeesDisplay = attendeesHtml.length > 0 ? attendeesHtml.join("、 ") : "<span style='color:#999;'>現在参加者はいません</span>";
@@ -3581,13 +3605,15 @@ let noticeHtml = "";
         }
 
         div.innerHTML = htmlContent;
-        if (evt.group === 'federation') containerFed.appendChild(div);
-        else containerClub.appendChild(div);
-    });
+                if (evt.group === 'federation') containerFed.appendChild(div);
+                else if (evt.group === 'aihara') containerAihara.appendChild(div); // ★追加
+                else containerClub.appendChild(div);
+            });
 
-    if (containerClub.innerHTML === "") containerClub.innerHTML = "<p style='color:#999; text-align:center;'>予定はありません。</p>";
-    if (containerFed.innerHTML === "") containerFed.innerHTML = "<p style='color:#999; text-align:center;'>予定はありません。</p>";
-}
+            if (containerClub.innerHTML === "") containerClub.innerHTML = "<p style='color:#999; text-align:center;'>予定はありません。</p>";
+            if (containerFed.innerHTML === "") containerFed.innerHTML = "<p style='color:#999; text-align:center;'>予定はありません。</p>";
+            if (containerAihara.innerHTML === "") containerAihara.innerHTML = "<p style='color:#999; text-align:center;'>予定はありません。</p>"; // ★追加
+        }
 
         // 1. 検索プルダウンに名簿をセットする
         function updateSearchDropdown() {

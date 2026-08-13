@@ -5412,24 +5412,28 @@ let noticeHtml = "";
             tbody.innerHTML = "";
 
             const paidList = data.paidList || [];
-            // 名簿データ取得
             const memberList = (weeklyMembers && weeklyMembers.length > 0) ? weeklyMembers : memberData;
 
-            // 集計用カウンタ
-            let paidCount = 0;
-            let totalTarget = 0;
+            // 内訳用カウンタ
+            let count4kTotal = 0, count4kPaid = 0;
+            let count5kTotal = 0, count5kPaid = 0;
 
             memberList.forEach(m => {
-                // H列(isExempt)に〇がある人は表示しない
+                // H列(isExempt)に〇がある人は表示しない（対象外）
                 if (m.isExempt) return;
 
-                totalTarget++;
                 const isPaid = paidList.includes(m.name);
-                if (isPaid) paidCount++;
-
-                // ★追加: 連盟メンバーかどうかの判定と月謝額の計算
                 const isFedMember = m.isFed; 
-const feeAmount = isFedMember ? 5000 : 4000;
+                const feeAmount = isFedMember ? 5000 : 4000;
+
+                // 金額別に人数を集計
+                if (feeAmount === 5000) {
+                    count5kTotal++;
+                    if (isPaid) count5kPaid++;
+                } else {
+                    count4kTotal++;
+                    if (isPaid) count4kPaid++;
+                }
 
                 const tr = document.createElement("tr");
                 const statusBtnClass = isPaid ? "payment-status-btn paid" : "payment-status-btn unpaid";
@@ -5438,27 +5442,40 @@ const feeAmount = isFedMember ? 5000 : 4000;
 
                 tr.style.cssText = rowStyle;
 
-                // ★修正: 引数に `feeAmount` を追加して `toggleFeeStatus` に渡すように変更
-
-const payDate = (data.paidDates && data.paidDates[m.name]) ? data.paidDates[m.name] : "";
-const dateHtml = (isPaid && payDate) ? `<div class="fee-date-label" style="font-size:0.75em; color:#666; margin-top:4px;">振込日: ${escapeHtml(payDate)}</div>` : "";
+                const payDate = (data.paidDates && data.paidDates[m.name]) ? data.paidDates[m.name] : "";
+                const dateHtml = (isPaid && payDate) ? `<div class="fee-date-label" style="font-size:0.75em; color:#666; margin-top:4px;">振込日: ${escapeHtml(payDate)}</div>` : "";
 
                 tr.innerHTML = `
-    <td style="font-weight:bold;">${m.name} <span style="font-size:0.8em; font-weight:normal; color:#888;">(${m.grade})</span></td>
-    <td style="text-align:center;">
-        <button class="${statusBtnClass}" onclick="toggleFeeStatus(this, '${m.name}', '${month}', ${!isPaid}, ${feeAmount})">
-            ${statusText}
-        </button>
-${dateHtml}
-    </td>
-    <td style="text-align:center;"></td>
-`;
+                    <td style="font-weight:bold;">
+                        ${m.name} <span style="font-size:0.8em; font-weight:normal; color:#888;">(${m.grade})</span>
+                        <span style="font-size:0.75em; color:#FF9966; font-weight:normal; margin-left:5px;">[¥${feeAmount.toLocaleString()}]</span>
+                    </td>
+                    <td style="text-align:center;">
+                        <button class="${statusBtnClass}" onclick="toggleFeeStatus(this, '${m.name}', '${month}', ${!isPaid}, ${feeAmount})">
+                            ${statusText}
+                        </button>
+                        ${dateHtml}
+                    </td>
+                    <td style="text-align:center;"></td>
+                `;
                 tbody.appendChild(tr);
             });
 
-            // 人数表示更新
+            // 人数・内訳表示の更新
             const countLabel = document.getElementById("feeCountLabel");
-            if (countLabel) countLabel.innerText = `支払い済み: ${paidCount} / ${totalTarget}名`;
+            const totalPaid = count4kPaid + count5kPaid;
+            const totalTarget = count4kTotal + count5kTotal;
+
+            if (countLabel) {
+                countLabel.innerHTML = `
+                    <div style="font-size:1.05em; font-weight:bold; color:#333; margin-bottom:4px;">
+                        支払い済み: ${totalPaid} / ${totalTarget}名
+                    </div>
+                    <div style="font-size:0.85em; color:#555; background:#f0f4f8; padding:5px 10px; border-radius:8px; display:inline-block; border:1px solid #e0e0e0;">
+                        4,000円: <b>${count4kPaid}</b>/${count4kTotal}名 ｜ 5,000円: <b>${count5kPaid}</b>/${count5kTotal}名
+                    </div>
+                `;
+            }
         }
 
         // 月謝の支払い状態切り替え

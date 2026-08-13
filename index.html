@@ -2874,100 +2874,14 @@
         </div>
     </div>
 
-    <script>
-
+<script>
         // ▼▼▼ パスワード設定（ここを変更してください） ▼▼▼
         const APP_PASSWORD = "6781";  // アプリを開くときのパスワード
         const TASK_PASSWORD = "5721"; // 課題管理を開くときのパスワード
         // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
-        // アプリ全体のデータを最新にして再読み込みする関数
-        function reloadApp() {
-            // パスワード認証や表示設定は残し、データキャッシュのみ削除
-            const keysToRemove = [
-                'attendanceCache',
-                'badminton_schedule_v1',
-                'badminton_carry_v1',
-                'badminton_arena_v1',
-                'badminton_tournament_v1',
-                'badminton_other_v1',
-                'badminton_shuttle_v1',
-                'badminton_fee_v1',
-                'badminton_gut_v1'
-            ];
-
-            keysToRemove.forEach(key => {
-                try { localStorage.removeItem(key); } catch (e) { }
-            });
-
-            // 画面を再読み込み（これによりGASから最新データが取得されます）
-            window.location.reload();
-        }
-
-        // アプリログイン認証処理
-        function checkAppLogin() {
-            // 変更点: 保存されたパスワードと現在のパスワードが一致するか確認する
-            if (localStorage.getItem("appAuthToken") === APP_PASSWORD) {
-                document.getElementById("appLoginModal").classList.remove("active");
-            } else {
-                document.getElementById("appLoginModal").classList.add("active");
-            }
-        }
-
-        function verifyAppLogin() {
-            const input = document.getElementById("appPassInput").value;
-            if (input === APP_PASSWORD) {
-                // 変更点: "true" ではなく、認証トークンとして現在のパスワードを保存する
-                localStorage.setItem("appAuthToken", APP_PASSWORD);
-                document.getElementById("appLoginModal").classList.remove("active");
-            } else {
-                alert("パスワードが違います");
-                document.getElementById("appPassInput").value = "";
-            }
-        }
-
-        // 課題管理認証処理
-        let pendingTaskBtn = null; // ログイン後に押したボタンを記憶用
-
-        function checkTaskLogin(btnElement) {
-            // 変更点: 保存されたパスワードと現在のパスワードが一致するか確認する
-            if (localStorage.getItem("taskAuthToken") === TASK_PASSWORD) {
-                return true; // 認証済みならOK
-            }
-            // 未認証（またはパスワード変更後）ならモーダル表示
-            pendingTaskBtn = btnElement; // 押されたボタンを記憶
-            document.getElementById("taskLoginModal").classList.add("active");
-            return false; // ロック中
-        }
-
-        function verifyTaskLogin() {
-            const input = document.getElementById("taskPassInput").value;
-            if (input === TASK_PASSWORD) {
-                // 変更点: "true" ではなく、認証トークンとして現在のパスワードを保存する
-                localStorage.setItem("taskAuthToken", TASK_PASSWORD);
-                document.getElementById("taskLoginModal").classList.remove("active");
-
-                // 認証成功したら、中断していたタブ切り替えを再実行
-                if (pendingTaskBtn) {
-                    switchCategory('task', pendingTaskBtn);
-                } else {
-                    // ボタン情報がなければ強制的に切り替え
-                    const taskBtn = document.querySelector('.nav-item[onclick*="task"]');
-                    switchCategory('task', taskBtn);
-                }
-            } else {
-                alert("パスワードが違います");
-                document.getElementById("taskPassInput").value = "";
-            }
-        }
-
-        function closeTaskLogin() {
-            document.getElementById("taskLoginModal").classList.remove("active");
-            // キャンセル時は元のタブ（出欠など）に戻ったままにするため何もしない
-        }
-
-        // ▼▼▼ GASのURL（スクリプト先頭に移動） ▼▼▼
-        const SHEET_URL = "https://script.google.com/macros/s/AKfycbzmkzOpX8Z_hnHQHbLILN78JfEDWF7pyf5gsgpftvs9NhpPmfopftz2CONzScpdKs6x/exec";
+        // ▼▼▼ GASのURL ▼▼▼
+        const SHEET_URL = "https://script.google.com/macros/s/AKfycbzrpABUbfFqsIW5ynpxReTaQM1f3ThCpkZCbs5KlqOAbZ_vgJBklamTjwGL3fbizNQT/exec";
 
         // ▼▼▼ Firebaseの設定 ▼▼▼
         const firebaseConfig = {
@@ -3000,16 +2914,14 @@
         const CACHE_KEY_FEE = 'badminton_fee_v1';
         const CACHE_KEY_GUT = 'badminton_gut_v1';
 
-        // グローバル変数
+        // グローバル変数（重複解消）
         let sheetData = [], arenaData = [], memberData = [], weeklyEvents = [], weeklyMembers = [], weeklyStatus = {};
         let weeklyMemo = {};
         let currentIndMember = null;
         let isShowingAll = false;
         let shuttleUpdateCount = 0;
         let gymNoticeCache = ""; // 連絡事項の保持用
-let otherDataCache = [];
-
-        // ★ここに追加・移動★
+        let otherDataCache = [];
         let shuttleLogsCache = [];
         let currentCalDate = new Date();
         let feeDataCache = null;  // 月謝データ用
@@ -3017,30 +2929,76 @@ let otherDataCache = [];
         let allTasksCache = [];
         let currentAnalysisMode = 'elem_s';
 
-        // ★大会用グローバル変数
-        let currentTournamentRow = null; // 編集中の大会の行番号
-        let currentTournamentParticipants = []; // 現在の参加者リスト [{name:xxx, paid:true/false}]
-        let currentTournamentFileUrl = ""; // 現在のファイルURL
+        // 大会用グローバル変数
+        let currentTournamentRow = null; 
+        let currentTournamentParticipants = []; 
+        let currentTournamentFileUrl = ""; 
+
+        // アプリ全体のデータを最新にして再読み込みする関数
+        function reloadApp() {
+            const notice = document.getElementById("cache-notice");
+            if (notice) {
+                notice.style.display = "inline-block";
+                notice.innerText = "最新データを取得中...";
+            }
+            
+            // ページをリロードせず、非同期で最新の出欠データを取得して画面を更新
+            fetchLatestAttendanceData().then(() => {
+                if (notice) {
+                    notice.innerText = "更新完了";
+                    setTimeout(() => { notice.style.display = "none"; }, 2000);
+                }
+            }).catch(() => {
+                if (notice) {
+                    notice.innerText = "更新エラー";
+                    setTimeout(() => { notice.style.display = "none"; }, 2000);
+                }
+            });
+            
+            loadGymNotice();
+        }
+
+        // 最新の出欠データを非同期で取得する関数
+        async function fetchLatestAttendanceData() {
+            try {
+                const response = await fetch(SHEET_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'getWeeklyMatrix' })
+                });
+                const data = await response.json();
+
+                if (data) {
+                    weeklyEvents = data.events || [];
+                    weeklyMembers = data.members || [];
+                    weeklyStatus = data.currentStatus || {};
+                    weeklyMemo = data.currentMemo || {};
+
+                    // キャッシュを更新して再描画
+                    localStorage.setItem('attendanceCache', JSON.stringify(data));
+                    renderMemberButtons();
+                    renderSummary();
+                    
+                    const searchSelect = document.getElementById("memberSearchSelect");
+                    if (searchSelect && searchSelect.value) {
+                        showPersonalSchedule(searchSelect.value);
+                    }
+                }
+            } catch (e) { 
+                console.error("Fetch Error", e); 
+                throw e;
+            }
+        }
 
         // 基本関数
         async function callGas(action, params = {}) {
             if (!SHEET_URL.startsWith("http")) { alert("SHEET_URLエラー"); return null; }
-
             const payload = { action: action, ...params };
-
             try {
                 const response = await fetch(SHEET_URL, {
                     method: "POST",
                     body: JSON.stringify(payload)
                 });
-                const json = await response.json();
-
-                // 成功したらそのアクション専用のキャッシュに保存（任意）
-                if (json) {
-                    // 例: getMemberList の結果を保存しておくなど
-                    // localStorage.setItem('cache_' + action, JSON.stringify(json));
-                }
-                return json;
+                return await response.json();
             } catch (error) {
                 console.error("GAS Error (" + action + "):", error);
                 return null;
@@ -3073,48 +3031,76 @@ let otherDataCache = [];
             switchCategory('attendance', document.querySelector('.nav-item.active'));
 
             // --- ③ 裏側で最新データを取得して差し替え ---
-            const fetchLatestData = async () => {
-                try {
-                    const response = await fetch(SHEET_URL, {
-                        method: 'POST',
-                        body: JSON.stringify({ action: 'getWeeklyMatrix' })
-                    });
-                    const data = await response.json();
-
-                    if (data) {
-                        weeklyEvents = data.events || [];
-                        weeklyMembers = data.members || [];
-                        weeklyStatus = data.currentStatus || {};
-                        weeklyMemo = data.currentMemo || {};
-
-                        // キャッシュを更新して再描画
-                        localStorage.setItem('attendanceCache', JSON.stringify(data));
-                        renderMemberButtons();
-                        renderSummary();
-                        console.log("同期完了：最新データを反映しました");
-                    }
-                } catch (e) { console.error("Fetch Error", e); }
-            };
-
-            fetchLatestData();
-            loadGymNotice();;
+            fetchLatestAttendanceData();
+            loadGymNotice();
 
             // --- ④ その他の重い処理はさらに後回し ---
             setTimeout(() => {
                 loadSchedule();
-                loadMemberList(); // ← これを追加
+                loadMemberList(); 
                 fetchArenaData();
                 loadShuttleData();
-                loadOtherList(); // ★ここに追加（裏側で連絡事項を読み込んでおく）
+                loadOtherList(); 
             }, 1500);
         });
 
+        // アプリログイン認証処理
+        function checkAppLogin() {
+            if (localStorage.getItem("appAuthToken") === APP_PASSWORD) {
+                document.getElementById("appLoginModal").classList.remove("active");
+            } else {
+                document.getElementById("appLoginModal").classList.add("active");
+            }
+        }
+
+        function verifyAppLogin() {
+            const input = document.getElementById("appPassInput").value;
+            if (input === APP_PASSWORD) {
+                localStorage.setItem("appAuthToken", APP_PASSWORD);
+                document.getElementById("appLoginModal").classList.remove("active");
+            } else {
+                alert("パスワードが違います");
+                document.getElementById("appPassInput").value = "";
+            }
+        }
+
+        // 課題管理認証処理
+        let pendingTaskBtn = null;
+
+        function checkTaskLogin(btnElement) {
+            if (localStorage.getItem("taskAuthToken") === TASK_PASSWORD) {
+                return true; 
+            }
+            pendingTaskBtn = btnElement; 
+            document.getElementById("taskLoginModal").classList.add("active");
+            return false; 
+        }
+
+        function verifyTaskLogin() {
+            const input = document.getElementById("taskPassInput").value;
+            if (input === TASK_PASSWORD) {
+                localStorage.setItem("taskAuthToken", TASK_PASSWORD);
+                document.getElementById("taskLoginModal").classList.remove("active");
+
+                if (pendingTaskBtn) {
+                    switchCategory('task', pendingTaskBtn);
+                } else {
+                    const taskBtn = document.querySelector('.nav-item[onclick*="task"]');
+                    switchCategory('task', taskBtn);
+                }
+            } else {
+                alert("パスワードが違います");
+                document.getElementById("taskPassInput").value = "";
+            }
+        }
+
+        function closeTaskLogin() {
+            document.getElementById("taskLoginModal").classList.remove("active");
+        }
+
         // カテゴリ切り替え
         function switchCategory(category, btnElement) {
-
-            // ▼▼▼ 課題管理のロック確認ロジックを追加 ▼▼▼
             if (category === 'task') {
-                // 認証チェック関数を呼び出す（falseならここで中断）
                 if (!checkTaskLogin(btnElement)) return;
             }
 
@@ -3130,27 +3116,21 @@ let otherDataCache = [];
             if (category === "log") loadLogSection();
             if (category === "carry") loadList();
             if (category === "tournament") loadTournamentList();
-            if (category === "other") {
-                loadOtherList(); // プルダウン作成用の1行を消して、これだけにします
-            }
+            if (category === "other") loadOtherList();
             if (category === "shuttle") loadShuttleData();
             if (category === "coaching") loadCoachingVideos();
-
             if (category === "task") {
                 if (typeof updateTaskMemberSelect === 'function') updateTaskMemberSelect();
                 if (allTasksCache.length === 0 && typeof loadTasks === 'function') loadTasks();
             }
-
-            // ★追加: 月謝とガット張り
             if (category === "fee") {
-                // 今月をセット
                 if (!document.getElementById("feeMonthSelect").value) {
                     document.getElementById("feeMonthSelect").value = formatMonth(new Date());
                 }
                 if (typeof loadFeeData === 'function') loadFeeData();
             }
             if (category === "gut") {
-                if (typeof updateGutMemberSelect === 'function') updateGutMemberSelect(); // 名簿セット
+                if (typeof updateGutMemberSelect === 'function') updateGutMemberSelect();
                 if (typeof loadGutList === 'function') loadGutList();
             }
 
@@ -3158,8 +3138,6 @@ let otherDataCache = [];
             navItems.forEach(item => item.classList.remove("active"));
             if (btnElement) btnElement.classList.add("active");
         }
-
-        // --- 各種データ読み込み関数 ---
 
         // 名簿
         async function loadMemberList() { const data = await callGas('getMemberList'); if (data) { memberData = data; renderMemberTable(); } }
@@ -3276,11 +3254,9 @@ let otherDataCache = [];
                 const isCoach = m.isCoach === true || m.isCoach === "〇";
 
                 if (isCoach) {
-                    // コーチのボタン：水色の背景
                     card.style.border = "2px solid #1976D2";
                     card.style.backgroundColor = "#E3F2FD";
                 } else if (savedList.includes(m.name)) {
-                    // お気に入り（生徒）：オレンジの背景
                     card.style.border = "2px solid #FF9966";
                     card.style.backgroundColor = "#fff5f0";
                 }
@@ -3289,7 +3265,7 @@ let otherDataCache = [];
                 card.innerHTML = `<span class="member-name">${m.name}</span><span class="member-grade">${isCoach ? 'コーチ' : m.grade}</span>`;
                 container.appendChild(card);
             });
-            updateSearchDropdown(); // ★ここに追加することで、名簿が出るたびに検索リストも新しくなります
+            updateSearchDropdown(); 
         }
 
         // 個人モーダル処理
@@ -3312,7 +3288,6 @@ let otherDataCache = [];
                 }
 
                 if (isTarget) {
-                    // ★追加：日付の整形
                     const dateObj = new Date(evt.dateKey);
                     const monthDayStr = (dateObj.getMonth() + 1) + "月" + dateObj.getDate() + "日";
                     const dayStr = getDayOfWeekStr(evt.dateKey);
@@ -3322,7 +3297,6 @@ let otherDataCache = [];
                     const status = weeklyStatus[newKey] || weeklyStatus[oldKey] || "欠席";
                     const memo = weeklyMemo[newKey] || weeklyMemo[oldKey] || "";
                     
-                    // 鍵開けフラグの抽出と表示用テキストの整形
                     const isParentEarly = memo.includes("[鍵開け可]");
                     const displayMemo = memo.replace("[鍵開け可]", "").trim();
 
@@ -3345,9 +3319,9 @@ let otherDataCache = [];
                                 <div style="font-size:0.95em;">${evt.title}</div>
                             </div>
                             <div class="ind-btns" id="ind-btn-group-${idx}" data-status="${status}" data-original-status="${status}">
-    <button class="ind-btn present ${status === '出席' ? 'active' : ''}" onclick="setIndStatus(${idx}, '出席')">出</button>
-    <button class="ind-btn absent ${status === '欠席' ? 'active' : ''}" onclick="setIndStatus(${idx}, '欠席')">欠</button>
-</div>
+                                <button class="ind-btn present ${status === '出席' ? 'active' : ''}" onclick="setIndStatus(${idx}, '出席')">出</button>
+                                <button class="ind-btn absent ${status === '欠席' ? 'active' : ''}" onclick="setIndStatus(${idx}, '欠席')">欠</button>
+                            </div>
                         </div>
                         <div style="width:100%; margin-top:8px;">
                             <label class="parent-checkbox-label ${isParentEarly ? 'checked' : ''}" id="label-parent-${idx}">
@@ -3386,10 +3360,9 @@ let otherDataCache = [];
                 const btnGroup = row.querySelector(".ind-btns");
 
                 const currentStatus = btnGroup.dataset.status || "欠席";
-const originalStatus = btnGroup.dataset.originalStatus || "欠席";
+                const originalStatus = btnGroup.dataset.originalStatus || "欠席";
                 const memoInput = row.querySelector(".ind-memo-input");
 
-                // ▼ 追加・修正: チェック状態を取得してメモに結合 ▼
                 const parentCheck = row.querySelector(".ind-parent-check");
                 let currentMemo = memoInput.value.trim();
                 if (parentCheck && parentCheck.checked) {
@@ -3403,7 +3376,6 @@ const originalStatus = btnGroup.dataset.originalStatus || "欠席";
                     originalMemo += " [鍵開け可]";
                 }
                 originalMemo = originalMemo.trim();
-                // ▲ 修正ここまで ▲
 
                 if (currentStatus !== originalStatus || currentMemo !== originalMemo) {
                     updates.push({
@@ -3418,27 +3390,41 @@ const originalStatus = btnGroup.dataset.originalStatus || "欠席";
 
             if (updates.length === 0) { alert("変更箇所がありません。"); return; }
 
-            // ★変更: 先にモーダルを閉じて、ユーザーを待たせない
+            // ★ 変更：先にモーダルを閉じてユーザーを待たせない
             closeIndModal(); 
-            // 画面の右上などに小さく「保存中...」と出す（任意）
+
+            // ★ 変更：ローカルのデータを即座に更新して画面に反映 (Optimistic UI Update)
+            updates.forEach(upd => {
+                const newKey = `${upd.date}_${upd.title}_${upd.name}`;
+                weeklyStatus[newKey] = upd.status;
+                weeklyMemo[newKey] = upd.memo;
+            });
+            
+            // 即座に画面を再描画
+            renderSummary();
+            const searchSelect = document.getElementById("memberSearchSelect");
+            if (searchSelect && searchSelect.value) {
+                showPersonalSchedule(searchSelect.value);
+            }
+
             const notice = document.getElementById("cache-notice");
             if (notice) {
                 notice.style.display = "inline-block";
-                notice.innerText = "出欠を保存中...";
+                notice.innerText = "出欠を同期中...";
             }
 
-            // 裏で通信（awaitで待つが、画面ロック(showLoading)はしない）
+            // 裏で通信（awaitで待たないため、ローディング画面を出さない）
             callGas('saveBulkAttendance', { updates: updates }).then(res => {
                 if (res) { 
-                    // 保存成功したら、静かに最新データを読み込む
-                    loadWeeklyMatrix(); 
                     if (notice) {
-                        notice.innerText = "出欠を保存しました";
+                        notice.innerText = "出欠を同期しました";
                         setTimeout(() => { notice.style.display = "none"; }, 2000);
                     }
+                    // 確実に最新状態にするため裏でデータ取得
+                    fetchLatestAttendanceData(); 
                 }
             }).catch(e => {
-                alert("出欠の保存に失敗しました。通信環境を確認してください。");
+                alert("出欠の同期に失敗しました。通信環境を確認して更新ボタンを押してください。");
                 if (notice) notice.style.display = "none";
             });
         }

@@ -3318,9 +3318,34 @@
                     const memo = weeklyMemo[newKey] || weeklyMemo[oldKey] || "";
                     
                     const isParentEarly = memo.includes("[鍵開け可]");
-                    const displayMemo = memo.replace("[鍵開け可]", "").trim();
+                    let keyStatus = "";
+                    if (memo.includes("[鍵開けのみ可]")) keyStatus = "[鍵開けのみ可]";
+                    else if (memo.includes("[鍵閉めのみ可]")) keyStatus = "[鍵閉めのみ可]";
+                    else if (memo.includes("[鍵開閉可]")) keyStatus = "[鍵開閉可]";
+                    const displayMemo = memo.replace("[鍵開け可]", "").replace("[鍵開けのみ可]", "").replace("[鍵閉めのみ可]", "").replace("[鍵開閉可]", "").trim();
 
-                   let labelColor = "black";
+                    let keyControlHtml = "";
+                    if (evt.group === 'aihara') {
+                        keyControlHtml = `
+                            <select class="ind-key-select" data-original-key="${keyStatus}" style="width:100%; padding:10px; margin: 10px 0; border: 2px solid #ddd; border-radius: 12px; background: #f9f9f9; color: #666; font-weight: bold; appearance: auto;">
+                                <option value="">🔑 鍵担当なし</option>
+                                <option value="[鍵開けのみ可]" ${keyStatus === '[鍵開けのみ可]' ? 'selected' : ''}>🔑 鍵開けのみ可</option>
+                                <option value="[鍵閉めのみ可]" ${keyStatus === '[鍵閉めのみ可]' ? 'selected' : ''}>🔑 鍵閉めのみ可</option>
+                                <option value="[鍵開閉可]" ${keyStatus === '[鍵開閉可]' ? 'selected' : ''}>🔑 鍵の開け閉め両方可</option>
+                            </select>
+                        `;
+                    } else {
+                        keyControlHtml = `
+                            <label class="parent-checkbox-label ${isParentEarly ? 'checked' : ''}" id="label-parent-${idx}">
+                                <input type="checkbox" class="ind-parent-check" ${isParentEarly ? "checked" : ""} data-original-check="${isParentEarly}" 
+                                       style="display:none;" 
+                                       onchange="document.getElementById('label-parent-${idx}').classList.toggle('checked', this.checked)">
+                                🔑 ${isParentEarly ? '受付・鍵開け担当中' : '受付・鍵開け可能'}
+                            </label>
+                        `;
+                    }
+
+                    let labelColor = "black";
                     let groupLabel = "";
                     if (evt.group === 'club') { labelColor = "#FF9966"; groupLabel = "【クラブ】"; }
                     if (evt.group === 'federation') { labelColor = "#17a2b8"; groupLabel = "【中学生練習】"; }
@@ -3345,14 +3370,9 @@
                             </div>
                         </div>
                         <div style="width:100%; margin-top:8px;">
-                            <label class="parent-checkbox-label ${isParentEarly ? 'checked' : ''}" id="label-parent-${idx}">
-                                <input type="checkbox" class="ind-parent-check" ${isParentEarly ? "checked" : ""} data-original-check="${isParentEarly}" 
-                                       style="display:none;" 
-                                       onchange="document.getElementById('label-parent-${idx}').classList.toggle('checked', this.checked)">
-                                🔑 ${isParentEarly ? '受付・鍵開け担当中' : '受付・鍵開け可能'}
-                            </label>
+                            ${keyControlHtml}
                             <input type="text" class="ind-memo-input" 
-                                   value="${escapeHtml(displayMemo)}" 
+                                   value="${escapeHtml(displayMemo)}"
                                    placeholder="メモ（遅刻、早退など）" 
                                    data-original-memo="${escapeHtml(displayMemo)}"
                                    style="width:100%; padding:8px; font-size:14px; border:1px solid #ddd; border-radius:6px; background:#fcfcfc;">
@@ -3385,16 +3405,28 @@
                 const memoInput = row.querySelector(".ind-memo-input");
 
                 const parentCheck = row.querySelector(".ind-parent-check");
+                const keySelect = row.querySelector(".ind-key-select");
                 let currentMemo = memoInput.value.trim();
                 if (parentCheck && parentCheck.checked) {
                     currentMemo += " [鍵開け可]";
                 }
+                if (keySelect && keySelect.value) {
+                    currentMemo += " " + keySelect.value;
+                }
                 currentMemo = currentMemo.trim();
 
                 let originalMemo = memoInput.dataset.originalMemo || "";
-                const originalCheck = parentCheck.dataset.originalCheck === "true";
-                if (originalCheck) {
-                    originalMemo += " [鍵開け可]";
+                if (parentCheck) {
+                    const originalCheck = parentCheck.dataset.originalCheck === "true";
+                    if (originalCheck) {
+                        originalMemo += " [鍵開け可]";
+                    }
+                }
+                if (keySelect) {
+                    const originalKey = keySelect.dataset.originalKey || "";
+                    if (originalKey) {
+                        originalMemo += " " + originalKey;
+                    }
                 }
                 originalMemo = originalMemo.trim();
 
@@ -3505,24 +3537,30 @@
         const memo = weeklyMemo[newKey] || weeklyMemo[oldKey] || "";
 
                 const isParentEarly = memo.includes("[鍵開け可]");
-                const displayMemo = memo.replace("[鍵開け可]", "").trim();
+        const isKeyOpenOnly = memo.includes("[鍵開けのみ可]");
+        const isKeyCloseOnly = memo.includes("[鍵閉めのみ可]");
+        const isKeyBoth = memo.includes("[鍵開閉可]");
+        const displayMemo = memo.replace("[鍵開け可]", "").replace("[鍵開けのみ可]", "").replace("[鍵閉めのみ可]", "").replace("[鍵開閉可]", "").trim();
 
-                let displayName = `<span style="${nameStyle}">${m.name}</span>`;
-                
-                // 鍵マークの付与
-                if (isParentEarly) {
-                    displayName += `<span style="font-size:0.85em; margin-left:4px; color:#17a2b8;" title="受付・鍵開け対応可">🔑</span>`;
-                }
-                attendeesHtml.push(displayName);
+        let displayName = `<span style="${nameStyle}">${m.name}</span>`;
 
-                // メモリストへの追加
-                if (displayMemo || isParentEarly) {
-                    let memoText = displayMemo;
-                    if (isParentEarly) {
-                        memoText = memoText ? `🔑受付・鍵開け可 / ${memoText}` : `🔑受付・鍵開け可`;
-                    }
-                    memoList.push({ name: m.name, text: memoText });
-                }
+        // 鍵マークの付与
+        if (isParentEarly) displayName += `<span style="font-size:0.85em; margin-left:4px; color:#17a2b8;" title="受付・鍵開け対応可">🔑</span>`;
+        if (isKeyOpenOnly) displayName += `<span style="font-size:0.85em; margin-left:4px; color:#17a2b8;" title="鍵開けのみ対応可">🔑(開)</span>`;
+        if (isKeyCloseOnly) displayName += `<span style="font-size:0.85em; margin-left:4px; color:#17a2b8;" title="鍵閉めのみ対応可">🔑(閉)</span>`;
+        if (isKeyBoth) displayName += `<span style="font-size:0.85em; margin-left:4px; color:#17a2b8;" title="鍵開閉対応可">🔑(開/閉)</span>`;
+        
+        attendeesHtml.push(displayName);
+
+        // メモリストへの追加
+        if (displayMemo || isParentEarly || isKeyOpenOnly || isKeyCloseOnly || isKeyBoth) {
+            let memoText = displayMemo;
+            if (isParentEarly) memoText = memoText ? `🔑受付・鍵開け可 / ${memoText}` : `🔑受付・鍵開け可`;
+            if (isKeyOpenOnly) memoText = memoText ? `🔑鍵開けのみ可 / ${memoText}` : `🔑鍵開けのみ可`;
+            if (isKeyCloseOnly) memoText = memoText ? `🔑鍵閉めのみ可 / ${memoText}` : `🔑鍵閉めのみ可`;
+            if (isKeyBoth) memoText = memoText ? `🔑鍵開閉可 / ${memoText}` : `🔑鍵開閉可`;
+            memoList.push({ name: m.name, text: memoText });
+        }
             });
         }
 

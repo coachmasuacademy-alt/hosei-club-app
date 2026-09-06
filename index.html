@@ -4359,10 +4359,15 @@ let noticeHtml = "";
                 let displayTitle = escapeHtml(r.title);
                 displayTitle = displayTitle.replace(/\[(上星小学校|文ヶ岡小学校|スカイアリーナ座間|上鶴間小学校|くぬぎ台小学校)\]/g, '<span style="color:#17a2b8; font-weight:bold;">[$1]</span><br>');
 
-                // ★追加：写真があれば表示する
                 const imgHtml = r.url ? `<img src="${r.url}" style="max-width:80px; max-height:60px; object-fit:cover; cursor:pointer; border-radius:4px;" onclick="showPhotoModal('${r.url}')">` : "<span style='color:#ccc; font-size:12px;'>なし</span>";
 
-                tr.innerHTML = `<td>${displayTitle}</td><td>${escapeHtml(r.content)}</td><td>${escapeHtml(r.person)}</td><td style="font-weight:bold; color:${isCompleted ? '#999' : '#17a2b8'};">${escapeHtml(r.status)}</td><td>${imgHtml}</td><td class="delete-col"><button type="button" style="background:#17a2b8;" onclick="editOther(${r.row}, '${(r.title || '').replace(/'/g, "\\'")}', '${(r.content || '').replace(/'/g, "\\'")}', '${(r.person || '').replace(/'/g, "\\'")}', '${(r.status || '').replace(/'/g, "\\'")}', '${r.url || ""}')">編集</button></td><td class="delete-col"><button type="button" style="background:#dc3545;" onclick="deleteOtherRow(${r.row})">削除</button></td>`; 
+                // ★修正箇所：改行コードを「\n」に変換してボタンのプログラムが壊れるのを防ぐ
+                const safeTitle = (r.title || '').replace(/'/g, "\\'").replace(/\r?\n/g, "\\n");
+                const safeContent = (r.content || '').replace(/'/g, "\\'").replace(/\r?\n/g, "\\n");
+                const safePerson = (r.person || '').replace(/'/g, "\\'").replace(/\r?\n/g, "\\n");
+                const safeStatus = (r.status || '').replace(/'/g, "\\'").replace(/\r?\n/g, "\\n");
+
+                tr.innerHTML = `<td>${displayTitle}</td><td>${escapeHtml(r.content)}</td><td>${escapeHtml(r.person)}</td><td style="font-weight:bold; color:${isCompleted ? '#999' : '#17a2b8'};">${escapeHtml(r.status)}</td><td>${imgHtml}</td><td class="delete-col"><button type="button" style="background:#17a2b8;" onclick="editOther(${r.row}, '${safeTitle}', '${safeContent}', '${safePerson}', '${safeStatus}', '${r.url || ""}')">編集</button></td><td class="delete-col"><button type="button" style="background:#dc3545;" onclick="deleteOtherRow(${r.row})">削除</button></td>`; 
                 tbody.appendChild(tr); 
             }); 
         }
@@ -4415,7 +4420,8 @@ let noticeHtml = "";
 
         function editOther(row, title, content, person, status, url) { 
             const tbody = document.querySelector("#otherList tbody"); 
-            const tr = Array.from(tbody.children).find(tr => tr.innerHTML.includes(`editOther(${row}`)); 
+            // ★修正箇所：他行と誤判定しないように「editOther(数字,」で検索する
+            const tr = Array.from(tbody.children).find(tr => tr.innerHTML.includes(`editOther(${row},`)); 
             if (!tr) return; 
             
             const currentImg = url ? `<img id="editOtherImg${row}" src="${url}" style="max-width:50px;"><br><button type="button" onclick="removeOtherPhoto(${row})" style="font-size:10px; padding:4px;">削除</button>` : "";

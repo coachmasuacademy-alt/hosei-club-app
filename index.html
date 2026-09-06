@@ -4942,13 +4942,15 @@ if (data.aihara) { document.getElementById('aiharaStock').innerText = data.aihar
                 let summary = {
                     kamiho: { used: 0, added: 0 },
                     kamitsu: { used: 0, added: 0 },
-                    fed: { used: 0, added: 0 }
+                    fed: { used: 0, added: 0 },
+                    aihara: { used: 0, added: 0 } // ★追加
                 };
 
                 dayLogs.forEach(l => {
                     if (l.category.includes('kamiho')) { summary.kamiho.used += l.used; summary.kamiho.added += l.added; }
                     if (l.category.includes('kamitsu')) { summary.kamitsu.used += l.used; summary.kamitsu.added += l.added; }
                     if (l.category.includes('fed')) { summary.fed.used += l.used; summary.fed.added += l.added; }
+                    if (l.category.includes('aihara')) { summary.aihara.used += l.used; summary.aihara.added += l.added; } // ★追加
                 });
 
                 // 日付は常に黒色（太字クラスだけ付与）
@@ -4973,6 +4975,7 @@ if (data.aihara) { document.getElementById('aiharaStock').innerText = data.aihar
                     html += makeBadge('badge-kamiho', summary.kamiho.used, summary.kamiho.added);
                     html += makeBadge('badge-kamitsu', summary.kamitsu.used, summary.kamitsu.added);
                     html += makeBadge('badge-fed', summary.fed.used, summary.fed.added);
+                    html += makeBadge('badge-aihara', summary.aihara.used, summary.aihara.added); // ★追加
                     html += `</div>`;
                 }
 
@@ -5091,7 +5094,7 @@ renderShuttleMonthSummary(year, month);
                     if (l.category.includes("fed")) { catName = "中学"; catClass = "bg-fed"; }
                     else if (l.category.includes("kamiho")) { catName = "上星"; catClass = "bg-kamiho"; }
                     else if (l.category.includes("kamitsu")) { catName = "上鶴"; catClass = "bg-kamitsu"; }
-else if (l.category.includes("aihara")) { catName = "相原"; catClass = "bg-aihara"; }
+                    else if (l.category.includes("aihara")) { catName = "相原"; catClass = "bg-aihara"; } // ★追加
 
                     let actionText = "";
                     const parts = [];

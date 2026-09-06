@@ -1013,10 +1013,10 @@
         }
 
 .summary-box.aihara {
-            border-left-color: #28a745;
+            border-left-color: #E5C158; /* クリームイエロー系に変更 */
         }
         .aihara-header {
-            border-left-color: #28a745 !important;
+            border-left-color: #E5C158 !important; /* クリームイエロー系に変更 */
         }
 
         /* シャトル管理 */
@@ -1159,6 +1159,34 @@
 
         .kamitsu-card button {
             color: #00897b;
+        }
+
+/* 相原クラブ用のカードスタイル */
+        .aihara-card {
+            background: linear-gradient(135deg, #FFFDF2 0%, #F5E3B5 100%);
+            color: #555; /* 白文字だと見えないため濃いグレーに変更 */
+            text-shadow: none; /* 影を消してスッキリさせる */
+        }
+        .aihara-card h4 {
+            color: #8A6D3B; /* 見出しをブラウン系に */
+        }
+
+.aihara-card .shuttle-control label,
+        .aihara-card .shuttle-details label {
+            color: #333; /* 「使用数」などのラベル文字を黒にする */
+        }
+        .aihara-card .shuttle-control input,
+        .aihara-card .shuttle-details input,
+        .aihara-card .shuttle-details select {
+            color: #8A6D3B;
+            border: 1px solid #E5C158; /* 枠線を少し強調 */
+        }
+        .aihara-card .shuttle-control input::placeholder {
+            color: #D2C2A4;
+        }
+        .aihara-card button {
+            color: #8A6D3B;
+            border: 1px solid #E5C158;
         }
 
         .stats-row {
@@ -1575,7 +1603,11 @@
             background-color: #0277BD;
         }
 
-        /* 中学 */
+        
+/* 相原クラブカレンダーバッジ */
+        .badge-aihara {
+            background-color: #E5C158;
+        }
 
         /* 詳細表示 */
         #shuttleDayDetail {
@@ -1627,6 +1659,14 @@
         .bg-fed {
             background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
             color: white;
+        }
+
+/* 相原クラブ詳細リストバッジ */
+        .bg-aihara {
+            background: linear-gradient(135deg, #FFFDF2 0%, #F5E3B5 100%);
+            color: #8A6D3B;
+            text-shadow: none;
+            border: 1px solid #E5C158; /* 白背景に同化しないよう枠線を付与 */
         }
 
         .detail-row-header {
@@ -2345,6 +2385,36 @@
                         </div>
                     </div>
                 </div>
+
+<div class="shuttle-card aihara-card">
+                    <h4 style="font-size:1em;">🏸 相原クラブ</h4>
+                    <div class="stock-display">
+                        <span class="stock-number" id="aiharaStock">0</span><span class="stock-unit">筒</span>
+                    </div>
+                    <div class="shuttle-control">
+                        <div><label>使用数 (-)</label><input type="number" id="aiharaUsed" placeholder="0"></div>
+                        <div><label>追加数 (+)</label><input type="number" id="aiharaAdded" placeholder="0"></div>
+                    </div>
+                    <div class="shuttle-details">
+                        <label>用途</label>
+                        <select id="aiharaType" style="margin-bottom:8px;">
+                            <option value="練習">練習</option>
+                            <option value="練習試合">練習試合</option>
+                            <option value="大会">大会</option>
+                            <option value="その他">その他</option>
+                        </select>
+                        <label>備考</label>
+                        <input type="text" id="aiharaMemo" placeholder="詳細メモ">
+                    </div>
+                    <button onclick="updateShuttleStock('aihara')"
+                        style="background:white; color:#8A6D3B; margin-top:15px; width:100%; padding:10px; border-radius:10px; border:none; font-weight:bold;">在庫を更新・記録</button>
+                    <div class="stats-row">
+                        <div class="stat-item"><span style="opacity:0.8;">今週の使用</span><span class="stat-val"><span
+                                    id="aiharaWeekUsed">0</span><small>筒</small></span></div>
+                        <div class="stat-item"><span style="opacity:0.8;">今月の使用</span><span class="stat-val"><span
+                                    id="aiharaMonthUsed">0</span><small>筒</small></span></div>
+                    </div>
+                </div>
             </div>
             <div class="shuttle-cal-wrapper">
                 <h3 style="color:#555; border-left:5px solid #666; padding-left:10px;">📅 使用・入荷履歴カレンダー</h3>
@@ -2366,6 +2436,9 @@
                     <div id="detailListContent"></div>
                     <button onclick="document.getElementById('shuttleDayDetail').style.display='none'"
                         style="margin-top:15px; background:#ccc; color:#333;">閉じる</button>
+                </div>
+<div id="shuttleMonthSummary" style="margin-top: 20px; background: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); border: 1px solid #eee;">
+                    <!-- ここにJavaScriptで集計結果が入ります -->
                 </div>
             </div>
         </div>
@@ -2678,10 +2751,11 @@
             <button onclick="submitGut()">登録する</button>
         </div>
 
-        <h3>📜 履歴・支払い状況</h3>
+       <h3>📜 履歴・支払い状況</h3>
         <button onclick="loadGutList()"
             style="width:auto; padding:6px 12px; font-size:0.8em; margin-bottom:10px; background:#666; box-shadow:none;">更新</button>
 
+        <div id="gutMonthSummary" style="margin-bottom: 15px;"></div>
         <div class="table-container">
             <table id="gutTable">
                 <thead>
@@ -4879,6 +4953,96 @@ let noticeHtml = "";
                 cell.onclick = () => showShuttleDayDetail(dateStr, dayLogs);
                 container.appendChild(cell);
             }
+renderShuttleMonthSummary(year, month);            
+        }
+
+// 月ごとのシャトル使用数を集計して表示する関数
+        function renderShuttleMonthSummary(year, month) {
+            const container = document.getElementById("shuttleMonthSummary");
+            if (!container) return;
+
+            // 表示中の月（YYYY-MM）でデータを絞り込み
+            const monthPrefix = `${year}-${String(month + 1).padStart(2, '0')}`;
+            const monthLogs = shuttleLogsCache.filter(l => l.date && l.date.startsWith(monthPrefix));
+
+            let totalUsed = 0;
+            let catUsed = { kamiho: 0, kamitsu: 0, fed: 0, aihara: 0 };
+            let wdUsed = [0, 0, 0, 0, 0, 0, 0]; // 日(0)〜土(6)の曜日別
+
+            // 集計処理
+            monthLogs.forEach(l => {
+                const u = Number(l.used) || 0;
+                if (u > 0) {
+                    totalUsed += u; // 全体の合計
+
+                    // 練習別の合計
+                    if (l.category.includes('kamiho')) catUsed.kamiho += u;
+                    else if (l.category.includes('kamitsu')) catUsed.kamitsu += u;
+                    else if (l.category.includes('fed')) catUsed.fed += u;
+                    else if (l.category.includes('aihara')) catUsed.aihara += u;
+
+                    // 曜日別の合計
+                    const d = new Date(l.date);
+                    if (!isNaN(d.getTime())) {
+                        wdUsed[d.getDay()] += u;
+                    }
+                }
+            });
+
+            const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
+
+            // 画面に表示するHTMLを組み立てる
+            let html = `
+                <h4 style="margin: 0 0 15px 0; color: #333; border-bottom: 2px solid #FF9966; padding-bottom: 5px;">📊 ${month + 1}月の使用集計</h4>
+                
+                <div style="display:flex; justify-content:space-between; align-items:center; background:#f9f9f9; padding:15px; border-radius:8px; margin-bottom:15px; border:1px solid #ddd;">
+                    <span style="font-weight:bold; color:#555;">全体の合計使用数</span>
+                    <span style="font-size:1.5em; font-weight:bold; color:#FF5E62;">${totalUsed} <span style="font-size:0.6em; color:#666;">筒</span></span>
+                </div>
+
+                <div style="margin-bottom:15px;">
+                    <div style="font-size:0.9em; font-weight:bold; color:#666; margin-bottom:8px;">🏸 練習別</div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                        <div style="background:#fff5f5; padding:10px; border-radius:6px; text-align:center; border:1px solid #ffcdd2;">
+                            <div style="font-size:0.75em; color:#d32f2f;">上星小</div>
+                            <div style="font-weight:bold;">${catUsed.kamiho} 筒</div>
+                        </div>
+                        <div style="background:#e8f5e9; padding:10px; border-radius:6px; text-align:center; border:1px solid #c8e6c9;">
+                            <div style="font-size:0.75em; color:#2e7d32;">上鶴間小</div>
+                            <div style="font-weight:bold;">${catUsed.kamitsu} 筒</div>
+                        </div>
+                        <div style="background:#e3f2fd; padding:10px; border-radius:6px; text-align:center; border:1px solid #bbdefb;">
+                            <div style="font-size:0.75em; color:#1565c0;">中学生</div>
+                            <div style="font-weight:bold;">${catUsed.fed} 筒</div>
+                        </div>
+                        <div style="background:#fffdf2; padding:10px; border-radius:6px; text-align:center; border:1px solid #E5C158;">
+                            <div style="font-size:0.75em; color:#8A6D3B;">相原クラブ</div>
+                            <div style="font-weight:bold;">${catUsed.aihara} 筒</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div style="font-size:0.9em; font-weight:bold; color:#666; margin-bottom:8px;">📅 曜日別</div>
+                    <div style="display:flex; flex-wrap:wrap; gap:5px;">
+            `;
+
+            // 曜日別の表示を追加
+            wdUsed.forEach((val, idx) => {
+                let color = "#333";
+                if (idx === 0) color = "#FF5E62"; // 日曜は赤
+                if (idx === 6) color = "#4facfe"; // 土曜は青
+                html += `
+                    <div style="flex:1; min-width:35px; background:#f0f0f0; border-radius:6px; text-align:center; padding:8px 4px;">
+                        <div style="font-size:0.75em; color:${color}; font-weight:bold;">${weekdays[idx]}</div>
+                        <div style="font-size:0.9em; font-weight:bold; margin-top:4px; color:#333;">${val}</div>
+                    </div>
+                `;
+            });
+
+            html += `</div></div>`;
+
+            container.innerHTML = html;
         }
 
         function showShuttleDayDetail(dateStr, logs) {
@@ -5692,6 +5856,43 @@ let noticeHtml = "";
 
             // 日付の新しい順
             data.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            // ↓↓ ここから集計処理を追加 ↓↓
+            const monthCounts = {};
+            data.forEach(r => {
+                if (!r.date) return;
+                const d = new Date(r.date);
+                if (isNaN(d.getTime())) return;
+                const y = d.getFullYear();
+                const m = String(d.getMonth() + 1).padStart(2, '0');
+                const mKey = `${y}-${m}`;
+                if (!monthCounts[mKey]) monthCounts[mKey] = 0;
+                monthCounts[mKey] += (Number(r.count) || 1); // 本数を足し合わせる
+            });
+
+            const summaryContainer = document.getElementById("gutMonthSummary");
+            if (summaryContainer) {
+                // 新しい月が左にくるように並び替え
+                const sortedKeys = Object.keys(monthCounts).sort((a, b) => b.localeCompare(a));
+                
+                if (sortedKeys.length > 0) {
+                    let html = '<div style="display:flex; flex-wrap:wrap; gap:10px;">';
+                    sortedKeys.forEach(key => {
+                        const [year, month] = key.split('-');
+                        const displayMonth = `${year}年${Number(month)}月`;
+                        html += `
+                        <div style="background:#fff; border:1px solid #ddd; padding:8px 15px; border-radius:8px; box-shadow:0 2px 4px rgba(0,0,0,0.05); display:flex; align-items:center;">
+                            <span style="color:#666; font-size:0.85em; margin-right:10px;">${displayMonth}</span>
+                            <span style="font-weight:bold; font-size:1.2em; color:#FF9966;">${monthCounts[key]}<span style="font-size:0.6em; color:#555; margin-left:2px;">本</span></span>
+                        </div>`;
+                    });
+                    html += '</div>';
+                    summaryContainer.innerHTML = html;
+                } else {
+                    summaryContainer.innerHTML = "";
+                }
+            }
+            // ↑↑ ここまで追加 ↑↑
 
             data.forEach(r => {
                 const tr = document.createElement("tr");

@@ -2978,7 +2978,7 @@
         // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
         // ▼▼▼ GASのURL ▼▼▼
-        const SHEET_URL = "https://script.google.com/macros/s/AKfycbxpYjcgLwZCsQ_7gaib5k0FG38UzSiJelPewiKCsAlMBj_4ren2R1vThZADWyUOz2AU/exec";
+        const SHEET_URL = "https://script.google.com/macros/s/AKfycbzs63YqklM_xdJbJ9YuxJhlAZUBhOle_pw0xUBtFC4wr5aMTGmZzs6VwDY-yR67JjOl/exec";
 
         // ▼▼▼ Firebaseの設定 ▼▼▼
         const firebaseConfig = {
@@ -3070,11 +3070,11 @@
         }
 
         // 最新の出欠データを非同期で取得する関数
-        async function fetchLatestAttendanceData() {
+       async function fetchLatestAttendanceData() {
             try {
                 const response = await fetch(SHEET_URL, {
                     method: 'POST',
-                    body: JSON.stringify({ action: 'getWeeklyMatrix' })
+                    body: JSON.stringify({ action: 'getWeeklyMatrix' }) // headersを削除
                 });
                 const data = await response.json();
 
@@ -3107,7 +3107,7 @@
             try {
                 const response = await fetch(SHEET_URL, {
                     method: "POST",
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(payload) // headersを削除
                 });
                 return await response.json();
             } catch (error) {
@@ -3115,6 +3115,7 @@
                 return null;
             }
         }
+
         function safeSetStorage(key, value) { try { localStorage.setItem(key, value); } catch (e) { console.warn("Quota Exceeded", e); } }
         function showLoading(show) { document.getElementById("loading").style.display = show ? "flex" : "none"; }
 
@@ -4800,6 +4801,7 @@ let noticeHtml = "";
             if (type === 'jr_kamiho') idPrefix = 'jrKamiho';
             else if (type === 'jr_kamitsu') idPrefix = 'jrKamitsu';
             else if (type === 'fed') idPrefix = 'fed';
+else if (type === 'aihara') idPrefix = 'aihara';
             else return;
 
             const used = Number(document.getElementById(idPrefix + 'Used').value) || 0;
@@ -4841,6 +4843,7 @@ let noticeHtml = "";
             if (data.jr_kamiho) { document.getElementById('jrKamihoStock').innerText = data.jr_kamiho.stock; document.getElementById('jrKamihoWeekUsed').innerText = data.jr_kamiho.week; document.getElementById('jrKamihoMonthUsed').innerText = data.jr_kamiho.month; }
             if (data.jr_kamitsu) { document.getElementById('jrKamitsuStock').innerText = data.jr_kamitsu.stock; document.getElementById('jrKamitsuWeekUsed').innerText = data.jr_kamitsu.week; document.getElementById('jrKamitsuMonthUsed').innerText = data.jr_kamitsu.month; }
             if (data.fed) { document.getElementById('fedStock').innerText = data.fed.stock; document.getElementById('fedWeekUsed').innerText = data.fed.week; document.getElementById('fedMonthUsed').innerText = data.fed.month; }
+if (data.aihara) { document.getElementById('aiharaStock').innerText = data.aihara.stock; document.getElementById('aiharaWeekUsed').innerText = data.aihara.week; document.getElementById('aiharaMonthUsed').innerText = data.aihara.month; }
         }
 
         async function loadShuttleData() {
@@ -5088,6 +5091,7 @@ renderShuttleMonthSummary(year, month);
                     if (l.category.includes("fed")) { catName = "中学"; catClass = "bg-fed"; }
                     else if (l.category.includes("kamiho")) { catName = "上星"; catClass = "bg-kamiho"; }
                     else if (l.category.includes("kamitsu")) { catName = "上鶴"; catClass = "bg-kamitsu"; }
+else if (l.category.includes("aihara")) { catName = "相原"; catClass = "bg-aihara"; }
 
                     let actionText = "";
                     const parts = [];

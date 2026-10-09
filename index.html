@@ -2113,10 +2113,22 @@
             <div id="matrixError" style="color:red; margin-top:10px; display:none;">※データの読み込みに失敗しました。GASが最新版か確認してください。
             </div>
 
+<div style="margin-top:30px;">
+                <div class="summary-container">
+                    <div class="summary-toggle-header open" style="border-left-color: #28a745;" onclick="toggleSummary('todayContent', this)">
+                        <span style="color: #28a745;">🌟 本日の練習状況</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div id="todayContent" class="summary-content open">
+                        <div id="attendanceSummaryToday"></div>
+                    </div>
+                </div>
+            </div>
+
             <div style="margin-top:30px;">
                 <div class="summary-container">
                     <div class="summary-toggle-header open" onclick="toggleSummary('clubContent', this)">
-                        <span>法政Jr.バドミントンクラブ</span>
+                        <span>法政Jr.バドミントンクラブ（小・中学生全体練習）</span>
                         <span class="toggle-icon">▼</span>
                     </div>
                     <div id="clubContent" class="summary-content open">
@@ -2125,10 +2137,22 @@
                 </div>
             </div>
 
+<div style="margin-top:20px;">
+                <div class="summary-container">
+                    <div class="summary-toggle-header skill-header open" onclick="toggleSummary('skillContent', this)">
+                        <span>中学生スキルアップコース</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div id="skillContent" class="summary-content open">
+                        <div id="attendanceSummarySkill"></div>
+                    </div>
+                </div>
+            </div>
+
             <div style="margin-top:20px;">
                 <div class="summary-container">
                     <div class="summary-toggle-header fed-header open" onclick="toggleSummary('fedContent', this)">
-                        <span>中学生練習</span>
+                        <span>中学生練習（法政クラブ）</span>
                         <span class="toggle-icon">▼</span>
                     </div>
                     <div id="fedContent" class="summary-content open">
@@ -2149,17 +2173,7 @@
                 </div>
             </div>
 
-            <div style="margin-top:20px;">
-                <div class="summary-container">
-                    <div class="summary-toggle-header skill-header open" onclick="toggleSummary('skillContent', this)">
-                        <span>中学生スキルアップコース</span>
-                        <span class="toggle-icon">▼</span>
-                    </div>
-                    <div id="skillContent" class="summary-content open">
-                        <div id="attendanceSummarySkill"></div>
-                    </div>
-                </div>
-            </div>
+            
 
             <table id="matrixTable" class="matrix-table">
                 <thead>
@@ -3592,11 +3606,13 @@
             const containerFed = document.getElementById("attendanceSummaryFed");
             const containerAihara = document.getElementById("attendanceSummaryAihara"); // ★追加
             const containerSkill = document.getElementById("attendanceSummarySkill"); // ★追加
+            const containerToday = document.getElementById("attendanceSummaryToday"); // ★追加：本日の練習用
 
             containerClub.innerHTML = "";
             containerFed.innerHTML = "";
             containerAihara.innerHTML = "";
             containerSkill.innerHTML = ""; // ★追加
+            if (containerToday) containerToday.innerHTML = ""; // ★追加：本日の練習用
 
             if (!weeklyEvents || weeklyEvents.length === 0) return;
 
@@ -3605,12 +3621,15 @@
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    const todayStr = formatDate(today); // 今日の日付文字列
 
     let memoToggleCounter = 0;
 
     weeklyEvents.forEach(evt => {
         const eventDate = new Date(evt.dateKey);
         if (eventDate < today) return;
+
+        const isToday = (evt.dateKey === todayStr);
 
         const dateObj = new Date(evt.dateKey);
         const monthDayStr = (dateObj.getMonth() + 1) + "月" + dateObj.getDate() + "日";
@@ -3642,7 +3661,7 @@
         let nameStyle = isCoach ? "color:#1976D2; font-weight:bold;" : (myMembers.includes(m.name) ? "color:#FF9966; font-weight:bold;" : "");
         const memo = weeklyMemo[newKey] || weeklyMemo[oldKey] || "";
 
-                const isParentEarly = memo.includes("[鍵開け可]");
+        const isParentEarly = memo.includes("[鍵開け可]");
         const isKeyOpenOnly = memo.includes("[鍵開けのみ可]");
         const isKeyCloseOnly = memo.includes("[鍵閉めのみ可]");
         const isKeyBoth = memo.includes("[鍵開閉可]");
@@ -3670,23 +3689,16 @@
             });
         }
 
-        const div = document.createElement("div");
         let cls = evt.group === 'club' ? "club" : (evt.group === 'federation' ? "fed" : (evt.group === 'aihara' ? "aihara" : "skill"));
-                let label = evt.group === 'club' ? "【クラブ】" : (evt.group === 'federation' ? "【中学生練習】" : (evt.group === 'aihara' ? "【相原クラブ】" : "【スキルアップ】"));
+        let label = evt.group === 'club' ? "【クラブ】" : (evt.group === 'federation' ? "【中学生練習】" : (evt.group === 'aihara' ? "【相原クラブ】" : "【スキルアップ】"));
 
-        div.className = `summary-box ${cls}`;
         let attendeesDisplay = attendeesHtml.length > 0 ? attendeesHtml.join("、 ") : "<span style='color:#999;'>現在参加者はいません</span>";
+        const formattedDate = evt.dateKey.replace(/-/g, '/');
 
-        const formattedDate = evt.dateKey.replace(/-/g, '/'); // "2024-04-01" -> "2024/04/01"
-        
-
-let noticeHtml = "";
-        
+        let noticeHtml = "";
         if (otherDataCache && otherDataCache.length > 0) {
-            // スケジュールのタイトルや詳細文から、どの体育館か自動で判定する
             const textToSearch = (evt.title + " " + evt.fullTitle + " " + (evt.description || "")).replace(/\s+/g, "");
             let eventGyms = [];
-            
             if (textToSearch.includes("上星")) eventGyms.push("上星小学校");
             if (textToSearch.includes("文ヶ岡") || textToSearch.includes("文ケ岡")) eventGyms.push("文ヶ岡小学校");
             if (textToSearch.includes("スカイアリーナ") || textToSearch.includes("座間")) eventGyms.push("スカイアリーナ座間");
@@ -3694,72 +3706,84 @@ let noticeHtml = "";
             if (textToSearch.includes("くぬぎ台") || textToSearch.includes("椚台")) eventGyms.push("くぬぎ台小学校");
 
             if (eventGyms.length > 0) {
-                // 該当する体育館の未完了の連絡事項を抽出
                 const notices = otherDataCache.filter(o => {
                     if (!o.title || /完了/.test(String(o.status || ""))) return false;
-                    // この予定の体育館のいずれかのタグが含まれているかチェック
                     return eventGyms.some(gym => o.title.includes(`[${gym}]`));
                 });
 
                 if (notices.length > 0) {
                     notices.forEach(n => {
-                        // 出欠画面に表示する時は [体育館名] のタグ部分は消して綺麗に見せる
                         let displayTitle = n.title;
                         eventGyms.forEach(gym => {
                             displayTitle = displayTitle.replace(`[${gym}]`, '').trim();
                         });
-                        
                         noticeHtml += `
                         <div style="font-size: 0.95em; color: #0056b3; background: #e0f7fa; border: 2px solid #17a2b8; border-radius: 8px; padding: 12px; margin: 12px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
                             <div style="font-weight: bold; margin-bottom: 6px; font-size: 1.05em;">📢 体育館ルール：${escapeHtml(displayTitle)}</div>
                             <div style="white-space: pre-wrap; font-size: 0.95em; line-height: 1.5; color: #333;">${escapeHtml(n.content)}</div>
-                            ${n.url ? `<div style="margin-top:8px; text-align:center;"><img src="${n.url}" style="max-width:100%; max-height:200px; border-radius:6px; cursor:pointer;" onclick="showPhotoModal('${n.url}')"></div>` : ""}
+                            ${n.url ? `<div style="margin-top:8px; text-align:center;"><img src="${n.url}" style="max-width:100\%; max-height:200px; border-radius:6px; cursor:pointer;" onclick="showPhotoModal('${n.url}')"></div>` : ""}
                         </div>`;
                     });
                 }
             }
         }
 
-        let htmlContent = `
-            <div class="summary-header">
-                <span>${monthDayStr}${dayStr} ${label} ${evt.start}${evt.end ? '～' + evt.end : ''} ${evt.title}</span>
-                <span class="summary-count">${studentCount}名</span>
-            </div>
-            ${evt.description ? `<div style="font-size: 1.1em; color: #d32f2f; font-weight: bold; margin: 10px 0; padding: 10px; background: #fff5f5; border: 1px solid #ffcdd2; border-radius: 8px;">${escapeHtml(evt.description).replace(/\r?\n/g, '<br>')}</div>` : ""}
-            ${noticeHtml}
-            <div class="summary-names">${attendeesDisplay}</div>
-        `;
-        
-        // メモリストの表示HTMLを生成
-        if (memoList.length > 0) {
-            memoToggleCounter++;
-            const contentId = `memo-content-${memoToggleCounter}`;
-            const iconId = `memo-icon-${memoToggleCounter}`;
-            htmlContent += `
-                <div class="summary-memo-container">
-                    <div class="memo-toggle-header" onclick="toggleMemoContent('${contentId}', '${iconId}')">
-                        <span>📝 連絡事項あり (${memoList.length}件)</span>
-                        <span id="${iconId}" style="font-size:0.8em; transform:rotate(0deg); transition:transform 0.2s;">▼</span>
-                    </div>
-                    <div id="${contentId}" class="memo-list-content">`;
-            memoList.forEach(item => {
-                htmlContent += `<div class="memo-item"><span class="memo-person-name">${item.name}:</span><span class="memo-text">${escapeHtml(item.text)}</span></div>`;
-            });
-            htmlContent += `</div></div>`;
-        }
+        // HTML生成用関数（本日の練習状況用と一般用でIDが重複しないように分離）
+        const createBoxHtml = (isForToday = false) => {
+            let html = `
+                <div class="summary-header">
+                    <span>${monthDayStr}${dayStr} ${label} ${evt.start}${evt.end ? '～' + evt.end : ''} ${evt.title}</span>
+                    <span class="summary-count">${studentCount}名</span>
+                </div>
+                ${evt.description ? `<div style="font-size: 1.1em; color: #d32f2f; font-weight: bold; margin: 10px 0; padding: 10px; background: #fff5f5; border: 1px solid #ffcdd2; border-radius: 8px;">${escapeHtml(evt.description).replace(/\r?\n/g, '<br>')}</div>` : ""}
+                ${noticeHtml}
+                <div class="summary-names">${attendeesDisplay}</div>
+            `;
+            
+            if (memoList.length > 0) {
+                memoToggleCounter++;
+                const suffix = isForToday ? "_today" : "";
+                const contentId = `memo-content-${memoToggleCounter}${suffix}`;
+                const iconId = `memo-icon-${memoToggleCounter}${suffix}`;
+                html += `
+                    <div class="summary-memo-container">
+                        <div class="memo-toggle-header" onclick="toggleMemoContent('${contentId}', '${iconId}')">
+                            <span>📝 連絡事項あり (${memoList.length}件)</span>
+                            <span id="${iconId}" style="font-size:0.8em; transform:rotate(0deg); transition:transform 0.2s;">▼</span>
+                        </div>
+                        <div id="${contentId}" class="memo-list-content">`;
+                memoList.forEach(item => {
+                    html += `<div class="memo-item"><span class="memo-person-name">${item.name}:</span><span class="memo-text">${escapeHtml(item.text)}</span></div>`;
+                });
+                html += `</div></div>`;
+            }
+            return html;
+        };
 
-        div.innerHTML = htmlContent;
-                if (evt.group === 'federation') containerFed.appendChild(div);
-                else if (evt.group === 'aihara') containerAihara.appendChild(div); // ★追加
-                else if (evt.group === 'skillup') containerSkill.appendChild(div); // ★追加
-                else containerClub.appendChild(div);
-            });
+        const div = document.createElement("div");
+        div.className = `summary-box ${cls}`;
+        div.innerHTML = createBoxHtml(false);
 
-            if (containerClub.innerHTML === "") containerClub.innerHTML = "<p style='color:#999; text-align:center;'>予定はありません。</p>";
-            if (containerFed.innerHTML === "") containerFed.innerHTML = "<p style='color:#999; text-align:center;'>予定はありません。</p>";
-            if (containerAihara.innerHTML === "") containerAihara.innerHTML = "<p style='color:#999; text-align:center;'>予定はありません。</p>"; // ★追加
-            if (containerSkill.innerHTML === "") containerSkill.innerHTML = "<p style='color:#999; text-align:center;'>予定はありません。</p>"; // ★追加
+        if (evt.group === 'federation') containerFed.appendChild(div);
+        else if (evt.group === 'aihara') containerAihara.appendChild(div);
+        else if (evt.group === 'skillup') containerSkill.appendChild(div);
+        else containerClub.appendChild(div);
+
+        // 本日の予定なら、本日のコンテナ用にもう一つ作って追加
+        if (isToday && containerToday) {
+            const todayDiv = document.createElement("div");
+            todayDiv.className = `summary-box ${cls}`;
+            todayDiv.innerHTML = createBoxHtml(true);
+            containerToday.appendChild(todayDiv);
         }
+    });
+
+    if (containerClub.innerHTML === "") containerClub.innerHTML = "<p style='color:#999; text-align:center;'>予定はありません。</p>";
+    if (containerFed.innerHTML === "") containerFed.innerHTML = "<p style='color:#999; text-align:center;'>予定はありません。</p>";
+    if (containerAihara.innerHTML === "") containerAihara.innerHTML = "<p style='color:#999; text-align:center;'>予定はありません。</p>";
+    if (containerSkill.innerHTML === "") containerSkill.innerHTML = "<p style='color:#999; text-align:center;'>予定はありません。</p>";
+    if (containerToday && containerToday.innerHTML === "") containerToday.innerHTML = "<p style='color:#999; text-align:center;'>本日の予定はありません。</p>";
+}
 
         // 1. 検索プルダウンに名簿をセットする
         function updateSearchDropdown() {

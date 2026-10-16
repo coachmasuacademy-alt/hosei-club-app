@@ -3003,7 +3003,7 @@
         // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
         // ▼▼▼ GASのURL ▼▼▼
-        const SHEET_URL = "https://script.google.com/macros/s/AKfycbzs63YqklM_xdJbJ9YuxJhlAZUBhOle_pw0xUBtFC4wr5aMTGmZzs6VwDY-yR67JjOl/exec";
+        const SHEET_URL = "https://script.google.com/macros/s/AKfycbzovukMcuyux4c4Y6aC9OYBXkFSLWAp80U7Ard0ry82pAIkmGT3kd6W6C6BMTsOt3Gp/exec";
 
         // ▼▼▼ Firebaseの設定 ▼▼▼
         const firebaseConfig = {
@@ -3166,19 +3166,74 @@
 
             // --- ② 初期表示タブの確定 ---
             switchCategory('attendance', document.querySelector('.nav-item.active'));
+            loadGymNotice(); // ※これは独立した通信なので残す
 
-            // --- ③ 裏側で最新データを取得して差し替え ---
-            fetchLatestAttendanceData();
-            loadGymNotice();
+            // --- ③ ④ バックエンドからすべてのデータを1回で取得する ---
+            // 以前のfetchLatestAttendanceData()等は削除し、ここで一括処理
+            setTimeout(async () => {
+                const notice = document.getElementById("cache-notice");
+                if (notice) {
+                    notice.style.display = "inline-block";
+                    notice.innerText = "最新データを取得中...";
+                }
 
-            // --- ④ その他の重い処理はさらに後回し ---
-            setTimeout(() => {
-                loadSchedule();
-                loadMemberList(); 
-                fetchArenaData();
-                loadShuttleData();
-                loadOtherList(); 
-            }, 1500);
+                // ここでGASに「全部のデータをちょうだい」と1回だけお願いする
+                const allData = await callGas('getInitialAppData');
+                
+                if (allData) {
+                    // 1. 出欠・名簿データ
+                    if (allData.attendance) {
+                        weeklyEvents = allData.attendance.events || [];
+                        weeklyMembers = allData.attendance.members || [];
+                        weeklyStatus = allData.attendance.currentStatus || {};
+                        weeklyMemo = allData.attendance.currentMemo || {};
+                        localStorage.setItem('attendanceCache', JSON.stringify(allData.attendance));
+                        renderMemberButtons();
+                        renderSummary();
+                        const searchSelect = document.getElementById("memberSearchSelect");
+                        if (searchSelect && searchSelect.value) {
+                            showPersonalSchedule(searchSelect.value);
+                        }
+                    }
+
+                    // 2. スケジュールデータ
+                    if (allData.schedule) {
+                        safeSetStorage(CACHE_KEY_SCHEDULE, JSON.stringify(allData.schedule));
+                        renderScheduleOptions(allData.schedule);
+                    }
+
+                    // 3. 名簿データ（純粋な名簿）
+                    if (allData.members) {
+                        memberData = allData.members;
+                        renderMemberTable();
+                    }
+
+                    // 4. スカイアリーナデータ
+                    if (allData.arena) {
+                        arenaData = allData.arena;
+                        safeSetStorage(CACHE_KEY_ARENA, JSON.stringify(arenaData));
+                        loadArenaList();
+                    }
+
+                    // 5. シャトルデータ
+                    if (allData.shuttle) {
+                        refreshShuttleUI(allData.shuttle);
+                        safeSetStorage(CACHE_KEY_SHUTTLE, JSON.stringify(allData.shuttle));
+                    }
+
+                    // 6. その他連絡データ
+                    if (allData.others) {
+                        otherDataCache = allData.others;
+                        safeSetStorage(CACHE_KEY_OTHER, JSON.stringify(otherDataCache));
+                        renderOtherTable(otherDataCache);
+                    }
+
+                    if (notice) {
+                        notice.innerText = "更新完了";
+                        setTimeout(() => { notice.style.display = "none"; }, 2000);
+                    }
+                }
+            }, 1000); // 1.5秒から1秒に短縮してもOKです
         });
 
         // アプリログイン認証処理
